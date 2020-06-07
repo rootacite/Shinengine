@@ -28,3 +28,4 @@ D:\Shine\Shinengine\Shinengine\obj\Debug\netcoreapp3.1\Shinengine.csproj.CopyCom
 D:\Shine\Shinengine\Shinengine\obj\Debug\netcoreapp3.1\Shinengine.dll
 D:\Shine\Shinengine\Shinengine\obj\Debug\netcoreapp3.1\Shinengine.pdb
 D:\Shine\Shinengine\Shinengine\obj\Debug\netcoreapp3.1\Shinengine.genruntimeconfig.cache
+D:\Shine\Shinengine\Shinengine\bin\Debug\netcoreapp3.1\FFmpeg.AutoGen.dll

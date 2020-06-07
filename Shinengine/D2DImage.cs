@@ -14,230 +14,176 @@ using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
 using SharpDX.Mathematics.Interop;
-using System.Drawing;
-using System.Windows.Threading;
-using Point = System.Windows.Point;
-using System.Windows.Interop;
-using System.Threading;
-using System.Reflection;
-using Image = System.Windows.Controls.Image;
-using SolidColorBrush = SharpDX.Direct2D1.SolidColorBrush;
 
-using D2DBitmap = SharpDX.Direct2D1.Bitmap;
+using System.Windows.Threading;
+using System.Threading;
+using Image = System.Windows.Controls.Image;
+
 using System.Windows.Media.Imaging;
-using Bitmap = System.Drawing.Bitmap;
-using System.Windows;
+
 using System.Windows.Media;
 
-using SypFormat = System.Drawing.Imaging.PixelFormat;
+using System.Windows;
 using PInvoke;
+
 
 namespace Shinengine
 {
     public class Direct2DImage
     {
-        private int Times = 0;
-        public int Dpis { get; private set; } = 0;
+        private int Times = 0;//每画一帧，值自增1，计算帧率时归零
+        public int Dpis { get; private set; } = 0;//表示当前的帧率
+        public int Width { get; }//绘图区域的宽
+        public int Height { get; }//绘图区域的长
 
-        public bool isReadyForDraw
+        private readonly int TargetDpi;//目标帧率
+        private readonly WriteableBitmap buffer = null;//图片源
+        private readonly WICBitmap _bufferBack;//用于D2D绘图的WIC图片
+
+        public double Speed = 0;//画每帧后等待的时间
+        private readonly DispatcherTimer m_Dipter;//计算帧率的计时器
+        private readonly Thread m_Dipter2;//绘图线程
+        public delegate bool FarmeTask(WicRenderTarget view);
+
+
+        private bool isRunning = false;//指示是否正在运行
+
+        private WicRenderTarget View { get; } = null;//绘图目标
+        public void Commit()
         {
-            get
-            {
-                return taskEvent == null;
-            }
-        }
-        
-        public int Width { get; }
-        public int Height { get; }
-
-        private int TargetDpi;
-        private WriteableBitmap buffer = null;
-        private Bitmap _realBack;
-        private WICBitmap _bufferBack;
-        private Graphics gPa = null;
-        private double Speed = 0.01;
-        private DispatcherTimer m_Dipter;
-
-        public delegate void FarmeTask();
-
-        private FarmeTask taskEvent = null;
-        private Thread m_Dipter2;
-        private bool isRunning = false;
-
-        public void SetRenderTask(FarmeTask task)
-        {
-            taskEvent = task;
-        }
-
-
-        public WicRenderTarget View { get; } = null;
-        public bool CannotDraw = false;
-        unsafe public void Commit()
-        {
-            CannotDraw = true;
             try
             {
                 if (!isRunning)
                     return;
                 buffer.Lock();
                 var m_lock = _bufferBack.Lock(BitmapLockFlags.Read);
-                Kernel32.CopyMemory((void*)buffer.BackBuffer, (void*)m_lock.Data.DataPointer,(IntPtr)(buffer.PixelHeight * buffer.BackBufferStride));
+                Kernel32.WriteProcessMemory(Kernel32.GetCurrentProcess().DangerousGetHandle(), buffer.BackBuffer, m_lock.Data.DataPointer, (IntPtr)(buffer.PixelHeight * buffer.BackBufferStride), (IntPtr)0);
                 m_lock.Dispose();
-
-                
 
                 buffer.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
                 buffer.Unlock();
             }
-            catch
+            catch (Exception e)
             {
-                // MessageBox.Show("");
+                MessageBox.Show(e.ToString());
             }
-            CannotDraw = false;
-        }
-        public Direct2DImage(Image contorl, int Fps)
+        }//把后台数据呈现到前台
+        public Direct2DImage(Image contorl, int Fps, FarmeTask taskCallBack)
         {
+            TargetDpi = Fps;
+            m_Dipter = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
+            m_Dipter.Tick += (e, v) =>
+            {
+                Dpis = Times;
+                double TimesOfWait = Speed * Dpis;
+                if (TimesOfWait > 1)
+                {
+                    MessageBox.Show(Speed.ToString()+","+Dpis.ToString());
+                }
+                Console.WriteLine(TimesOfWait.ToString());
+                double TimeOfDraw = 1.0d - TimesOfWait;
+                if (Dpis < TargetDpi)
+                {
+                    try
+                    {
+                        if (TimeOfDraw / (double)Dpis > 1.0d / TargetDpi) 
+                        {
+                            Speed = 1.0d / TargetDpi;
+                        }
+                        Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
+                    }
+                    catch
+                    {
+                        Speed = 1.0d / TargetDpi;
+                    }
+                }
+                if (Dpis > TargetDpi)
+                {
+                    try
+                    {
+                        Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
+                    }
+                    catch
+                    {
+                        Speed = 1.0d / TargetDpi;
+                    }
+                }
+
+                Times = 0;
+            };
+            m_Dipter2 = new Thread(() =>
+            {//绘图代码
+
+
+                while (isRunning)
+                {
+                    var UpData = taskCallBack(View);
+                    if (UpData)
+                        contorl.Dispatcher.Invoke(new Action(() =>
+                        {
+
+                            Commit();
+                        }));
+
+
+                    Thread.Sleep((int)(Speed * 1000.0d));
+                    Times++;
+                }
+            });
+
+
+            Speed = 1.0d / (double)TargetDpi;
             Width = (int)contorl.Width;
             Height = (int)contorl.Height;
+            isRunning = true;
 
-            TargetDpi = Fps;
 
             buffer = new WriteableBitmap((int)contorl.Width, (int)contorl.Height, 72, 72, PixelFormats.Bgr32, null);
-            _realBack = new Bitmap((int)contorl.Width, (int)contorl.Height, buffer.BackBufferStride, SypFormat.Format32bppRgb, buffer.BackBuffer);
-            gPa = Graphics.FromImage(_realBack);
-
-            var ImFactory = new ImagingFactory();
+            contorl.Source = buffer;
             _bufferBack =
-            new WICBitmap(
-                ImFactory,
+                new WICBitmap(
+                new ImagingFactory(),
                 (int)contorl.Width,
                 (int)contorl.Height,
                 SharpDX.WIC.PixelFormat.Format32bppBGR,
                 BitmapCreateCacheOption.CacheOnLoad);
 
-            var Factory = new D2DFactory();
-            var renderTargetProperties =
-            new RenderTargetProperties(
+
+            View = new WicRenderTarget(new D2DFactory(), _bufferBack, new RenderTargetProperties(
                 RenderTargetType.Default,
                 new PixelFormat(Format.Unknown, AlphaMode.Unknown),
                 0,
                 0,
                 RenderTargetUsage.None,
-                FeatureLevel.Level_DEFAULT);
-            View = new WicRenderTarget(Factory, _bufferBack, renderTargetProperties);
+                FeatureLevel.Level_DEFAULT));
 
 
             View.BeginDraw();
-            View.Clear(new RawColor4(1, 1, 1, 1));
+            View.Clear(new RawColor4(1, 1, 0, 1));
             View.EndDraw();
 
-
             Commit();
-            contorl.Source = buffer;
-            Speed = 1.0d / (double)TargetDpi;
-
-            m_Dipter = new DispatcherTimer();
-            m_Dipter.Interval = TimeSpan.FromSeconds(1);
-            m_Dipter.Tick += (e, v) =>
-            {
-                int LastDpi = Times;
-                Dpis = LastDpi;
-                Times = 0;
-
-                if (LastDpi < TargetDpi)
-                {
-                    try
-                    {
-                        //     double TimesOfWait = Speed * LastDpi;
-                        double TimeOfDraw = (1.0d - (Speed * LastDpi)) / (double)LastDpi;
-                        if (TimeOfDraw > 0.01)
-                        {
-                            Speed = 1.0d / (double)TargetDpi;
-                            return;
-                        }
-                        Speed = (1.0f - (TimeOfDraw * TargetDpi)) / TargetDpi;
-                    }
-                    catch
-                    {
-                        Speed = 1.0d / (double)TargetDpi;
-
-                    }
-                }
-                if (LastDpi > TargetDpi)
-                {
-                    try
-                    {
-                        Speed = (1.0f - (((1.0d - (Speed * LastDpi)) / (double)LastDpi) * TargetDpi)) / TargetDpi;
-                    }
-                    catch
-                    {
-                        Speed = 1.0d / (double)TargetDpi;
-                    }
-                }
-            };
-
-            m_Dipter2 = new Thread(
-                   () => {//绘图代码
-                       while (true)
-                       {
-
-                           if (taskEvent == null)
-                           {
-                               m_Dipter.IsEnabled = false;
-                               while (taskEvent == null)
-                               {
-                                   Thread.Sleep(1);
-                               }
-                               m_Dipter.IsEnabled = true;
-                           }
-
-                           taskEvent();
-                           taskEvent = null;
-
-
-                           if (!isRunning)
-                               break;
-
-
-
-                           contorl.Dispatcher.Invoke(new Action(() =>
-                           {
-
-                               Commit();
-                           }));
-
-
-                           Thread.Sleep((int)(Speed * 1000.0d));
-                           Times++;
-                       }
-
-                   });
-            isRunning = true;
-            m_Dipter.Start();
             m_Dipter2.Start();
-
-
+            m_Dipter.Start();
         }
 
         public void Dispose()
         {
             m_Dipter.Stop();
             isRunning = false;
-            //m_Dipter2.Abort();
+            m_Dipter2.Abort();
 
-            while (m_Dipter.IsEnabled || m_Dipter2.ThreadState == ThreadState.Running)
+            while (m_Dipter.IsEnabled || m_Dipter2.ThreadState != ThreadState.Aborted)
                 Thread.Sleep(1);
-            if (_realBack != null)
-                _realBack.Dispose();
             if (_bufferBack != null)
                 _bufferBack.Dispose();
             if (View != null)
                 View.Dispose();
-        }
+        }//ignore
         ~Direct2DImage()
         {
 
-        }
+        }//ignore
 
     }
 

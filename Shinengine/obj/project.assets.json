@@ -2,6 +2,15 @@
   "version": 3,
   "targets": {
     ".NETCoreApp,Version=v3.1": {
+      "FFmpeg.AutoGen/4.1.0.4": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/FFmpeg.AutoGen.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/FFmpeg.AutoGen.dll": {}
+        }
+      },
       "Microsoft.NETCore.Platforms/3.1.0": {
         "type": "package",
         "compile": {
@@ -1360,6 +1369,21 @@
     }
   },
   "libraries": {
+    "FFmpeg.AutoGen/4.1.0.4": {
+      "sha512": "3a9celwx//JJbvt7o0IR3p24A0YtAo/NJQbbSlGzSM7arBCEAt9AjX/+LoiM08wOn82+WnwWQLJtPmRBsP7Vag==",
+      "type": "package",
+      "path": "ffmpeg.autogen/4.1.0.4",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ffmpeg.autogen.4.1.0.4.nupkg.sha512",
+        "ffmpeg.autogen.nuspec",
+        "lib/net45/FFmpeg.AutoGen.dll",
+        "lib/net45/FFmpeg.AutoGen.xml",
+        "lib/netstandard2.0/FFmpeg.AutoGen.dll",
+        "lib/netstandard2.0/FFmpeg.AutoGen.xml"
+      ]
+    },
     "Microsoft.NETCore.Platforms/3.1.0": {
       "sha512": "z7aeg8oHln2CuNulfhiLYxCVMPEwBl3rzicjvIX+4sUuCwvXw5oXQEtbiU2c0z4qYL5L3Kmx0mMA/+t/SbY67w==",
       "type": "package",
@@ -4928,6 +4952,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
+      "FFmpeg.AutoGen >= 4.1.0.4",
       "PInvoke.Gdi32 >= 0.6.6",
       "PInvoke.Kernel32 >= 0.6.6",
       "PInvoke.Shell32 >= 0.6.6",
@@ -4940,7 +4965,8 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Alice\\.nuget\\packages\\": {}
+    "C:\\Users\\14980\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
@@ -4948,11 +4974,14 @@
       "projectUniqueName": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
       "projectName": "Shinengine",
       "projectPath": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
-      "packagesPath": "C:\\Users\\Alice\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\14980\\.nuget\\packages\\",
       "outputPath": "D:\\Shine\\Shinengine\\Shinengine\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
       "configFilePaths": [
-        "C:\\Users\\Alice\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\14980\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -4976,6 +5005,10 @@
     "frameworks": {
       "netcoreapp3.1": {
         "dependencies": {
+          "FFmpeg.AutoGen": {
+            "target": "Package",
+            "version": "[4.1.0.4, )"
+          },
           "PInvoke.Gdi32": {
             "target": "Package",
             "version": "[0.6.6, )"

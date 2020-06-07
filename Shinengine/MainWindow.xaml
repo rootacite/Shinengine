@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Closed="Window_Closed">
-    <Grid>
-        <Image x:Name="BackGround" HorizontalAlignment="Left" Height="237" Margin="53,65,0,0" VerticalAlignment="Top" Width="459" MouseUp="BackGround_MouseUp"/>
+        Title="MainWindow" Height="720" Width="1280" Closed="Window_Closed">
+    <Grid MouseMove="Grid_MouseMove">
+        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" MouseUp="BackGround_MouseUp"/>
 
     </Grid>
 </Window>
