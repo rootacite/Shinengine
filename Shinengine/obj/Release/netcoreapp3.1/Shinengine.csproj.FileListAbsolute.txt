@@ -27,3 +27,5 @@ D:\Shine\Shinengine\Shinengine\obj\Release\netcoreapp3.1\Shinengine.csproj.CopyC
 D:\Shine\Shinengine\Shinengine\obj\Release\netcoreapp3.1\Shinengine.dll
 D:\Shine\Shinengine\Shinengine\obj\Release\netcoreapp3.1\Shinengine.pdb
 D:\Shine\Shinengine\Shinengine\obj\Release\netcoreapp3.1\Shinengine.genruntimeconfig.cache
+D:\Shine\Shinengine\Shinengine\bin\Release\netcoreapp3.1\FFmpeg.AutoGen.dll
+D:\Shine\Shinengine\Shinengine\obj\Release\netcoreapp3.1\Shinengine.csprojAssemblyReference.cache

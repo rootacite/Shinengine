@@ -382,6 +382,19 @@
           "lib/netstandard1.1/SharpDX.Direct2D1.dll": {}
         }
       },
+      "SharpDX.DirectSound/4.2.0": {
+        "type": "package",
+        "dependencies": {
+          "NETStandard.Library": "1.6.1",
+          "SharpDX": "4.2.0"
+        },
+        "compile": {
+          "lib/netstandard1.3/SharpDX.DirectSound.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/SharpDX.DirectSound.dll": {}
+        }
+      },
       "SharpDX.DXGI/4.2.0": {
         "type": "package",
         "dependencies": {
@@ -1887,6 +1900,26 @@
         "lib/uap10.0/SharpDX.Direct2D1.xml",
         "sharpdx.direct2d1.4.2.0.nupkg.sha512",
         "sharpdx.direct2d1.nuspec"
+      ]
+    },
+    "SharpDX.DirectSound/4.2.0": {
+      "sha512": "22g98QNyZry94Hef+7LF6BSfuyuvWp0eg1a4VrJeMGdXDsdF+GqMqHzDPYGpZFGuaDKF5y8w+broyZ+26l57pw==",
+      "type": "package",
+      "path": "sharpdx.directsound/4.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net40/SharpDX.DirectSound.dll",
+        "lib/net40/SharpDX.DirectSound.pdb",
+        "lib/net40/SharpDX.DirectSound.xml",
+        "lib/net45/SharpDX.DirectSound.dll",
+        "lib/net45/SharpDX.DirectSound.pdb",
+        "lib/net45/SharpDX.DirectSound.xml",
+        "lib/netstandard1.3/SharpDX.DirectSound.dll",
+        "lib/netstandard1.3/SharpDX.DirectSound.pdb",
+        "lib/netstandard1.3/SharpDX.DirectSound.xml",
+        "sharpdx.directsound.4.2.0.nupkg.sha512",
+        "sharpdx.directsound.nuspec"
       ]
     },
     "SharpDX.DXGI/4.2.0": {
@@ -4961,12 +4994,12 @@
       "SharpDX >= 4.2.0",
       "SharpDX.DXGI >= 4.2.0",
       "SharpDX.Direct2D1 >= 4.2.0",
+      "SharpDX.DirectSound >= 4.2.0",
       "System.Drawing.Common >= 4.7.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\14980\\.nuget\\packages\\": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\Alice\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -4974,14 +5007,11 @@
       "projectUniqueName": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
       "projectName": "Shinengine",
       "projectPath": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
-      "packagesPath": "C:\\Users\\14980\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\Alice\\.nuget\\packages\\",
       "outputPath": "D:\\Shine\\Shinengine\\Shinengine\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-      ],
       "configFilePaths": [
-        "C:\\Users\\14980\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Alice\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -5038,6 +5068,10 @@
             "version": "[4.2.0, )"
           },
           "SharpDX.Direct2D1": {
+            "target": "Package",
+            "version": "[4.2.0, )"
+          },
+          "SharpDX.DirectSound": {
             "target": "Package",
             "version": "[4.2.0, )"
           },

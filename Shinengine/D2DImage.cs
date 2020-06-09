@@ -25,12 +25,15 @@ using System.Windows.Media;
 
 using System.Windows;
 using PInvoke;
-
+using FFmpeg.AutoGen;
+using System.Runtime.InteropServices;
 
 namespace Shinengine
 {
     public class Direct2DImage
     {
+        [DllImport("Kernel32.dll")]
+        unsafe extern public static void RtlMoveMemory(void* dst, void* sur, long size);
         private int Times = 0;//每画一帧，值自增1，计算帧率时归零
         public int Dpis { get; private set; } = 0;//表示当前的帧率
         public int Width { get; }//绘图区域的宽
@@ -49,7 +52,7 @@ namespace Shinengine
         private bool isRunning = false;//指示是否正在运行
 
         private WicRenderTarget View { get; } = null;//绘图目标
-        public void Commit()
+        unsafe public void Commit()
         {
             try
             {
@@ -57,7 +60,8 @@ namespace Shinengine
                     return;
                 buffer.Lock();
                 var m_lock = _bufferBack.Lock(BitmapLockFlags.Read);
-                Kernel32.WriteProcessMemory(Kernel32.GetCurrentProcess().DangerousGetHandle(), buffer.BackBuffer, m_lock.Data.DataPointer, (IntPtr)(buffer.PixelHeight * buffer.BackBufferStride), (IntPtr)0);
+                RtlMoveMemory((void*)buffer.BackBuffer, (void*)m_lock.Data.DataPointer, buffer.PixelHeight * buffer.BackBufferStride);
+             //   Kernel32.CopyMemory(Kernel32.GetCurrentProcess().DangerousGetHandle(), buffer.BackBuffer, m_lock.Data.DataPointer, (IntPtr)(buffer.PixelHeight * buffer.BackBufferStride), (IntPtr)0);
                 m_lock.Dispose();
 
                 buffer.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
@@ -74,13 +78,17 @@ namespace Shinengine
             m_Dipter = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
             m_Dipter.Tick += (e, v) =>
             {
+                Console.WriteLine("Reper");
                 Dpis = Times;
                 double TimesOfWait = Speed * Dpis;
                 if (TimesOfWait > 1)
                 {
-                    MessageBox.Show(Speed.ToString()+","+Dpis.ToString());
+                    Speed = 1.0d / TargetDpi;
+                    Times = 0;
+                    return;
+                    //  MessageBox.Show(Speed.ToString()+","+Dpis.ToString());
                 }
-                Console.WriteLine(TimesOfWait.ToString());
+              //  Console.WriteLine(TimesOfWait.ToString());
                 double TimeOfDraw = 1.0d - TimesOfWait;
                 if (Dpis < TargetDpi)
                 {
@@ -88,8 +96,9 @@ namespace Shinengine
                     {
                         if (TimeOfDraw / (double)Dpis > 1.0d / TargetDpi) 
                         {
-                            Speed = 1.0d / TargetDpi;
+                            Speed = 0;
                         }
+                        else
                         Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
                     }
                     catch
@@ -137,7 +146,7 @@ namespace Shinengine
             Height = (int)contorl.Height;
             isRunning = true;
 
-
+            
             buffer = new WriteableBitmap((int)contorl.Width, (int)contorl.Height, 72, 72, PixelFormats.Bgr32, null);
             contorl.Source = buffer;
             _bufferBack =
@@ -159,12 +168,13 @@ namespace Shinengine
 
 
             View.BeginDraw();
-            View.Clear(new RawColor4(1, 1, 0, 1));
+            View.Clear(new RawColor4(1, 1, 1, 1));
             View.EndDraw();
 
             Commit();
-            m_Dipter2.Start();
+           
             m_Dipter.Start();
+            m_Dipter2.Start();
         }
 
         public void Dispose()

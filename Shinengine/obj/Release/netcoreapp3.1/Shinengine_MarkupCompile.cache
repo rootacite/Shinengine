@@ -1,7 +1,7 @@
 ﻿Shinengine
 
 
-exe
+winexe
 C#
 .cs
 D:\Shine\Shinengine\Shinengine\obj\Release\netcoreapp3.1\
@@ -12,8 +12,8 @@ TRACE;RELEASE;NETCOREAPP;NETCOREAPP3_1
 D:\Shine\Shinengine\Shinengine\App.xaml
 11151548125
 
-41945912787
-2031747012785
+5476570983
+204-1433962930
 MainWindow.xaml;
 
 False

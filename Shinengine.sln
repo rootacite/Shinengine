@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shinengine", "Shinengine\Shinengine.csproj", "{EA4E3DE5-EF69-4B57-8A8B-5C4F423EA372}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shinehelper", "Shinehelper\Shinehelper.vcxproj", "{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,16 @@ Global
 		{EA4E3DE5-EF69-4B57-8A8B-5C4F423EA372}.Release|x64.Build.0 = Release|x64
 		{EA4E3DE5-EF69-4B57-8A8B-5C4F423EA372}.Release|x86.ActiveCfg = Release|x86
 		{EA4E3DE5-EF69-4B57-8A8B-5C4F423EA372}.Release|x86.Build.0 = Release|x86
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Debug|x64.ActiveCfg = Debug|x64
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Debug|x64.Build.0 = Debug|x64
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Debug|x86.ActiveCfg = Debug|Win32
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Debug|x86.Build.0 = Debug|Win32
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Release|Any CPU.ActiveCfg = Release|Win32
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Release|x64.ActiveCfg = Release|x64
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Release|x64.Build.0 = Release|x64
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Release|x86.ActiveCfg = Release|Win32
+		{BAA4523A-03B8-4A03-8FBC-50E550AFDFCD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

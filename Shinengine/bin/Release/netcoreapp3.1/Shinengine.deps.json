@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v3.1": {
       "Shinengine/1.0.0": {
         "dependencies": {
+          "FFmpeg.AutoGen": "4.1.0.4",
           "PInvoke.Gdi32": "0.6.6",
           "PInvoke.Kernel32": "0.6.6",
           "PInvoke.Shell32": "0.6.6",
@@ -20,6 +21,14 @@
         },
         "runtime": {
           "Shinengine.dll": {}
+        }
+      },
+      "FFmpeg.AutoGen/4.1.0.4": {
+        "runtime": {
+          "lib/netstandard2.0/FFmpeg.AutoGen.dll": {
+            "assemblyVersion": "4.1.0.4",
+            "fileVersion": "4.1.0.4"
+          }
         }
       },
       "Microsoft.NETCore.Platforms/3.1.0": {},
@@ -822,6 +831,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "FFmpeg.AutoGen/4.1.0.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3a9celwx//JJbvt7o0IR3p24A0YtAo/NJQbbSlGzSM7arBCEAt9AjX/+LoiM08wOn82+WnwWQLJtPmRBsP7Vag==",
+      "path": "ffmpeg.autogen/4.1.0.4",
+      "hashPath": "ffmpeg.autogen.4.1.0.4.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/3.1.0": {
       "type": "package",
