@@ -23,6 +23,11 @@ using System.Windows.Interop;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using SharpDX.Direct2D1;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
+using ImageBrush = System.Windows.Media.ImageBrush;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Shinengine
 {
@@ -32,8 +37,8 @@ namespace Shinengine
     public partial class MainWindow : Window
     {
         Direct2DImage DxBkGround = null;
-        bool enClose = false;
         private bool draws=true;
+
         
         [DllImport("winmm")]
         static extern void timeBeginPeriod(int t);
@@ -42,35 +47,59 @@ namespace Shinengine
         public SharpDX.DirectWrite.Factory DwoR { get; private set; }
         public TextFormat TF { get; private set; }
         public bool CanRun { get; private set; } = true;
-        Video video = null;
 
-        [DllImport("Shinehelper.dll")]
-        extern static public void waveInit();
+        /// <summary>
+        /// 操作控件的Z顺序
+        /// </summary>
+        /// <param name="sender">菜单</param>
+        /// <param name="moveToFront">True 前移 ，false 置后</param>
+        /// <param name="toBottom">true 移动至底端，false 移动一层</param>
+
+
         [Obsolete]
         public MainWindow()
         {
             InitializeComponent();
             FFmpegBinariesHelper.RegisterFFmpegBinaries();
             timeBeginPeriod(1);
-            waveInit();
 
-
-            DwoR = new SharpDX.DirectWrite.Factory();
-            TF = new TextFormat(DwoR, "宋体", 24);
-            // return;
-            Loaded += (s, e) =>
+            Button m_btn = new Button()
             {
+                VerticalAlignment = VerticalAlignment.Top,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Margin = new Thickness(300, 0, 0, 0),
+                Height = 31,
+                Width = 103,
+                Style = (Style)this.FindResource("BtnInfoStyle"),
+                Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/UI/exit_0.png", false))),
 
-                DxBkGround = new Direct2DImage(BackGround, 30, (view) =>
+            };
+
+            m_btn.Click += (e, v) =>
+            {
+                if (DxBkGround != null)
                 {
+                    (DxBkGround.Loadedsouce as Video).CanRun = false;
+                    DxBkGround.Dispose();
+                }
+                //  m_sce = new Video();
+                //  new Thread(() =>
+                //  {
+                //     m_sce.Start("D:\\OPmovie.wmv");
+                // }).Start();
+
+                DxBkGround = new Direct2DImage(BackGround, 30, (view, Loadedsouce, Width, Height) =>
+                {
+                    //   Debug.WriteLine("1234567");
+                    var m_sce = (Loadedsouce as Video);
                     SharpDX.Direct2D1.Bitmap farme = null;
-                    if (video == null)
+                    if (m_sce == null)
                         return false;
-                    if (video.bits.Count - video.nFarm < 60)
+                    if (m_sce.bits.Count - m_sce.nFarm < 60)
                         return false;
                     try
                     {
-                        farme = SharpDX.Direct2D1.Bitmap.FromWicBitmap(view, video.bits[video.nFarm]);
+                        farme = SharpDX.Direct2D1.Bitmap.FromWicBitmap(view, m_sce.bits[m_sce.nFarm]);
                     }
                     catch
                     {
@@ -80,46 +109,37 @@ namespace Shinengine
                     view.BeginDraw();
 
                     view.DrawBitmap(farme,
-                        new RawRectangleF(0, 0, DxBkGround.Width, DxBkGround.Height),
+                        new RawRectangleF(0, 0, Width, Height),
                         1, SharpDX.Direct2D1.BitmapInterpolationMode.NearestNeighbor,
-                        new RawRectangleF(0, 0, video.bits[video.nFarm].Size.Width, video.bits[video.nFarm].Size.Height));
-                    view.DrawText("我草你妈", TF, new RawRectangleF(0, 0, 500, 100), new SolidColorBrush(view, new RawColor4(1, 1, 0, 1)));
+                        new RawRectangleF(0, 0, m_sce.bits[m_sce.nFarm].Size.Width, m_sce.bits[m_sce.nFarm].Size.Height));
                     view.EndDraw();
                     farme.Dispose();
-                    video.bits[video.nFarm].Dispose();
-                    video.nFarm++;
+                    m_sce.bits[m_sce.nFarm].Dispose();
+                    m_sce.nFarm++;
+
                     return draws;
-                });
+                })
+                { Loadedsouce = new Video() };
                 new Thread(() =>
                 {
-                    while (!enClose)
-                    {
-
-                        Dispatcher.Invoke(new Action(() => { this.Title = (video.bits.Count- video.nFarm).ToString(); }));
-                        Thread.Sleep(50);
-                    }
+                    (DxBkGround.Loadedsouce as Video).Start("D:\\OPmovie.wmv");
                 }).Start();
-               
-                new Thread(() =>
-                {
-                    while (true) {
-                        video = new Video();
-                        video.Start("D:\\OPmovie.wmv");
-                        while (video.bits.Count - video.nFarm > 60)
-                            Thread.Sleep(1);
-                    }
-                }).Start();
-                return;
-                //  m_Dipter.Start();
+                DxBkGround.DrawStartup();
             };
-
-
             
+            BkGrid.Children.Add(m_btn);
+            return;
         }
+        public void Reset()
+        {
+           
 
+        }
         private void BackGround_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            draws = !draws;
+          
+                //m_sce.Dispose();
+
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -130,7 +150,8 @@ namespace Shinengine
 
         private void Grid_MouseMove(object sender, MouseEventArgs e)
         {
-           // _Position = e.GetPosition(this);
+            // _Position = e.GetPosition(this);
+         //   Canvas.SetZIndex(test, Canvas.GetZIndex(test) - 1);
         }
 
       

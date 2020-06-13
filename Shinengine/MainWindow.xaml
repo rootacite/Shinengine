@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
         Title="MainWindow" Height="720" Width="1280" Closed="Window_Closed">
-    <Grid MouseMove="Grid_MouseMove">
-        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" MouseUp="BackGround_MouseUp"/>
+    <Grid MouseMove="Grid_MouseMove" x:Name="BkGrid">
+        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" MouseUp="BackGround_MouseUp" Cursor="Arrow"/>
+
 
     </Grid>
 </Window>
