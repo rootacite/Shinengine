@@ -107,84 +107,6 @@
           "System.Xml.XDocument": "4.3.0"
         }
       },
-      "PInvoke.Gdi32/0.6.6": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "PInvoke.User32": "0.6.6",
-          "PInvoke.Windows.Core": "0.6.6"
-        },
-        "compile": {
-          "lib/netstandard1.1/PInvoke.Gdi32.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.1/PInvoke.Gdi32.dll": {}
-        }
-      },
-      "PInvoke.Kernel32/0.6.6": {
-        "type": "package",
-        "dependencies": {
-          "PInvoke.Windows.Core": "0.6.6"
-        },
-        "compile": {
-          "lib/netstandard2.0/PInvoke.Kernel32.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/PInvoke.Kernel32.dll": {}
-        }
-      },
-      "PInvoke.Shell32/0.6.6": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "PInvoke.Kernel32": "0.6.6",
-          "PInvoke.Windows.Core": "0.6.6"
-        },
-        "compile": {
-          "lib/netstandard1.1/PInvoke.Shell32.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.1/PInvoke.Shell32.dll": {}
-        }
-      },
-      "PInvoke.User32/0.6.6": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "PInvoke.Kernel32": "0.6.6",
-          "PInvoke.Windows.Core": "0.6.6",
-          "PInvoke.Windows.ShellScalingApi": "0.6.6",
-          "Validation": "2.4.15"
-        },
-        "compile": {
-          "lib/netstandard1.1/PInvoke.User32.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.1/PInvoke.User32.dll": {}
-        }
-      },
-      "PInvoke.Windows.Core/0.6.6": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/PInvoke.Windows.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/PInvoke.Windows.Core.dll": {}
-        }
-      },
-      "PInvoke.Windows.ShellScalingApi/0.6.6": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "PInvoke.Windows.Core": "0.6.6"
-        },
-        "compile": {
-          "lib/netstandard1.1/PInvoke.Windows.ShellScalingApi.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.1/PInvoke.Windows.ShellScalingApi.dll": {}
-        }
-      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
         "type": "package",
         "runtimeTargets": {
@@ -380,19 +302,6 @@
         },
         "runtime": {
           "lib/netstandard1.1/SharpDX.Direct2D1.dll": {}
-        }
-      },
-      "SharpDX.DirectSound/4.2.0": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "SharpDX": "4.2.0"
-        },
-        "compile": {
-          "lib/netstandard1.3/SharpDX.DirectSound.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/SharpDX.DirectSound.dll": {}
         }
       },
       "SharpDX.DXGI/4.2.0": {
@@ -1369,15 +1278,6 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
-      },
-      "Validation/2.4.15": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard1.3/Validation.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/Validation.dll": {}
-        }
       }
     }
   },
@@ -1507,127 +1407,6 @@
         "dotnet_library_license.txt",
         "netstandard.library.1.6.1.nupkg.sha512",
         "netstandard.library.nuspec"
-      ]
-    },
-    "PInvoke.Gdi32/0.6.6": {
-      "sha512": "z4pU73yaGlQBtAHSDZugFA+FtUt5FML0PV2BoB0cvi78pb9UoFxKF5G4wTJ62uWmefdf8eAIVUYSLUfw4e6JYA==",
-      "type": "package",
-      "path": "pinvoke.gdi32/0.6.6",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net20/PInvoke.Gdi32.dll",
-        "lib/net20/PInvoke.Gdi32.xml",
-        "lib/net45/PInvoke.Gdi32.dll",
-        "lib/net45/PInvoke.Gdi32.xml",
-        "lib/netstandard1.1/PInvoke.Gdi32.dll",
-        "lib/netstandard1.1/PInvoke.Gdi32.xml",
-        "lib/uap10.0/PInvoke.Gdi32.dll",
-        "lib/uap10.0/PInvoke.Gdi32.pri",
-        "lib/uap10.0/PInvoke.Gdi32.xml",
-        "pinvoke.gdi32.0.6.6.nupkg.sha512",
-        "pinvoke.gdi32.nuspec"
-      ]
-    },
-    "PInvoke.Kernel32/0.6.6": {
-      "sha512": "PurkvETXJsQt06SGOR4woI9bhYq8bD+7o4xBl93YVL9GmTuYfD863f2s8+22Rwn5AEhf17NbDTA7IJX9UQ8sWA==",
-      "type": "package",
-      "path": "pinvoke.kernel32/0.6.6",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net20/PInvoke.Kernel32.dll",
-        "lib/net20/PInvoke.Kernel32.xml",
-        "lib/net45/PInvoke.Kernel32.dll",
-        "lib/net45/PInvoke.Kernel32.xml",
-        "lib/netstandard1.1/PInvoke.Kernel32.dll",
-        "lib/netstandard1.1/PInvoke.Kernel32.xml",
-        "lib/netstandard1.3/PInvoke.Kernel32.dll",
-        "lib/netstandard1.3/PInvoke.Kernel32.xml",
-        "lib/netstandard2.0/PInvoke.Kernel32.dll",
-        "lib/netstandard2.0/PInvoke.Kernel32.xml",
-        "lib/uap10.0/PInvoke.Kernel32.dll",
-        "lib/uap10.0/PInvoke.Kernel32.pri",
-        "lib/uap10.0/PInvoke.Kernel32.xml",
-        "pinvoke.kernel32.0.6.6.nupkg.sha512",
-        "pinvoke.kernel32.nuspec"
-      ]
-    },
-    "PInvoke.Shell32/0.6.6": {
-      "sha512": "1sAwf8MKCfHHz360dHJ+/cJ6YVU9x8ipojcunlhHh7YUbrSgSycWmAI/aTaIQo154sfsKh5K83D8XIdf76a7MA==",
-      "type": "package",
-      "path": "pinvoke.shell32/0.6.6",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net20/PInvoke.Shell32.dll",
-        "lib/net20/PInvoke.Shell32.xml",
-        "lib/net45/PInvoke.Shell32.dll",
-        "lib/net45/PInvoke.Shell32.xml",
-        "lib/netstandard1.1/PInvoke.Shell32.dll",
-        "lib/netstandard1.1/PInvoke.Shell32.xml",
-        "lib/uap10.0/PInvoke.Shell32.dll",
-        "lib/uap10.0/PInvoke.Shell32.pri",
-        "lib/uap10.0/PInvoke.Shell32.xml",
-        "pinvoke.shell32.0.6.6.nupkg.sha512",
-        "pinvoke.shell32.nuspec"
-      ]
-    },
-    "PInvoke.User32/0.6.6": {
-      "sha512": "0yqOi2ZKYXuctGkTszRY6feqBFGhJmhDGj1oX6CtUP2zhcCIlW6iXLQVq5dLbbXONvqj8OuQ8CH2eJHk6k9www==",
-      "type": "package",
-      "path": "pinvoke.user32/0.6.6",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net20/PInvoke.User32.dll",
-        "lib/net20/PInvoke.User32.xml",
-        "lib/net45/PInvoke.User32.dll",
-        "lib/net45/PInvoke.User32.xml",
-        "lib/netstandard1.1/PInvoke.User32.dll",
-        "lib/netstandard1.1/PInvoke.User32.xml",
-        "lib/uap10.0/PInvoke.User32.dll",
-        "lib/uap10.0/PInvoke.User32.pri",
-        "lib/uap10.0/PInvoke.User32.xml",
-        "pinvoke.user32.0.6.6.nupkg.sha512",
-        "pinvoke.user32.nuspec"
-      ]
-    },
-    "PInvoke.Windows.Core/0.6.6": {
-      "sha512": "mKGX6byrNwAXdaWUNIlDHfv5XDP1iQcmHhSZtd5bmtYAaIjrUDIj2nIpNO7c0PjX4dPi7CToCeEqg2ESandVBg==",
-      "type": "package",
-      "path": "pinvoke.windows.core/0.6.6",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net20/PInvoke.Windows.Core.dll",
-        "lib/net20/PInvoke.Windows.Core.xml",
-        "lib/netstandard1.1/PInvoke.Windows.Core.dll",
-        "lib/netstandard1.1/PInvoke.Windows.Core.xml",
-        "lib/netstandard2.0/PInvoke.Windows.Core.dll",
-        "lib/netstandard2.0/PInvoke.Windows.Core.xml",
-        "pinvoke.windows.core.0.6.6.nupkg.sha512",
-        "pinvoke.windows.core.nuspec"
-      ]
-    },
-    "PInvoke.Windows.ShellScalingApi/0.6.6": {
-      "sha512": "SYeHKhpTnyd2MyxhHBzmyNokGFnbj0ri2W7zisIXt2emqnWU0rgncnZChDOy+DhXO6ezszZmozOnjNeQshVSiA==",
-      "type": "package",
-      "path": "pinvoke.windows.shellscalingapi/0.6.6",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net20/PInvoke.Windows.ShellScalingApi.dll",
-        "lib/net20/PInvoke.Windows.ShellScalingApi.xml",
-        "lib/net45/PInvoke.Windows.ShellScalingApi.dll",
-        "lib/net45/PInvoke.Windows.ShellScalingApi.xml",
-        "lib/netstandard1.1/PInvoke.Windows.ShellScalingApi.dll",
-        "lib/netstandard1.1/PInvoke.Windows.ShellScalingApi.xml",
-        "lib/uap10.0/PInvoke.Windows.ShellScalingApi.dll",
-        "lib/uap10.0/PInvoke.Windows.ShellScalingApi.pri",
-        "lib/uap10.0/PInvoke.Windows.ShellScalingApi.xml",
-        "pinvoke.windows.shellscalingapi.0.6.6.nupkg.sha512",
-        "pinvoke.windows.shellscalingapi.nuspec"
       ]
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
@@ -1900,26 +1679,6 @@
         "lib/uap10.0/SharpDX.Direct2D1.xml",
         "sharpdx.direct2d1.4.2.0.nupkg.sha512",
         "sharpdx.direct2d1.nuspec"
-      ]
-    },
-    "SharpDX.DirectSound/4.2.0": {
-      "sha512": "22g98QNyZry94Hef+7LF6BSfuyuvWp0eg1a4VrJeMGdXDsdF+GqMqHzDPYGpZFGuaDKF5y8w+broyZ+26l57pw==",
-      "type": "package",
-      "path": "sharpdx.directsound/4.2.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net40/SharpDX.DirectSound.dll",
-        "lib/net40/SharpDX.DirectSound.pdb",
-        "lib/net40/SharpDX.DirectSound.xml",
-        "lib/net45/SharpDX.DirectSound.dll",
-        "lib/net45/SharpDX.DirectSound.pdb",
-        "lib/net45/SharpDX.DirectSound.xml",
-        "lib/netstandard1.3/SharpDX.DirectSound.dll",
-        "lib/netstandard1.3/SharpDX.DirectSound.pdb",
-        "lib/netstandard1.3/SharpDX.DirectSound.xml",
-        "sharpdx.directsound.4.2.0.nupkg.sha512",
-        "sharpdx.directsound.nuspec"
       ]
     },
     "SharpDX.DXGI/4.2.0": {
@@ -4948,53 +4707,14 @@
         "system.xml.xdocument.4.3.0.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
-    },
-    "Validation/2.4.15": {
-      "sha512": "KQFOtJKKhaXzuSiZhkFaFzQEdYsA+EN/XqKZDYwsGDOrS0Nxu6qzCvNTsDF4xtkiZbBA6u7I59QnsuP2O2fZgg==",
-      "type": "package",
-      "path": "validation/2.4.15",
-      "hasTools": true,
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "README.md",
-        "lib/net20/Validation.dll",
-        "lib/net20/Validation.xml",
-        "lib/net40/Validation.dll",
-        "lib/net40/Validation.xml",
-        "lib/net45/Validation.dll",
-        "lib/net45/Validation.xml",
-        "lib/netstandard1.0/Validation.dll",
-        "lib/netstandard1.0/Validation.xml",
-        "lib/netstandard1.3/Validation.dll",
-        "lib/netstandard1.3/Validation.xml",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/Validation.dll",
-        "lib/portable-net40+sl5+win8+wp8+wpa81/Validation.xml",
-        "lib/portable-net45+win8+wp8+wpa81/Validation.dll",
-        "lib/portable-net45+win8+wp8+wpa81/Validation.xml",
-        "tools/2013/RequiresNotNull.snippet",
-        "tools/2013/RequiresNotNullOrEmpty.snippet",
-        "tools/2015/RequiresNotNull.snippet",
-        "tools/2015/RequiresNotNullOrEmpty.snippet",
-        "tools/install_snippets.cmd",
-        "tools/uninstall_snippets.cmd",
-        "validation.2.4.15.nupkg.sha512",
-        "validation.nuspec"
-      ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
       "FFmpeg.AutoGen >= 4.1.0.4",
-      "PInvoke.Gdi32 >= 0.6.6",
-      "PInvoke.Kernel32 >= 0.6.6",
-      "PInvoke.Shell32 >= 0.6.6",
-      "PInvoke.User32 >= 0.6.6",
-      "PInvoke.Windows.Core >= 0.6.6",
       "SharpDX >= 4.2.0",
       "SharpDX.DXGI >= 4.2.0",
       "SharpDX.Direct2D1 >= 4.2.0",
-      "SharpDX.DirectSound >= 4.2.0",
       "System.Drawing.Common >= 4.7.0"
     ]
   },
@@ -5039,26 +4759,6 @@
             "target": "Package",
             "version": "[4.1.0.4, )"
           },
-          "PInvoke.Gdi32": {
-            "target": "Package",
-            "version": "[0.6.6, )"
-          },
-          "PInvoke.Kernel32": {
-            "target": "Package",
-            "version": "[0.6.6, )"
-          },
-          "PInvoke.Shell32": {
-            "target": "Package",
-            "version": "[0.6.6, )"
-          },
-          "PInvoke.User32": {
-            "target": "Package",
-            "version": "[0.6.6, )"
-          },
-          "PInvoke.Windows.Core": {
-            "target": "Package",
-            "version": "[0.6.6, )"
-          },
           "SharpDX": {
             "target": "Package",
             "version": "[4.2.0, )"
@@ -5068,10 +4768,6 @@
             "version": "[4.2.0, )"
           },
           "SharpDX.Direct2D1": {
-            "target": "Package",
-            "version": "[4.2.0, )"
-          },
-          "SharpDX.DirectSound": {
             "target": "Package",
             "version": "[4.2.0, )"
           },

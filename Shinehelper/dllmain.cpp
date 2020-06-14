@@ -4,6 +4,18 @@
 #include<mmreg.h>
 #pragma comment(lib, "winmm.lib")
 
+char* MemSpec = nullptr;
+
+extern "C" __declspec(dllexport) void Test1(bool yorn) 
+{
+	if (yorn) {
+		MemSpec = new char[1000*1000*850];
+	}
+	else {
+		delete MemSpec;
+	}
+}
+
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,

@@ -7,12 +7,26 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Controls;
 using WICBitmap = SharpDX.WIC.Bitmap;
 
 namespace Shinengine
 {
-    class Video
+    public class Video
     {
+
+        public Video(VideoMode mod)
+        {
+            mode = mod;
+        }
+
+        private readonly VideoMode mode;
+        public enum VideoMode
+        {
+            LoadonCatched,
+            LoadWithPlaying
+        }
         long frameNumber = 0;
         public int nFarm = 0;
         public List<WICBitmap> bits = new List<WICBitmap>();
@@ -21,6 +35,10 @@ namespace Shinengine
         [DllImport("Shinehelper.dll")]
         unsafe extern public static void waveWriteBuffer(void* lpData, int size);
         public bool CanRun { get;  set; }
+
+        public delegate void CleanUp();
+        public event CleanUp EndPlayed;
+
 
         [Obsolete]
         public unsafe void Start(string url)
@@ -145,136 +163,212 @@ namespace Shinengine
 
             #endregion
 
-            /*    #region 音频初始化
+            #region 音频初始化
+            /*
+                            ulong out_channel_layout = ffmpeg.AV_CH_LAYOUT_STEREO;
+                            //AAC:1024  MP3:1152
+                            int out_nb_samples = pcodecContext_A->frame_size;
+                            AVSampleFormat out_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
+                            int out_sample_rate = 44100;
+                            int out_channels = ffmpeg.av_get_channel_layout_nb_channels(out_channel_layout);
+                            //Out Buffer Size
+                            int out_buffer_size = ffmpeg.av_samples_get_buffer_size((int*)0, out_channels, out_nb_samples, out_sample_fmt, 1);
 
-                ulong out_channel_layout = ffmpeg.AV_CH_LAYOUT_STEREO;
-                //AAC:1024  MP3:1152
-                int out_nb_samples = pcodecContext_A->frame_size;
-                AVSampleFormat out_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
-                int out_sample_rate = 44100;
-                int out_channels = ffmpeg.av_get_channel_layout_nb_channels(out_channel_layout);
-                //Out Buffer Size
-                int out_buffer_size = ffmpeg.av_samples_get_buffer_size((int*)0, out_channels, out_nb_samples, out_sample_fmt, 1);
+                            byte_ptrArray8* out_buffer = (byte_ptrArray8*)Marshal.AllocHGlobal(192000 * 2);
 
-                byte_ptrArray8* out_buffer = (byte_ptrArray8*)Marshal.AllocHGlobal(192000 * 2);
+                            var pFarme = ffmpeg.av_frame_alloc();
 
-                var pFarme = ffmpeg.av_frame_alloc();
+                            int got_picture = 0;
 
-                int got_picture = 0;
+                            int index = 0;
+                            //FIX:Some Codec's Context Information is missing
+                            long in_channel_layout = ffmpeg.av_get_default_channel_layout(pcodecContext_A->channels);
+                            //Swr
+                            // struct SwrContext *au_convert_ctx;
+                            var au_convert_ctx = ffmpeg.swr_alloc();
+                            au_convert_ctx = ffmpeg.swr_alloc_set_opts(au_convert_ctx, (long)out_channel_layout, out_sample_fmt, out_sample_rate,
+                            in_channel_layout, pcodecContext_A->sample_fmt, pcodecContext_A->sample_rate, 0, (void*)0);
+                            ffmpeg.swr_init(au_convert_ctx);
 
-                int index = 0;
-                //FIX:Some Codec's Context Information is missing
-                long in_channel_layout = ffmpeg.av_get_default_channel_layout(pcodecContext_A->channels);
-                //Swr
-                // struct SwrContext *au_convert_ctx;
-                var au_convert_ctx = ffmpeg.swr_alloc();
-                au_convert_ctx = ffmpeg.swr_alloc_set_opts(au_convert_ctx, (long)out_channel_layout, out_sample_fmt, out_sample_rate,
-                in_channel_layout, pcodecContext_A->sample_fmt, pcodecContext_A->sample_rate, 0, (void*)0);
-                ffmpeg.swr_init(au_convert_ctx);
+                            waveInit((short)AVSampleFormat.AV_SAMPLE_FMT_S16, (short)out_channels, out_sample_rate, (int)pcodecContext_A->bit_rate, pcodecContext_A->bits_per_coded_sample);
+            */
 
-                waveInit((short)AVSampleFormat.AV_SAMPLE_FMT_S16, (short)out_channels, out_sample_rate, (int)pcodecContext_A->bit_rate, pcodecContext_A->bits_per_coded_sample);
-
-
-                #endregion */
+            #endregion
 
             #region ffmpeg 解码
-            while (CanRun)
+            if (mode == VideoMode.LoadWithPlaying)
             {
-                // 读取一帧未解码数据
-                error = ffmpeg.av_read_frame(pFormatContext, pPacket);
-                if (error == ffmpeg.AVERROR_EOF) break;
-                if (error < 0) throw new ApplicationException(GetErrorMessage(error));
-
-                if (pPacket->stream_index == pStream->index)
+                while (CanRun)
                 {
-                    // 解码
-                    error = ffmpeg.avcodec_send_packet(pCodecContext, pPacket);
+                    // 读取一帧未解码数据
+                    
+                    error = ffmpeg.av_read_frame(pFormatContext, pPacket);
+                    if (error == ffmpeg.AVERROR_EOF) break;
                     if (error < 0) throw new ApplicationException(GetErrorMessage(error));
-                    // 解码输出解码数据
-                    error = ffmpeg.avcodec_receive_frame(pCodecContext, pDecodedFrame);
 
-                    if (error == ffmpeg.AVERROR(ffmpeg.EAGAIN) && CanRun) continue;
-                    if (error < 0) throw new ApplicationException(GetErrorMessage(error));
-                    // YUV->RGB
-                    ffmpeg.sws_scale(pConvertContext, pDecodedFrame->data, pDecodedFrame->linesize, 0, height, dstData, dstLinesize);
-
-                    ffmpeg.av_packet_unref(pPacket);//释放数据包对象引用
-                    ffmpeg.av_frame_unref(pDecodedFrame);//释放解码帧对象引用
-
-
-                    // 封装Bitmap图片
-                    //   var bitmap = new System.Drawing.Bitmap(width, height, dstLinesize[0], System.Drawing.Imaging.PixelFormat.Format24bppRgb, convertedFrameBufferPtr);
-                    // 回调
-                    if (bits.Count == int.MaxValue)
+                    if (pPacket->stream_index == pStream->index)
                     {
-                        bits.Clear();
-                        nFarm = 0;
+                        // 解码
+                        error = ffmpeg.avcodec_send_packet(pCodecContext, pPacket);
+                        if (error < 0) throw new ApplicationException(GetErrorMessage(error));
+                        // 解码输出解码数据
+                        error = ffmpeg.avcodec_receive_frame(pCodecContext, pDecodedFrame);
+
+                        if (error == ffmpeg.AVERROR(ffmpeg.EAGAIN) && CanRun) continue;
+                        if (error < 0) throw new ApplicationException(GetErrorMessage(error));
+                        // YUV->RGB
+                        ffmpeg.sws_scale(pConvertContext, pDecodedFrame->data, pDecodedFrame->linesize, 0, height, dstData, dstLinesize);
+
+                        ffmpeg.av_packet_unref(pPacket);//释放数据包对象引用
+                        ffmpeg.av_frame_unref(pDecodedFrame);//释放解码帧对象引用
+
+
+                        if (bits.Count == int.MaxValue)
+                        {
+                            bits.Clear();
+                            nFarm = 0;
+                        }
+                        var m_bitLoads = new WICBitmap(mFty, width, height, SharpDX.WIC.PixelFormat.Format32bppBGR, new DataRectangle(convertedFrameBufferPtr, dstLinesize[0]));
+
+                        if (m_bitLoads.Size == null)
+                            throw new Exception();
+
+                        bits.Add(m_bitLoads);
+
+                        if (bits.Count - nFarm >= 150)
+                        {
+                            while (bits.Count - nFarm > 90 && CanRun)
+                                Thread.Sleep(1);
+                        };
+
+
+
+                        //bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "\\264\\frame.buffer."+ frameNumber + ".jpg", ImageFormat.Jpeg);
+
+                        frameNumber++;
                     }
-                    bits.Add(new WICBitmap(mFty, width, height, SharpDX.WIC.PixelFormat.Format32bppBGR, new DataRectangle(convertedFrameBufferPtr, dstLinesize[0])));
 
-                    if (bits.Count - nFarm >= 150)
+                    //       if (pPacket->stream_index == aStream->index)
+                    //     {
+                    //  error = ffmpeg.avcodec_decode_audio4(pcodecContext_A, pFarme, &got_picture, pPacketA);
+                    //  if (error < 0)
+                    // {
+                    //      throw new ApplicationException(GetErrorMessage(error));
+                    //  }
+                    //
+                    //  if (got_picture > 0)
+                    // {
+                    //     ffmpeg.swr_convert(au_convert_ctx, (byte**)&out_buffer, 192000, (byte**)&pFarme->data, pFarme->nb_samples);
+                    //
+                    //      index++;
+                    //  }
+                    //
+                    //  for (int i = 0; i < out_buffer_size; i++)
+                    ///  {
+                    //     //Console.Write("123");
+                    //    // waveWriteBuffer(out_buffer, out_buffer_size);
+                    // }
+                    // ffmpeg.av_free_packet(pPacketA);
+                    // continue;
+                    //     }
+                }
+                //播放完置空播放图片 
+                //    MessageBox.Show("finish");
+
+
+                //   ffmpeg.swr_free(&au_convert_ctx);
+                Marshal.FreeHGlobal(convertedFrameBufferPtr);
+                ffmpeg.av_free(pConvertedFrame);
+                ffmpeg.sws_freeContext(pConvertContext);
+                mFty.Dispose();
+                ffmpeg.av_free(pDecodedFrame);
+                ffmpeg.avcodec_close(pCodecContext);
+                ffmpeg.avformat_close_input(&pFormatContext);
+
+                if (!CanRun)
+                    for (int i = nFarm; i < bits.Count; i++)
                     {
-                        while (bits.Count - nFarm > 90&&CanRun)
-                            Thread.Sleep(1);
-                    };
+                        if (!bits[i].IsDisposed)
+                            bits[i].Dispose();
+                    }
+                else { entiryPlayed = true; EndPlayed(); }
 
+                Debug.WriteLine("Video Disposed");
+            }
+            else
+            {
 
+                while (CanRun)
+                {
+                    // 读取一帧未解码数据
+                    error = ffmpeg.av_read_frame(pFormatContext, pPacket);
+                    if (error == ffmpeg.AVERROR_EOF) break;
+                    if (error < 0) throw new ApplicationException(GetErrorMessage(error));
 
-                    //bitmap.Save(AppDomain.CurrentDomain.BaseDirectory + "\\264\\frame.buffer."+ frameNumber + ".jpg", ImageFormat.Jpeg);
+                    if (pPacket->stream_index == pStream->index)
+                    {
+                        // 解码
+                        error = ffmpeg.avcodec_send_packet(pCodecContext, pPacket);
+                        if (error < 0) throw new ApplicationException(GetErrorMessage(error));
+                        // 解码输出解码数据
+                        error = ffmpeg.avcodec_receive_frame(pCodecContext, pDecodedFrame);
 
-                    frameNumber++;
+                        if (error == ffmpeg.AVERROR(ffmpeg.EAGAIN) && CanRun) continue;
+                        if (error < 0) throw new ApplicationException(GetErrorMessage(error));
+                        // YUV->RGB
+                        ffmpeg.sws_scale(pConvertContext, pDecodedFrame->data, pDecodedFrame->linesize, 0, height, dstData, dstLinesize);
+
+                        ffmpeg.av_packet_unref(pPacket);//释放数据包对象引用
+                        ffmpeg.av_frame_unref(pDecodedFrame);//释放解码帧对象引用
+
+                        var m_bitLoads = new WICBitmap(mFty, width, height, SharpDX.WIC.PixelFormat.Format32bppBGR, new DataRectangle(convertedFrameBufferPtr, dstLinesize[0]));
+
+                        if (m_bitLoads.Size == null)
+                            throw new Exception();
+
+                        bits.Add(m_bitLoads);
+
+                        frameNumber++;
+                    }
+
                 }
 
-         //       if (pPacket->stream_index == aStream->index)
-           //     {
-                  //  error = ffmpeg.avcodec_decode_audio4(pcodecContext_A, pFarme, &got_picture, pPacketA);
-                  //  if (error < 0)
-                   // {
-                  //      throw new ApplicationException(GetErrorMessage(error));
-                  //  }
-                  //
-                  //  if (got_picture > 0)
-                   // {
-                   //     ffmpeg.swr_convert(au_convert_ctx, (byte**)&out_buffer, 192000, (byte**)&pFarme->data, pFarme->nb_samples);
-//
-                  //      index++;
-                  //  }
-//
-                  //  for (int i = 0; i < out_buffer_size; i++)
-                  ///  {
-                  //     //Console.Write("123");
-                   //    // waveWriteBuffer(out_buffer, out_buffer_size);
-                   // }
-                   // ffmpeg.av_free_packet(pPacketA);
-                   // continue;
-           //     }
+                Marshal.FreeHGlobal(convertedFrameBufferPtr);
+                ffmpeg.av_free(pConvertedFrame);
+                ffmpeg.sws_freeContext(pConvertContext);
+                mFty.Dispose();
+                ffmpeg.av_free(pDecodedFrame);
+                ffmpeg.avcodec_close(pCodecContext);
+                ffmpeg.avformat_close_input(&pFormatContext);
+
+                Debug.WriteLine("Porpare over");
             }
-            //播放完置空播放图片 
-            //    MessageBox.Show("finish");
-
-            #endregion
-
-            #region 释放资源
-
-         //   ffmpeg.swr_free(&au_convert_ctx);
-            Marshal.FreeHGlobal(convertedFrameBufferPtr);
-            ffmpeg.av_free(pConvertedFrame);
-            ffmpeg.sws_freeContext(pConvertContext);
-            mFty.Dispose();
-            ffmpeg.av_free(pDecodedFrame);
-            ffmpeg.avcodec_close(pCodecContext);
-            ffmpeg.avformat_close_input(&pFormatContext);
-
-            for (int i = nFarm; i < bits.Count; i++)
-            {
-                if (!bits[i].IsDisposed)
-                    bits[i].Dispose();
-            }
-
-            Debug.WriteLine("Video Disposed");
             #endregion
         }
+        private bool entiryPlayed = false;
+        public void Dispose()
+        {
+            if (mode == VideoMode.LoadWithPlaying)
+            {
+                if (!entiryPlayed)
+                    CanRun = false;
+                else for (int i = nFarm; i < bits.Count; i++)
+                    {
+                        if (!bits[i].IsDisposed)
+                            bits[i].Dispose();
+                    }
+            }
+            else
+            {
+                for (int i = 0; i < bits.Count; i++)
+                {
+                    if (!bits[i].IsDisposed)
+                        bits[i].Dispose();
+                }
 
+                Debug.WriteLine("Video Disposed");
+            }
+        }
         private static unsafe string GetErrorMessage(int error)
         {
             var bufferSize = 1024;

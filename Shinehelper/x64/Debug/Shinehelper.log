@@ -1,3 +1,5 @@
-﻿  dllmain.cpp
+﻿  pch.cpp
+  dllmain.cpp
+    正在创建库 D:\Shine\Shinengine\x64\Debug\Shinehelper.lib 和对象 D:\Shine\Shinengine\x64\Debug\Shinehelper.exp
   Shinehelper.vcxproj -> D:\Shine\Shinengine\x64\Debug\Shinehelper.dll
   已复制         1 个文件。

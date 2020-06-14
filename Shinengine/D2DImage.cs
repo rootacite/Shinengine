@@ -24,7 +24,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
 using System.Windows;
-using PInvoke;
 using FFmpeg.AutoGen;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -49,10 +48,15 @@ namespace Shinengine
         private readonly WICBitmap _bufferBack;//用于D2D绘图的WIC图片
         private readonly D2DFactory DxFac = null;
         public double Speed = 0;//画每帧后等待的时间
-        private readonly DispatcherTimer m_Dipter;//计算帧率的计时器
-        private readonly Task m_Dipter2;//绘图线程
+        private  DispatcherTimer m_Dipter;//计算帧率的计时器
+        private  Task m_Dipter2;//绘图线程
         public delegate bool FarmeTask(WicRenderTarget view, object Loadedsouce, int Width, int Height);
-        public delegate void EndTask();
+        public delegate bool StartTask(WicRenderTarget view, WICBitmap last, int Width, int Height);
+        public delegate void EndTask(object Loadedsouce);
+
+        public event EndTask Disposed;
+        public event FarmeTask DrawProc;
+        public event StartTask StartDrawing;
 
         private bool isRunning = false;//指示是否正在运行
 
@@ -81,14 +85,66 @@ namespace Shinengine
         }//把后台数据呈现到前台
 
 
-        public Direct2DImage(Image contorl, int Fps, FarmeTask taskCallBack)
+        public Direct2DImage(Size2 size, int Fps)
         {
             Debug.WriteLine("Dx Startup");
             TargetDpi = Fps;
+        
+
+
+            Speed = 1.0d / (double)TargetDpi;
+            Width = (int)size.Width;
+            Height = (int)size.Height;
+            isRunning = true;
+
+            
+            buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Bgr32, null);
+ 
+
+            _ImagFc = new ImagingFactory();
+            _bufferBack =
+                new WICBitmap(
+                _ImagFc,
+                (int)size.Width,
+                (int)size.Height,
+                SharpDX.WIC.PixelFormat.Format32bppBGR,
+                BitmapCreateCacheOption.CacheOnLoad);
+
+            DxFac = new D2DFactory();
+            View = new WicRenderTarget(DxFac, _bufferBack, new RenderTargetProperties(
+                RenderTargetType.Default,
+                new PixelFormat(Format.Unknown, AlphaMode.Unknown),
+                0,
+                0,
+                RenderTargetUsage.None,
+                FeatureLevel.Level_DEFAULT));
+          
+            
+        }
+        public void DrawStartup(Image contorl)
+        {
+            if (contorl.Source != null)
+            {
+                WriteableBitmap rectBuf = contorl.Source as WriteableBitmap;
+
+
+                if (StartDrawing != null)
+                {
+                    var UpData = StartDrawing(View, new WICBitmap(_ImagFc,Width,Height, SharpDX.WIC.PixelFormat.Format32bppBGR,new DataRectangle(rectBuf.BackBuffer, rectBuf.BackBufferStride)), Width, Height);
+                    //  var litmit = true;
+                    if (UpData)
+                        contorl.Dispatcher.Invoke(new Action(() =>
+                        {
+                            Commit();
+                            //     litmit = false;
+                        }));
+                }
+            }
+
             m_Dipter = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
             m_Dipter.Tick += (e, v) =>
             {
-              
+
                 Dpis = Times;
                 double TimesOfWait = Speed * Dpis;
                 if (TimesOfWait > 1)
@@ -98,18 +154,18 @@ namespace Shinengine
                     return;
                     //  MessageBox.Show(Speed.ToString()+","+Dpis.ToString());
                 }
-              //  Console.WriteLine(TimesOfWait.ToString());
+                //  Console.WriteLine(TimesOfWait.ToString());
                 double TimeOfDraw = 1.0d - TimesOfWait;
                 if (Dpis < TargetDpi)
                 {
                     try
                     {
-                        if (TimeOfDraw / (double)Dpis > 1.0d / TargetDpi) 
+                        if (TimeOfDraw / (double)Dpis > 1.0d / TargetDpi)
                         {
                             Speed = 0;
                         }
                         else
-                        Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
+                            Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
                     }
                     catch
                     {
@@ -136,17 +192,17 @@ namespace Shinengine
                 while (isRunning)
                 {
                     //  Debug.WriteLine("Start Draw");
-                    var UpData = taskCallBack(View, Loadedsouce, Width, Height);
-                  //  var litmit = true;
+                    var UpData = DrawProc(View, Loadedsouce, Width, Height);
+                    //  var litmit = true;
                     if (UpData)
                         contorl.Dispatcher.Invoke(new Action(() => {
                             Commit();
-                       //     litmit = false;
-                       }));
+                            //     litmit = false;
+                        }));
 
-                   // while (litmit&&isRunning)
-                  //      Thread.Sleep(1);
-                  
+                    // while (litmit&&isRunning)
+                    //      Thread.Sleep(1);
+
                     Thread.Sleep((int)(Speed * 1000.0d));
                     Times++;
                 }
@@ -156,53 +212,9 @@ namespace Shinengine
 
             });
 
-
-            Speed = 1.0d / (double)TargetDpi;
-            Width = (int)contorl.Width;
-            Height = (int)contorl.Height;
-            isRunning = true;
-
-            
-            buffer = new WriteableBitmap((int)contorl.Width, (int)contorl.Height, 72, 72, PixelFormats.Bgr32, null);
-            if (contorl.Source != null)
-            {
-                WriteableBitmap rectBuf = contorl.Source as WriteableBitmap;
-                buffer.Lock();
-                unsafe
-                {
-                    RtlMoveMemory((void*)buffer.BackBuffer, (void*)rectBuf.BackBuffer, buffer.PixelHeight * buffer.BackBufferStride);
-                }
-
-                buffer.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
-                buffer.Unlock();
-            }
-                
-
-            _ImagFc = new ImagingFactory();
-            _bufferBack =
-                new WICBitmap(
-                _ImagFc,
-                (int)contorl.Width,
-                (int)contorl.Height,
-                SharpDX.WIC.PixelFormat.Format32bppBGR,
-                BitmapCreateCacheOption.CacheOnLoad);
-
-            DxFac = new D2DFactory();
-            View = new WicRenderTarget(DxFac, _bufferBack, new RenderTargetProperties(
-                RenderTargetType.Default,
-                new PixelFormat(Format.Unknown, AlphaMode.Unknown),
-                0,
-                0,
-                RenderTargetUsage.None,
-                FeatureLevel.Level_DEFAULT));
-          
-            contorl.Source = buffer;
-        }
-        public void DrawStartup()
-        {
             m_Dipter.Start();
             m_Dipter2.Start();
-
+            contorl.Source = buffer;
         }
         public void Dispose()
         {
@@ -224,6 +236,8 @@ namespace Shinengine
                     _ImagFc.Dispose();
                 if (DxFac != null)
                     DxFac.Dispose();
+
+                Disposed(Loadedsouce);
             }).Start();
         }//ignore
         ~Direct2DImage()

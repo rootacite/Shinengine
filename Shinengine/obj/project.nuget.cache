@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "V3J9tmI1HdtBZP1H5cfyXlseD6Ou8s5mU7bwn7NOSK+0mRwlMQ2SKog7OiFG9ArQaCxPjU95aP+HONFPWhrozw==",
+  "dgSpecHash": "Rh0ckwupJ6ZwE0Rr0b0JpbdXS1oKoppw5DPOM5YbyegW5lYlvdAmUAHtpuGeOBSs4JOm4NUbV6lWBludpUYVMw==",
   "success": true,
   "projectFilePath": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
   "expectedPackageFiles": [
@@ -10,12 +10,6 @@
     "C:\\Users\\Alice\\.nuget\\packages\\microsoft.win32.primitives\\4.3.0\\microsoft.win32.primitives.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\microsoft.win32.systemevents\\4.7.0\\microsoft.win32.systemevents.4.7.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\netstandard.library\\1.6.1\\netstandard.library.1.6.1.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\pinvoke.gdi32\\0.6.6\\pinvoke.gdi32.0.6.6.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\pinvoke.kernel32\\0.6.6\\pinvoke.kernel32.0.6.6.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\pinvoke.shell32\\0.6.6\\pinvoke.shell32.0.6.6.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\pinvoke.user32\\0.6.6\\pinvoke.user32.0.6.6.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\pinvoke.windows.core\\0.6.6\\pinvoke.windows.core.0.6.6.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\pinvoke.windows.shellscalingapi\\0.6.6\\pinvoke.windows.shellscalingapi.0.6.6.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
@@ -34,7 +28,6 @@
     "C:\\Users\\Alice\\.nuget\\packages\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl\\4.3.0\\runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\sharpdx\\4.2.0\\sharpdx.4.2.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\sharpdx.direct2d1\\4.2.0\\sharpdx.direct2d1.4.2.0.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\sharpdx.directsound\\4.2.0\\sharpdx.directsound.4.2.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\sharpdx.dxgi\\4.2.0\\sharpdx.dxgi.4.2.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\system.appcontext\\4.3.0\\system.appcontext.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\system.buffers\\4.3.0\\system.buffers.4.3.0.nupkg.sha512",
@@ -90,7 +83,6 @@
     "C:\\Users\\Alice\\.nuget\\packages\\system.threading.timer\\4.3.0\\system.threading.timer.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\system.xml.readerwriter\\4.3.0\\system.xml.readerwriter.4.3.0.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\system.xml.xdocument\\4.3.0\\system.xml.xdocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\Alice\\.nuget\\packages\\validation\\2.4.15\\validation.2.4.15.nupkg.sha512",
     "C:\\Users\\Alice\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.1.2\\microsoft.aspnetcore.app.ref.3.1.2.nupkg.sha512"
   ],
   "logs": []

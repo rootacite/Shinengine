@@ -42,26 +42,6 @@
               "target": "Package",
               "version": "[4.1.0.4, )"
             },
-            "PInvoke.Gdi32": {
-              "target": "Package",
-              "version": "[0.6.6, )"
-            },
-            "PInvoke.Kernel32": {
-              "target": "Package",
-              "version": "[0.6.6, )"
-            },
-            "PInvoke.Shell32": {
-              "target": "Package",
-              "version": "[0.6.6, )"
-            },
-            "PInvoke.User32": {
-              "target": "Package",
-              "version": "[0.6.6, )"
-            },
-            "PInvoke.Windows.Core": {
-              "target": "Package",
-              "version": "[0.6.6, )"
-            },
             "SharpDX": {
               "target": "Package",
               "version": "[4.2.0, )"
@@ -71,10 +51,6 @@
               "version": "[4.2.0, )"
             },
             "SharpDX.Direct2D1": {
-              "target": "Package",
-              "version": "[4.2.0, )"
-            },
-            "SharpDX.DirectSound": {
               "target": "Package",
               "version": "[4.2.0, )"
             },

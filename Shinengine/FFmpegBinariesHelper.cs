@@ -18,7 +18,7 @@ namespace Shinengine
                 case PlatformID.Win32S:
                 case PlatformID.Win32Windows:
                     var current = Environment.CurrentDirectory;
-                    var probe = Path.Combine("FFmpeg", "bin", Environment.Is64BitProcess ? "x64" : "x86");
+                    var probe = Path.Combine("ffmpeg");
                     while (current != null)
                     {
                         var ffmpegDirectory = Path.Combine(current, probe);
