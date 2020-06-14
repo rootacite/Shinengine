@@ -44,15 +44,12 @@ namespace Shinengine
         public bool CanRun { get; private set; } = true;
         Video video = null;
 
-        [DllImport("Shinehelper.dll")]
-        extern static public void waveInit();
         [Obsolete]
         public MainWindow()
         {
             InitializeComponent();
             FFmpegBinariesHelper.RegisterFFmpegBinaries();
             timeBeginPeriod(1);
-            waveInit();
 
 
             DwoR = new SharpDX.DirectWrite.Factory();

@@ -10,11 +10,14 @@
         "projectUniqueName": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
         "projectName": "Shinengine",
         "projectPath": "D:\\Shine\\Shinengine\\Shinengine\\Shinengine.csproj",
-        "packagesPath": "C:\\Users\\Alice\\.nuget\\packages\\",
+        "packagesPath": "C:\\Users\\14980\\.nuget\\packages\\",
         "outputPath": "D:\\Shine\\Shinengine\\Shinengine\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Alice\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\14980\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

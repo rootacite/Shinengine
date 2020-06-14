@@ -1,5 +1,6 @@
 ﻿// dllmain.cpp : 定义 DLL 应用程序的入口点。
 #include "pch.h"
+#include <stdio.h>
 #include<mmsystem.h>
 #include<mmreg.h>
 #pragma comment(lib, "winmm.lib")
@@ -40,15 +41,16 @@ extern "C" __declspec(dllexport) void waveInit(short nFormat,short nChannels,int
 	waveOutOpen(&hwo, WAVE_MAPPER, &wfx, (DWORD_PTR)wait, 0L, CALLBACK_EVENT);//打开一个给定的波形音频输出装置来进行回放
 //	fopen_s(&thbgm, "paomo.pcm", "rb");
 //	cnt = fread(buf, sizeof(char), 1024 * 1024 * 4, thbgm);//读取文件4M的数据到内存来进行播放，通过这个部分的修改，增加线程可变成网络音频数据的实时传输。当然如果希望播放完整的音频文件，也是要在这里稍微改一改
-	int dolenght = 0;
-	int playsize = 1024;
 
-	
+	printf("Wave Init");
 //	fclose(thbgm);
-
+	
 }
 
 extern "C" __declspec(dllexport) void waveWriteBuffer(void* lpData, int size) {
+
+	printf("Wave Prei");
+
 	wh.lpData = (LPSTR)lpData;
 	wh.dwBufferLength = size;
 	wh.dwFlags = 0L;

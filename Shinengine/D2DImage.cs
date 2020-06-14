@@ -78,7 +78,7 @@ namespace Shinengine
             m_Dipter = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
             m_Dipter.Tick += (e, v) =>
             {
-                Console.WriteLine("Reper");
+             //   Console.WriteLine("Reper");
                 Dpis = Times;
                 double TimesOfWait = Speed * Dpis;
                 if (TimesOfWait > 1)
