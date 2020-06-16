@@ -42,11 +42,13 @@ namespace Shinengine
         public int Width { get; }//绘图区域的宽
         public int Height { get; }//绘图区域的长
 
-        private readonly int TargetDpi;//目标帧率
+        public int TargetDpi;//目标帧率
+
         private readonly WriteableBitmap buffer = null;//图片源
         private readonly ImagingFactory _ImagFc = null;
         private readonly WICBitmap _bufferBack;//用于D2D绘图的WIC图片
         private readonly D2DFactory DxFac = null;
+
         public double Speed = 0;//画每帧后等待的时间
         private  DispatcherTimer m_Dipter;//计算帧率的计时器
         private  Task m_Dipter2;//绘图线程
@@ -66,6 +68,7 @@ namespace Shinengine
         {
           try
             {
+                
              //   Debug.WriteLine("Lock");
                 buffer.Lock();
                 var m_lock = _bufferBack.Lock(BitmapLockFlags.Read);
@@ -139,6 +142,8 @@ namespace Shinengine
                             //     litmit = false;
                         }));
                 }
+
+                
             }
 
             m_Dipter = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
@@ -192,9 +197,10 @@ namespace Shinengine
                 while (isRunning)
                 {
                     //  Debug.WriteLine("Start Draw");
-                    var UpData = DrawProc(View, Loadedsouce, Width, Height);
+                    var UpData = DrawProc?.Invoke(View, Loadedsouce, Width, Height);
                     //  var litmit = true;
-                    if (UpData)
+                    if (UpData!=null)
+                        if((bool)UpData)
                         contorl.Dispatcher.Invoke(new Action(() => {
                             Commit();
                             //     litmit = false;
@@ -204,6 +210,7 @@ namespace Shinengine
                     //      Thread.Sleep(1);
 
                     Thread.Sleep((int)(Speed * 1000.0d));
+                    if(UpData==true)
                     Times++;
                 }
 
@@ -218,13 +225,15 @@ namespace Shinengine
         }
         public void Dispose()
         {
+            Console.WriteLine("dispose called");
+
 
             new Thread(() =>
             {
-                m_Dipter.Stop();
+                m_Dipter?.Stop();
                 isRunning = false;
 
-                m_Dipter2.Wait();
+                m_Dipter2?.Wait();
 
 
 
@@ -236,8 +245,11 @@ namespace Shinengine
                     _ImagFc.Dispose();
                 if (DxFac != null)
                     DxFac.Dispose();
+                m_Dipter2.Dispose();
 
-                Disposed(Loadedsouce);
+
+
+                Disposed?.Invoke(Loadedsouce);
             }).Start();
         }//ignore
         ~Direct2DImage()

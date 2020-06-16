@@ -1,21 +1,23 @@
 ﻿// dllmain.cpp : 定义 DLL 应用程序的入口点。
+
 #include "pch.h"
-#include<mmsystem.h>
-#include<mmreg.h>
-#pragma comment(lib, "winmm.lib")
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
 
-char* MemSpec = nullptr;
+#include <mmsystem.h>
+#include <dsound.h>
 
-extern "C" __declspec(dllexport) void Test1(bool yorn) 
-{
-	if (yorn) {
-		MemSpec = new char[1000*1000*850];
-	}
-	else {
-		delete MemSpec;
-	}
-}
+#include "MicroFile.h"
+#pragma comment (lib,"MicroFile.lib")
 
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "dsound.lib")
+
+
+#define MAX_AUDIO_BUF 4
+int size;
+int offset;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -35,41 +37,132 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-HWAVEOUT        hwo;
-WAVEHDR         wh;
-WAVEFORMATEX    wfx;
-HANDLE          wait;
-extern "C" __declspec(dllexport) void waveInit(short nFormat,short nChannels,int nSamPer,int bitRate,int Bitsample) {
 
-	wfx.wFormatTag = WAVE_FORMAT_PCM;//设置波形声音的格式
-	wfx.nChannels = nChannels;//设置音频文件的通道数量
-	wfx.nSamplesPerSec = nSamPer;//设置每个声道播放和记录时的样本频率
-	wfx.nAvgBytesPerSec = bitRate;//设置请求的平均数据传输率,单位byte/s。这个值对于创建缓冲大小是很有用的
-	wfx.nBlockAlign = 2;//以字节为单位设置块对齐
-	wfx.wBitsPerSample = Bitsample;
-	wfx.cbSize = 0;//额外信息的大小
-	wait = CreateEvent(NULL, 0, 0, NULL);
-	waveOutOpen(&hwo, WAVE_MAPPER, &wfx, (DWORD_PTR)wait, 0L, CALLBACK_EVENT);//打开一个给定的波形音频输出装置来进行回放
-//	fopen_s(&thbgm, "paomo.pcm", "rb");
-//	cnt = fread(buf, sizeof(char), 1024 * 1024 * 4, thbgm);//读取文件4M的数据到内存来进行播放，通过这个部分的修改，增加线程可变成网络音频数据的实时传输。当然如果希望播放完整的音频文件，也是要在这里稍微改一改
-	int dolenght = 0;
-	int playsize = 1024;
 
-	
-//	fclose(thbgm);
 
+IDirectSoundBuffer8* m_pDSBuffer8 = NULL;    //used to manage sound buffers.
+IDirectSound8* m_pDS = 0;
+
+IDirectSoundBuffer* m_pDSBuffer = NULL;
+IDirectSoundNotify8* m_pDSNotify = 0;
+
+DSBPOSITIONNOTIFY m_pDSPosNotify[MAX_AUDIO_BUF];
+HANDLE m_event[MAX_AUDIO_BUF];
+
+LPVOID buf = NULL;
+DWORD  buf_len = 0;
+DWORD res = WAIT_OBJECT_0;
+
+HANDLE hFile;
+DWORD dwWrite;
+
+extern "C" __declspec(dllexport) byte * getPCM(LPWSTR path) {
+    HANDLE hF = CreateFile(path, GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    int i= GetLastError();
+
+    byte* result = (byte*)malloc(GetFileSize(hF, NULL));
+    ReadFile(hF, result, GetFileSize(hF, NULL), &dwWrite, NULL);
+    CloseHandle(hF);
+   // delete &hPCM;
+
+    return result;
+}
+MicroBinary* hhPCM = NULL;
+extern "C" __declspec(dllexport) bool waveInit(HWND hWnd, int channels, int sample_rate, int bits_per_sample, int size)
+{
+    hhPCM = new MicroBinary(L"out.pcm");
+    int i;
+    ::size = size;
+    offset = size;
+    printf("waveinit\n");
+    //Init DirectSound
+    if (FAILED(DirectSoundCreate8(NULL, &m_pDS, NULL)))
+        return FALSE;
+    if (FAILED(m_pDS->SetCooperativeLevel(hWnd, DSSCL_NORMAL)))
+        return FALSE;
+
+    
+    DSBUFFERDESC dsbd;
+    memset(&dsbd, 0, sizeof(dsbd));
+    dsbd.dwSize = sizeof(dsbd);
+    dsbd.dwFlags = DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GETCURRENTPOSITION2;
+    dsbd.dwBufferBytes = MAX_AUDIO_BUF * size;
+    dsbd.lpwfxFormat = (WAVEFORMATEX*)malloc(sizeof(WAVEFORMATEX));
+    dsbd.lpwfxFormat->wFormatTag = WAVE_FORMAT_PCM;
+    /* format type */
+    (dsbd.lpwfxFormat)->nChannels = channels;
+    /* number of channels (i.e. mono, stereo...) */
+    (dsbd.lpwfxFormat)->nSamplesPerSec = sample_rate;
+    /* sample rate */
+    (dsbd.lpwfxFormat)->nAvgBytesPerSec = sample_rate * (bits_per_sample / 8) * channels;
+    /* for buffer estimation */
+    (dsbd.lpwfxFormat)->nBlockAlign = (bits_per_sample / 8) * channels;
+    /* block size of data */
+    (dsbd.lpwfxFormat)->wBitsPerSample = bits_per_sample;
+    /* number of bits per sample of mono data */
+    (dsbd.lpwfxFormat)->cbSize = 0;
+
+    //Creates a sound buffer object to manage audio samples.
+    if (FAILED(m_pDS->CreateSoundBuffer(&dsbd, &m_pDSBuffer, NULL))) {
+        
+        return FALSE;
+    }
+    if (FAILED(m_pDSBuffer->QueryInterface(IID_IDirectSoundBuffer8, (LPVOID*)&m_pDSBuffer8))) {
+        return FALSE;
+    }
+    //Get IDirectSoundNotify8
+    if (FAILED(m_pDSBuffer8->QueryInterface(IID_IDirectSoundNotify, (LPVOID*)&m_pDSNotify))) {
+        return FALSE;
+    }
+    for (i = 0; i < MAX_AUDIO_BUF; i++) {
+        m_pDSPosNotify[i].dwOffset = i * size;
+        m_event[i] = ::CreateEvent(NULL, false, false, NULL);
+        m_pDSPosNotify[i].hEventNotify = m_event[i];
+    }
+    m_pDSNotify->SetNotificationPositions(MAX_AUDIO_BUF, m_pDSPosNotify);
+    m_pDSNotify->Release();
+
+    //Start Playing
+  
+    m_pDSBuffer8->SetCurrentPosition(0);
+    m_pDSBuffer8->Play(0, 0, DSBPLAY_LOOPING);
+
+    hFile = CreateFileA("out.pcm", GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    return 0;
+}
+DWORD dwSize;
+extern "C" __declspec(dllexport) void waveWrite(byte* in_buf, int in_buf_len) {
+    WriteFile(hFile, in_buf, in_buf_len, &dwSize, NULL);
+  //  hhPCM->Push(in_buf, in_buf_len);
+        if ((res >= WAIT_OBJECT_0) && (res <= WAIT_OBJECT_0 + 3)) {
+            m_pDSBuffer8->Lock(offset, ::size, &buf, &buf_len, NULL, NULL, 0);
+
+            // 如果是实时音频播放，那么下面的数据就可以把内存中buf_len大小的数据复制到buf指向的地址即可
+            memcpy(buf, in_buf, in_buf_len);
+            
+            offset += buf_len;
+            offset %= (::size * MAX_AUDIO_BUF);
+            m_pDSBuffer8->Unlock(buf, buf_len, NULL, 0);
+        }
+        res = WaitForMultipleObjects(MAX_AUDIO_BUF, m_event, FALSE, INFINITE);
+  
 }
 
-extern "C" __declspec(dllexport) void waveWriteBuffer(void* lpData, int size) {
-	wh.lpData = (LPSTR)lpData;
-	wh.dwBufferLength = size;
-	wh.dwFlags = 0L;
-	wh.dwLoops = 1L;
-	waveOutPrepareHeader(hwo, &wh, sizeof(WAVEHDR));//准备一个波形数据块用于播放
-	waveOutWrite(hwo, &wh, sizeof(WAVEHDR));//在音频媒体中播放第二个函数wh指定的数据
-	//WaitForSingleObject(wait, INFINITE);//用来检测hHandle事件的信号状态，在某一线程中调用该函数时，线程暂时挂起，如果在挂起的INFINITE毫秒内，线程所等待的对象变为有信号状态，则该函数立即返回
-}
+extern "C" __declspec(dllexport) void waveClose() 
+{
+    printf("OnClosed");
+  //  hhPCM->Save();
+  //  delete hhPCM;
+    CloseHandle(hFile);
+    m_pDSBuffer8->Lock(0, ::size, &buf, &buf_len, NULL, NULL, 0);
 
-extern "C" __declspec(dllexport) void waveClear() {
-	waveOutClose(hwo);
+    // 如果是实时音频播放，那么下面的数据就可以把内存中buf_len大小的数据复制到buf指向的地址即可
+    memset(buf, 0, buf_len);
+
+    m_pDSBuffer8->Unlock(buf, buf_len, NULL, 0);
+
+    //此处顺序也不能乱	
+    if(m_pDSBuffer8){ m_pDSBuffer8->Release(); m_pDSBuffer8 =NULL;};
+    if(m_pDS){ m_pDS->Release(); m_pDS =NULL;};
+  
 }

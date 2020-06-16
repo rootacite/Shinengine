@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Shinengine": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false,
+      "nativeDebugging": true
+    }
+  }
+}

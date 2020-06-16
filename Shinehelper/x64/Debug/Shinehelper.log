@@ -1,5 +1,4 @@
-﻿  pch.cpp
-  dllmain.cpp
-    正在创建库 D:\Shine\Shinengine\x64\Debug\Shinehelper.lib 和对象 D:\Shine\Shinengine\x64\Debug\Shinehelper.exp
+﻿  dllmain.cpp
+D:\Shine\Shinengine\Shinehelper\dllmain.cpp(88,13): warning C4101: “hr1”: 未引用的局部变量
   Shinehelper.vcxproj -> D:\Shine\Shinengine\x64\Debug\Shinehelper.dll
-  已复制         1 个文件。
+          1 file(s) copied.
