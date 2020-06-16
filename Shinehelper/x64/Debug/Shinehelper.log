@@ -1,4 +1,0 @@
-﻿  dllmain.cpp
-D:\Shine\Shinengine\Shinehelper\dllmain.cpp(88,13): warning C4101: “hr1”: 未引用的局部变量
-  Shinehelper.vcxproj -> D:\Shine\Shinengine\x64\Debug\Shinehelper.dll
-          1 file(s) copied.
