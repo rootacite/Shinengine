@@ -29,8 +29,14 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Shinengine
+namespace Shinengine.Media
 {
+    public enum DrawProcResult
+    {
+        Ignore,
+        Commit,
+        Death
+    }
     public class Direct2DImage
     {
 
@@ -52,7 +58,8 @@ namespace Shinengine
         public double Speed = 0;//画每帧后等待的时间
         private  DispatcherTimer m_Dipter;//计算帧率的计时器
         private  Task m_Dipter2;//绘图线程
-        public delegate bool FarmeTask(WicRenderTarget view, object Loadedsouce, int Width, int Height);
+        public delegate DrawProcResult FarmeTask(WicRenderTarget view, object Loadedsouce, int Width, int Height);
+
         public delegate bool StartTask(WicRenderTarget view, WICBitmap last, int Width, int Height);
         public delegate void EndTask(object Loadedsouce);
 
@@ -199,19 +206,34 @@ namespace Shinengine
                     //  Debug.WriteLine("Start Draw");
                     var UpData = DrawProc?.Invoke(View, Loadedsouce, Width, Height);
                     //  var litmit = true;
-                    if (UpData!=null)
-                        if((bool)UpData)
-                        contorl.Dispatcher.Invoke(new Action(() => {
+                    if (UpData == null)
+                    {
+                        throw new Exception();
+                    }
+                    if (UpData == DrawProcResult.Commit)
+                    {
+                        contorl.Dispatcher.Invoke(new Action(() =>
+                        {
                             Commit();
                             //     litmit = false;
                         }));
+                        Thread.Sleep((int)(Speed * 1000.0d));
+                        Times++;
+                        continue;
+                    }
 
                     // while (litmit&&isRunning)
                     //      Thread.Sleep(1);
-
-                    Thread.Sleep((int)(Speed * 1000.0d));
-                    if(UpData==true)
-                    Times++;
+                    if (UpData == DrawProcResult.Ignore)
+                    {
+                        Thread.Sleep((int)(Speed * 1000.0d));
+                        continue;
+                    }
+                    if (UpData == DrawProcResult.Death)
+                    {
+                        this.Dispose();
+                        break;
+                    }
                 }
 
                 Debug.WriteLine("Dispod");

@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Shinengine
+namespace Shinengine.Media
 {
     public class FFmpegBinariesHelper
     {

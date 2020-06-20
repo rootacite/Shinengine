@@ -39,6 +39,8 @@
     <None Remove="SAVE.png" />
     <None Remove="Shine.ico" />
     <None Remove="start_0.png" />
+    <None Remove="Surface\start_0.png" />
+    <None Remove="Surface\textbar.png" />
     <None Remove="test.jpg" />
     <None Remove="textbar.png" />
     <None Remove="TITLE.png" />
@@ -58,7 +60,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="next_0.png" />
     <Resource Include="Shine.ico" />
+    <Resource Include="Surface\start_0.png" />
+    <Resource Include="Surface\textbar.png" />
   </ItemGroup>
 
 </Project>

@@ -9,15 +9,21 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="VideoPlayer.xaml.cs">
+    <Compile Update="Surface\GamingTheatre.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Surface\VideoPlayer.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="VideoPlayer.xaml">
+    <Page Update="Surface\GamingTheatre.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="MainWindow.xaml">
+    <Page Update="Surface\MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Surface\VideoPlayer.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

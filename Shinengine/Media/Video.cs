@@ -12,7 +12,7 @@ using System.Windows;
 using System.Windows.Controls;
 using WICBitmap = SharpDX.WIC.Bitmap;
 
-namespace Shinengine
+namespace Shinengine.Media
 {
     public struct VideoFrame
     {
@@ -56,16 +56,10 @@ namespace Shinengine
         public event CleanUp Disposed;
         [DllImport("Kernel32.dll")]
         unsafe extern public static void RtlMoveMemory(void* dst, void* sur, long size);
+
         unsafe public Video(VideoMode mod,string url)
         {
             mode = mod;
-            #region ffmpeg 初始化
-            // 初始化注册ffmpeg相关的编码器
-            ffmpeg.av_register_all(); //此处出现异常
-            ffmpeg.avcodec_register_all();
-            ffmpeg.avformat_network_init();
-            #endregion
-
             #region ffmpeg 转码
 
             #region 转码共通
@@ -201,7 +195,6 @@ namespace Shinengine
         private AVFrame* pConvertedFrame;
 
         private AVPacket* pPacket = null;
-
 
         [Obsolete]
         public unsafe void Start()

@@ -8,7 +8,7 @@ using FFmpeg;
 using FFmpeg.AutoGen;
 using SharpDX;
 
-namespace Shinengine
+namespace Shinengine.Media
 {
     public sealed unsafe class VideoStreamDecoder : IDisposable
     {

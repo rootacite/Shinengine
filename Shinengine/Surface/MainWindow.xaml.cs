@@ -28,15 +28,19 @@ using SharpDX.WIC;
 using System.Windows.Media.Animation;
 using System.Runtime.CompilerServices;
 using System.Security.Policy;
+using System.Windows.Media;
+using System.Media;
 
-namespace Shinengine
+using Shinengine.Media;
+using Shinengine.Data;
+
+namespace Shinengine.Surface
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool disFlag = false;
         VideoPlayer gameview = null;
         [DllImport("Shinehelper.dll")]
         unsafe extern static public byte* getPCM();
@@ -48,42 +52,42 @@ namespace Shinengine
         extern public static void waveClose();
         IntPtr hWnd =(IntPtr) 0;
         Direct2DImage DxBkGround = null;
-        private Task m_reseter;
         [DllImport("winmm")]
         static extern void timeBeginPeriod(int t);
         [DllImport("winmm")]
         static extern void timeEndPeriod(int t);
 
-        unsafe public bool DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
+        unsafe public DrawProcResult DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
         {
             var video = Loadedsouce as VideoStreamDecoder;
-            if (disFlag)
-                return false;
+           
             if (video == null)
-                return false;
+                return DrawProcResult.Ignore;
 
             IntPtr dataPoint;
             int pitch;
             var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
             if (!res) {
-                new Thread(()=> { disFlag = true; DxBkGround.Dispose(); DxBkGround = null; }).Start();
-                return false;
+                DxBkGround = null;
+                return DrawProcResult.Death;
             }
             var ImGc = new ImagingFactory();
-            var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height,SharpDX.WIC.PixelFormat.Format32bppBGR,new DataRectangle(dataPoint, pitch));
+            var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height,SharpDX.WIC.PixelFormat.Format32bppPBGRA,new DataRectangle(dataPoint, pitch));
             var BitSrc = D2DBitmap.FromWicBitmap(view,WICBIT);
 
             view.BeginDraw();
-            view.DrawBitmap(BitSrc,
-               new RawRectangleF(0, 0, Width, Height),
-               1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-               new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
+                view.DrawBitmap(BitSrc,
+                  new RawRectangleF(0, 0, Width, Height),
+                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                   new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
+
+            
             view.EndDraw();
 
             ImGc.Dispose();
             WICBIT.Dispose();
             BitSrc.Dispose();
-            return true;
+            return DrawProcResult.Commit;
         }
 
         [Obsolete]
@@ -99,38 +103,18 @@ namespace Shinengine
             return;
         }
 
-
+        [Obsolete]
         private void BackGround_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            gameview = new VideoPlayer();
-            gameview.Start(hWnd, "assets\\09.mp4", ()=>{
-                var c = gameview.Content;
-                gameview.Content = this.Content;
-                this.Content = c;
-            });
-            var c = this.Content;
-            this.Content= gameview.Content;
-            gameview.Content = c;
 
+
+            
             return;
-            Storyboard stb = new Storyboard();
-            DoubleAnimation dmb = new DoubleAnimation();
-            dmb.From = 1000;
-            dmb.To = 100;
-            dmb.Duration = TimeSpan.FromSeconds(1);
-            stb.Children.Add(dmb);
-            stb.FillBehavior = FillBehavior.HoldEnd;
-            Storyboard.SetTarget(stb, this);
-            Storyboard.SetTargetProperty(stb, new PropertyPath("(Width)"));
-
-            stb.Begin();
         }
         
         private void Window_Closed(object sender, EventArgs e)
         {
             timeEndPeriod(10);
-            if (m_reseter != null)
-                m_reseter.Dispose();
             if (DxBkGround != null)
                 DxBkGround.Dispose();
             if (gameview != null)
@@ -144,9 +128,16 @@ namespace Shinengine
             // _Position = e.GetPosition(this);
          //   Canvas.SetZIndex(test, Canvas.GetZIndex(test) - 1);
         }
+        public MediaPlayer m_BGkMusic = new MediaPlayer();
+        private SoundPlayer player;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+
+            player = new SoundPlayer();
+            player.SoundLocation = "assets\\bgm04s.wav";
+            player.Load();
+           
             hWnd = new WindowInteropHelper(this).Handle;
             DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
             {
@@ -156,8 +147,40 @@ namespace Shinengine
             DxBkGround.Disposed += (Loadedsouce) => { (Loadedsouce as VideoStreamDecoder).Dispose(); };
             DxBkGround.DrawProc += DrawCallback;
 
-
             DxBkGround.DrawStartup(BackGround);
+            player.Play();
+        }
+
+        private void StartButton_Click(object sender, RoutedEventArgs e)
+        {
+            player.Stop();
+            player.Dispose();
+
+
+            VideoPlayer vpm = new VideoPlayer();
+            vpm.Start(hWnd,"assets\\VIDEO\\video_01.mp4",()=>
+            {
+                vpm.Close();
+                GamingTheatre m_game = new GamingTheatre();
+                this.Content = m_game.Content;
+                m_game.Start((s) =>
+                {
+                    s.setBackground(Color.FromRgb(0, 0, 0));
+                    s.stage.setASImage("/assets/CG/02.png");
+                    s.stage.Show(2, false);
+                    s.usage.Show(2, false);
+                    //    s.usage.Show(0.5, false);
+
+                    s.waitForClick(this);
+                    s.usage.Hide(1, false);
+                    s.waitForClick(this);
+                    s.usage.Show(1, false);
+                    return 0;
+                });
+                m_game.Close();
+            });
+
+            this.Content = vpm.Content;
         }
     }
 }
