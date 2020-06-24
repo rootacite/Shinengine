@@ -44,10 +44,23 @@
     <None Remove="test.jpg" />
     <None Remove="textbar.png" />
     <None Remove="TITLE.png" />
+    <None Remove="UI\BookPage.png" />
+    <None Remove="UI\character.png" />
+    <None Remove="UI\exit_0.png" />
+    <None Remove="UI\LOAD.png" />
+    <None Remove="UI\next_0.png" />
+    <None Remove="UI\SAVE.png" />
+    <None Remove="UI\SettingPage.png" />
+    <None Remove="UI\start_0.png" />
+    <None Remove="UI\textbar.png" />
+    <None Remove="UI\TITLE.png" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FFmpeg.AutoGen" Version="4.2.2.2" />
+    <PackageReference Include="MaterialDesignColors" Version="1.2.6" />
+    <PackageReference Include="MaterialDesignThemes" Version="3.1.3" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
     <PackageReference Include="PInvoke.Kernel32" Version="0.6.49" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
@@ -56,14 +69,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UI\" />
+    <Resource Include="Surface\start_0.png" />
+    <Resource Include="Surface\textbar.png" />
+    <Resource Include="UI\BookPage.png" />
+    <Resource Include="UI\character.png" />
+    <Resource Include="UI\exit_0.png" />
+    <Resource Include="UI\LOAD.png" />
+    <Resource Include="UI\next_0.png" />
+    <Resource Include="UI\SAVE.png" />
+    <Resource Include="UI\SettingPage.png" />
+    <Resource Include="UI\start_0.png" />
+    <Resource Include="UI\textbar.png" />
+    <Resource Include="UI\TITLE.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="next_0.png" />
-    <Resource Include="Shine.ico" />
-    <Resource Include="Surface\start_0.png" />
-    <Resource Include="Surface\textbar.png" />
+    <None Update="Book1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

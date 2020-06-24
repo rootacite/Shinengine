@@ -166,3 +166,7 @@ extern "C" __declspec(dllexport) void waveClose()
     if(m_pDS){ m_pDS->Release(); m_pDS =NULL;};
   
 }
+
+extern "C" __declspec(dllexport) HWND GetDskWindow() {
+    return GetDesktopWindow();
+}

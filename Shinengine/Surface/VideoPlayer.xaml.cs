@@ -108,7 +108,7 @@ namespace Shinengine.Surface
             {
                 Loadedsouce = vest
             };
-            dxVideo.Disposed += (Loadedsouce) => { (Loadedsouce as Video).Dispose(); };
+            dxVideo.Disposed += (Loadedsouce, ss) => { (Loadedsouce as Video).Dispose(); ss.Dispose(); };
             dxVideo.DrawProc += DrawCallback;
 
 
@@ -153,6 +153,11 @@ namespace Shinengine.Surface
 
             video.Start();
             dxVideo.DrawStartup(BackGround);
+        }
+
+        private void BackGround_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            Stop();
         }
     }
 }

@@ -8,17 +8,16 @@ using System.Xml.Linq;
 
 namespace Shinengine.Data
 {
-    class DataStream
+    public class DataStream
     {
         public XDocument doc;
         public IEnumerable<XNode> atr;
 
         public struct PageInfo
         {
-            public string BkSoure;
-            public string music;
-            public string text;
-            public string name;
+            public string Illustration;
+            public string BackgroundMusic;
+            public List<string> Contents;
         }
 
         public DataStream(string path)
@@ -34,11 +33,36 @@ namespace Shinengine.Data
             {
                 if (item.Attribute("id").Value.ToString() == id.ToString())
                 {
-                    result.music = item.Element("music").Value.ToString();
-                    result.BkSoure = item.Element("bks").Value.ToString();
-                    result.text = item.Element("text").Value.ToString();
-                    result.name = item.Element("name").Value.ToString();
-
+                    result.BackgroundMusic = item.Element("BackgroundMusic").Value.ToString();
+                    result.Illustration = item.Element("Illustration").Value.ToString();
+                    result.Contents = item.Element("Contents").Value.ToString().Split('\n').ToList();
+         
+                    for (var i = 0; i < result.Contents.Count; )
+                    {
+                        bool succ_flag = false;
+                        foreach(var p in result.Contents[i])
+                        {
+                            if(p!=' ' && p != '\n')
+                            {
+                                succ_flag = true;
+                                break;
+                            }
+                        }
+                        if (!succ_flag)
+                        {
+                            result.Contents.RemoveAt(i);
+                            continue;
+                        }
+                        i++;
+                    }
+                    for (var index_i = 0; index_i < result.Contents.Count; index_i++)
+                    {
+                        while (result.Contents[index_i][0] == ' ')
+                        {
+                            string newi = result.Contents[index_i].Substring(1, result.Contents[index_i].Length - 1);
+                            result.Contents[index_i] = newi;
+                        }
+                    }
                     break;
                 }
                 else

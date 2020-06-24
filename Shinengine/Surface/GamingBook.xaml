@@ -1,0 +1,24 @@
+﻿<Window x:Class="Shinengine.Surface.GamingBook"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:Shinengine.Surface"
+        mc:Ignorable="d"
+        Title="GamingBook" Height="720" Width="1280" MouseUp="Window_MouseUp" >
+    <Grid x:Name="Book">
+        <Image x:Name="Illustration" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="1280" Height="704" Stretch="Fill"/>
+        <Grid x:Name="Page" HorizontalAlignment="Center" VerticalAlignment="Center" Height="620" Width="1150" MouseUp="Page_MouseUp" MouseWheel="Page_MouseWheel">
+            <Image x:Name="PageEdge" Source="/UI/BookPage.png" VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Fill">
+            </Image>
+            <TextBlock x:Name="_Contents"  Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="520" Width="998" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" />
+
+            <StackPanel Orientation="Horizontal" Margin="1080 0 0 0">
+                <Slider x:Name="restIlt" Orientation="Vertical"  Minimum="0" Maximum="18" Width="50"  Height="558" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="restIlt_ValueChanged" />
+            </StackPanel>
+            
+        </Grid>
+
+    </Grid>
+</Window>

@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
-        Title="GameView"  Height="720" Width="1280" Icon="/Shine.ico" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="GameView"  Height="720" Width="1280" Loaded="Window_Loaded" Closed="Window_Closed">
     <Grid>
-        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" Cursor="Arrow"/>
+        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" Cursor="Arrow" MouseUp="BackGround_MouseUp"/>
     </Grid>
 </Window>

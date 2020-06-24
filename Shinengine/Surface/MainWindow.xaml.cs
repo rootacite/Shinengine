@@ -7,32 +7,23 @@ using System.Runtime.InteropServices;
 
 
 using SharpDX;
-using System.Windows.Controls;
 using SharpDX.Direct2D1;
 using System.Windows.Media.Imaging;
 using ImageBrush = System.Windows.Media.ImageBrush;
-using System.Threading.Tasks;
 using System.Windows.Interop;
 
-using PInvoke;
-using FFmpeg.AutoGen;
-using System.Threading;
-
 using WICBitmap = SharpDX.WIC.Bitmap;
-using D2DFactory = SharpDX.Direct2D1.Factory;
-using SharpDX.DXGI;
-using AlphaMode = SharpDX.Direct2D1.AlphaMode;
-using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using D2DBitmap = SharpDX.Direct2D1.Bitmap;
 using SharpDX.WIC;
-using System.Windows.Media.Animation;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
 using System.Windows.Media;
 using System.Media;
 
 using Shinengine.Media;
-using Shinengine.Data;
+using Color = System.Windows.Media.Color;
+
+using NAudio.Wave;
+using System.Threading;
+using System.Drawing;
 
 namespace Shinengine.Surface
 {
@@ -41,6 +32,8 @@ namespace Shinengine.Surface
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        #region 初始化成员
         VideoPlayer gameview = null;
         [DllImport("Shinehelper.dll")]
         unsafe extern static public byte* getPCM();
@@ -60,7 +53,6 @@ namespace Shinengine.Surface
         unsafe public DrawProcResult DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
         {
             var video = Loadedsouce as VideoStreamDecoder;
-           
             if (video == null)
                 return DrawProcResult.Ignore;
 
@@ -91,6 +83,7 @@ namespace Shinengine.Surface
         }
 
         [Obsolete]
+        #endregion
         public MainWindow()
         {
             InitializeComponent();
@@ -128,59 +121,83 @@ namespace Shinengine.Surface
             // _Position = e.GetPosition(this);
          //   Canvas.SetZIndex(test, Canvas.GetZIndex(test) - 1);
         }
-        public MediaPlayer m_BGkMusic = new MediaPlayer();
-        private SoundPlayer player;
+        public AudioPlayer m_BGkMusic = null;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
 
-            player = new SoundPlayer();
-            player.SoundLocation = "assets\\bgm04s.wav";
-            player.Load();
-           
+            m_BGkMusic = new AudioPlayer("assets\\BGM\\10.wav", true);
+
+
             hWnd = new WindowInteropHelper(this).Handle;
             DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
             {
                 Loadedsouce = new VideoStreamDecoder("assets\\title.wmv")
             };
 
-            DxBkGround.Disposed += (Loadedsouce) => { (Loadedsouce as VideoStreamDecoder).Dispose(); };
+            DxBkGround.Disposed += (Loadedsouce,s) => { (Loadedsouce as VideoStreamDecoder).Dispose(); s.Dispose(); };
             DxBkGround.DrawProc += DrawCallback;
 
             DxBkGround.DrawStartup(BackGround);
-            player.Play();
+            
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            player.Stop();
-            player.Dispose();
+           
+            StaticCharacter.ChangeableAreaInfo[] m_Infos = new StaticCharacter.ChangeableAreaInfo[1];
+            m_Infos[0].area = new Rect(0, 0, 1500, 1500);
+            m_Infos[0].pics = new string[3];
+            m_Infos[0].pics[0] = "assets\\Character\\BS_RE2x_face___000.png";
+            m_Infos[0].pics[1] = "assets\\Character\\BS_RE2x_face___001.png";
+            m_Infos[0].pics[2] = "assets\\Character\\BS_RE2x_face___002.png";
 
-
-            VideoPlayer vpm = new VideoPlayer();
-            vpm.Start(hWnd,"assets\\VIDEO\\video_01.mp4",()=>
+            if (m_BGkMusic != null)
             {
-                vpm.Close();
-                GamingTheatre m_game = new GamingTheatre();
+                 m_BGkMusic.canplay = false;
+            }
+
+            this.Background = new System.Windows.Media.SolidColorBrush(Colors.White);
+            EasyAmal mnoi = null;
+             mnoi = new EasyAmal(BkGrid, "(Opacity)", 1.0, 0.0, 1.6,(e,v)=>
+            {
+                m_BGkMusic = new AudioPlayer("assets\\BGM\\01.wav", true, 0.45f);
+                GamingTheatre m_game = new GamingTheatre(this);
                 this.Content = m_game.Content;
+                mnoi.stbd.Stop();
                 m_game.Start((s) =>
                 {
+                    s.usage.Hide(0);
                     s.setBackground(Color.FromRgb(0, 0, 0));
-                    s.stage.setASImage("/assets/CG/02.png");
-                    s.stage.Show(2, false);
-                    s.usage.Show(2, false);
-                    //    s.usage.Show(0.5, false);
+                    s.stage.setAsImage("assets\\CG\\10.png",0,false);
+                    s.stage.Show(null, true);
+                    s.usage.Show();
 
-                    s.waitForClick(this);
-                    s.usage.Hide(1, false);
-                    s.waitForClick(this);
-                    s.usage.Show(1, false);
+                    var character_1 = new StaticCharacter("墨小菊", "assets\\Character\\BS_RE20_01B.png", s.CharacterLayer, false, m_Infos, null, false);
+                    character_1.SwitchTo(0,1);
+                    character_1.Show();
+                    while (true)
+                    {
+                     //   s.stage.setAsImage("assets\\CG\\10.png", 0.3, false);
+                        character_1.SwitchTo(0, 1, null, false);
+                       // character_1.Say(s.airplant, "好久不见!", "assets\\sound\\01.wma");
+
+                        s.waitForClick(this);
+
+                       // s.stage.setAsVideo("assets\\title.wmv", 0.3, false);
+                        character_1.SwitchTo(0, 2, null, false);
+                      //  character_1.Say(s.airplant, "你什么时候去死啊");
+                        s.waitForClick(this);
+
+                        GC.Collect();
+                    }
                     return 0;
                 });
                 m_game.Close();
             });
+            mnoi.Start(true);
+         
 
-            this.Content = vpm.Content;
         }
     }
 }

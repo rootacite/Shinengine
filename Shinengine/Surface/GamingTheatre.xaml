@@ -3,14 +3,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:Shinengine.Surface"
         mc:Ignorable="d"
-        Title="GamingTheatre" Height="720" Width="1280" Closed="Window_Closed">
-    <Grid x:Name="SBK">
+        Title="GamingTheatre" Height="720" Width="1280" Closed="Window_Closed" Loaded="Window_Loaded">
+    <Grid x:Name="SBK" MouseUp="SBK_MouseUp" MouseRightButtonUp="SBK_MouseRightButtonUp" MouseLeftButtonUp="SBK_MouseLeftButtonUp">
+
         <Image x:Name="BG" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="1280" Height="704" Stretch="Fill"/>
+
+        <Grid x:Name="ShowIn" Height="704" Width="1280" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"/>
+
         <Grid x:Name="Usage" Height="344" Width="1280" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0">
             <Image Height="344" Width="1280" Source="/Surface/textbar.png" Stretch="Fill"/>
-        
+            <Grid x:Name="AirPt">
+                <TextBlock x:Name="Lines" Text=" "  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" Height="135" Width="1050" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" />
+                <Grid x:Name="character_usage"  Width="184" Height="60"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,144,0,0">
+                    <Image HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="184" Stretch="Fill" Source="/UI/character.png"/>
+                    <TextBlock TextAlignment="Center" Text=" " x:Name="character" VerticalAlignment="Center" HorizontalAlignment="Center" Height="26" Width="175" FontSize="22" Foreground="White" Background="#00000000" FontFamily="Arial Rounded MT Bold" FontStyle="Italic" FontWeight="Bold" />
+                </Grid>
+
+            </Grid>
+            <Image x:Name="Logo" HorizontalAlignment="Right" Height="35" Margin="0,0,20,5" VerticalAlignment="Bottom" Width="35" Stretch="Fill"/>
+
+
         </Grid>
     </Grid>
 </Window>

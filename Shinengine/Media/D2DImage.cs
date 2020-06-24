@@ -51,7 +51,7 @@ namespace Shinengine.Media
         public int TargetDpi;//目标帧率
 
         private readonly WriteableBitmap buffer = null;//图片源
-        private readonly ImagingFactory _ImagFc = null;
+        public readonly ImagingFactory _ImagFc = null;
         private readonly WICBitmap _bufferBack;//用于D2D绘图的WIC图片
         private readonly D2DFactory DxFac = null;
 
@@ -61,7 +61,7 @@ namespace Shinengine.Media
         public delegate DrawProcResult FarmeTask(WicRenderTarget view, object Loadedsouce, int Width, int Height);
 
         public delegate bool StartTask(WicRenderTarget view, WICBitmap last, int Width, int Height);
-        public delegate void EndTask(object Loadedsouce);
+        public delegate void EndTask(object Loadedsouce, WICBitmap _buff);
 
         public event EndTask Disposed;
         public event FarmeTask DrawProc;
@@ -69,7 +69,7 @@ namespace Shinengine.Media
 
         private bool isRunning = false;//指示是否正在运行
 
-        private WicRenderTarget View { get; } = null;//绘图目标
+        public WicRenderTarget View { get; private set; } = null;//绘图目标
 
         unsafe public void Commit()
         {
@@ -108,7 +108,7 @@ namespace Shinengine.Media
             isRunning = true;
 
             
-            buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Bgr32, null);
+            buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Pbgra32, null);
  
 
             _ImagFc = new ImagingFactory();
@@ -117,7 +117,7 @@ namespace Shinengine.Media
                 _ImagFc,
                 (int)size.Width,
                 (int)size.Height,
-                SharpDX.WIC.PixelFormat.Format32bppBGR,
+                SharpDX.WIC.PixelFormat.Format32bppPBGRA,
                 BitmapCreateCacheOption.CacheOnLoad);
 
             DxFac = new D2DFactory();
@@ -133,25 +133,20 @@ namespace Shinengine.Media
         }
         public void DrawStartup(Image contorl)
         {
-            if (contorl.Source != null)
+
+
+            if (StartDrawing != null)
             {
-                WriteableBitmap rectBuf = contorl.Source as WriteableBitmap;
-
-
-                if (StartDrawing != null)
-                {
-                    var UpData = StartDrawing(View, new WICBitmap(_ImagFc,Width,Height, SharpDX.WIC.PixelFormat.Format32bppBGR,new DataRectangle(rectBuf.BackBuffer, rectBuf.BackBufferStride)), Width, Height);
-                    //  var litmit = true;
-                    if (UpData)
-                        contorl.Dispatcher.Invoke(new Action(() =>
-                        {
-                            Commit();
+                var UpData = StartDrawing(View, null, Width, Height);
+                //  var litmit = true;
+                if (UpData)
+                    contorl.Dispatcher.Invoke(new Action(() =>
+                    {
+                        Commit();
                             //     litmit = false;
-                        }));
-                }
-
-                
+                    }));
             }
+
 
             m_Dipter = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(1) };
             m_Dipter.Tick += (e, v) =>
@@ -231,6 +226,11 @@ namespace Shinengine.Media
                     }
                     if (UpData == DrawProcResult.Death)
                     {
+                        contorl.Dispatcher.Invoke(new Action(() =>
+                        {
+                            Commit();
+                            //     litmit = false;
+                        }));
                         this.Dispose();
                         break;
                     }
@@ -257,10 +257,7 @@ namespace Shinengine.Media
 
                 m_Dipter2?.Wait();
 
-
-
-                if (_bufferBack != null)
-                    _bufferBack.Dispose();
+             
                 if (View != null)
                     View.Dispose();
                 if (_ImagFc != null)
@@ -271,7 +268,11 @@ namespace Shinengine.Media
 
 
 
-                Disposed?.Invoke(Loadedsouce);
+                Disposed?.Invoke(Loadedsouce, _bufferBack);
+                if (Disposed == null)
+                {
+                    _bufferBack.Dispose();
+                }
             }).Start();
         }//ignore
         ~Direct2DImage()

@@ -9,7 +9,13 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Surface\GamingBook.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Surface\GamingTheatre.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Surface\Setting.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Surface\VideoPlayer.xaml.cs">
@@ -17,10 +23,16 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Surface\GamingBook.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Surface\GamingTheatre.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Surface\MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Surface\Setting.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Surface\VideoPlayer.xaml">
