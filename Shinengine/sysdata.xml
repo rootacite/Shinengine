@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<settings>
+  <TextSpeed>0.3</TextSpeed>
+  <SwitchSpeed>0.8</SwitchSpeed>
+  <BGMVm>0.6</BGMVm>
+  <VoiceVM>1.0</VoiceVM>
+  <Auto>2</Auto>
+</settings>

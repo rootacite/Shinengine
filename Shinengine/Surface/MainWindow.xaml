@@ -5,13 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280" Closed="Window_Closed" Loaded="Window_Loaded" ResizeMode="NoResize">
-    <Grid MouseMove="Grid_MouseMove" x:Name="BkGrid">
-        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" MouseUp="BackGround_MouseUp" Cursor="Arrow"/>
-        <Button x:Name="StartButton" Style="{StaticResource BtnInfoStyle}" Content="Button" Width="104" Height="31" HorizontalAlignment="Left" Margin="101,0,0,0" VerticalAlignment="Top" Click="StartButton_Click">
-            <Button.Background>
-                <ImageBrush ImageSource="/Surface/start_0.png"/>
-            </Button.Background>
-        </Button>
+        Title="MainWindow" Height="720" Width="1280" ResizeMode="CanResize" Closed="Window_Closed" KeyDown="mmKeyDown" KeyUp="mmKeyUp">
+    <Grid x:Name="_BkGrid" Loaded="BkGrid_Loaded">
+       
     </Grid>
 </Window>

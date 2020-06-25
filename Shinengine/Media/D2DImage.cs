@@ -207,11 +207,18 @@ namespace Shinengine.Media
                     }
                     if (UpData == DrawProcResult.Commit)
                     {
-                        contorl.Dispatcher.Invoke(new Action(() =>
+                        try
                         {
-                            Commit();
-                            //     litmit = false;
-                        }));
+                            contorl.Dispatcher.Invoke(new Action(() =>
+                            {
+                                Commit();
+                                //     litmit = false;
+                            }));
+                        }
+                        catch
+                        {
+
+                        }
                         Thread.Sleep((int)(Speed * 1000.0d));
                         Times++;
                         continue;
@@ -250,7 +257,7 @@ namespace Shinengine.Media
             Console.WriteLine("dispose called");
 
 
-            new Thread(() =>
+            new Task(() =>
             {
                 m_Dipter?.Stop();
                 isRunning = false;

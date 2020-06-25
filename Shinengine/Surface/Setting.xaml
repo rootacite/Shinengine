@@ -3,15 +3,50 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Shinengine.Surface"
         mc:Ignorable="d"
         Title="Setting" Height="720" Width="1280">
-    <Grid>
-        <Grid Height="650" Width="1200">
+
+
+    <Grid x:Name="mpOi" MouseRightButtonUp="Grid_MouseRightButtonUp" Height="704" Width="1280">
+        <Image x:Name="Bkgnd" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="1280" Height="704" Stretch="UniformToFill"/>
+        <Grid x:Name="foreg" Height="620" Width="1180">
+
+            <StackPanel VerticalAlignment="Top" Height="80" Width="850" Orientation="Horizontal" Margin="100 5 0 0">
+                <Slider x:Name="SwitchSpeed" Minimum="0" Maximum="18" Style="{StaticResource MaterialDesignDiscreteSlider}" 
+                     Value="0"
+                     Width="850" LargeChange="3" SmallChange="1" TickFrequency="1" ValueChanged="Slider_ValueChanged" />
+            </StackPanel>
+            <TextBlock Text="界面切换速度："  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="170" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="30,39,0,0"/>
+
+            <StackPanel VerticalAlignment="Top" Height="80" Width="850" Orientation="Horizontal" Margin="100 105 0 0">
+                <Slider x:Name="TextSpeed" Minimum="0" Maximum="10" Style="{StaticResource MaterialDesignDiscreteSlider}" 
+                     Value="0"
+                     Width="850" LargeChange="3" SmallChange="1" TickFrequency="1" ValueChanged="TextSpeed_ValueChanged" />
+            </StackPanel>
+            <TextBlock Text="文本切换速度："  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="170" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="30,139,0,0"/>
+
+
+            <StackPanel Orientation="Vertical" Height="200" Width="80" Margin="-1000 0 0 0">
+                <Slider x:Name="BGMVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="BGMVm_ValueChanged" />
+            </StackPanel>
+            <TextBlock Text="背景音乐音量"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="170" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="30,439,0,0"/>
+
+            <StackPanel Orientation="Vertical" Height="200" Width="80" Margin="-600 0 0 0">
+                <Slider x:Name="VoiceVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="VoiceVm_ValueChanged"/>
+            </StackPanel>
+            <TextBlock Text="语音音量"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="104" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="245,439,0,0"/>
+
+            <StackPanel VerticalAlignment="Top" Height="80" Width="850" Orientation="Horizontal" Margin="100 505 0 0">
+                <Slider x:Name="AutoSpeed" Minimum="0" Maximum="10" Style="{StaticResource MaterialDesignDiscreteSlider}" 
+                     Value="0"
+                     Width="850" LargeChange="3" SmallChange="1" TickFrequency="1"/>
+            </StackPanel>
+            <TextBlock Text="自动模式速度："  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="170" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="30,539,0,0"/>
+            
             <Grid.Background>
                 <ImageBrush ImageSource="/UI/BookPage.png"/>
             </Grid.Background>
-
         </Grid>
+
     </Grid>
 </Window>

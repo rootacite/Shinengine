@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:Shinengine.Surface"
+        xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"        
         mc:Ignorable="d"
         Title="GamingTheatre" Height="720" Width="1280" Closed="Window_Closed" Loaded="Window_Loaded">
     <Grid x:Name="SBK" MouseUp="SBK_MouseUp" MouseRightButtonUp="SBK_MouseRightButtonUp" MouseLeftButtonUp="SBK_MouseLeftButtonUp">
@@ -14,9 +15,9 @@
         <Grid x:Name="ShowIn" Height="704" Width="1280" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0"/>
 
         <Grid x:Name="Usage" Height="344" Width="1280" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0">
-            <Image Height="344" Width="1280" Source="/Surface/textbar.png" Stretch="Fill"/>
+            <Image Height="344" Width="1280" Source="/UI/textbar.png" Stretch="Fill"/>
             <Grid x:Name="AirPt">
-                <TextBlock x:Name="Lines" Text=" "  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" Height="135" Width="1050" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" />
+                <TextBlock x:Name="Lines" Text=" "  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" Height="135" Width="1050" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" TextWrapping="Wrap" />
                 <Grid x:Name="character_usage"  Width="184" Height="60"  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,144,0,0">
                     <Image HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="184" Stretch="Fill" Source="/UI/character.png"/>
                     <TextBlock TextAlignment="Center" Text=" " x:Name="character" VerticalAlignment="Center" HorizontalAlignment="Center" Height="26" Width="175" FontSize="22" Foreground="White" Background="#00000000" FontFamily="Arial Rounded MT Bold" FontStyle="Italic" FontWeight="Bold" />
@@ -24,8 +25,36 @@
 
             </Grid>
             <Image x:Name="Logo" HorizontalAlignment="Right" Height="35" Margin="0,0,20,5" VerticalAlignment="Bottom" Width="35" Stretch="Fill"/>
-
-
         </Grid>
+
+        <materialDesign:PopupBox x:Name="Menu" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
+                                         PlacementMode="BottomAndAlignCentres"
+                                         ToolTipService.Placement="Right"
+                                         ToolTip="Menu"
+                                         Background="#FFECD915" Width="50" Height="50" Margin="1190,10,0,614" MouseLeftButtonDown="PopupBox_MouseLeftButtonDown">
+            <StackPanel>
+                <Button  Width="40" Height="40" ToolTip="Auto" Opacity="0.6" Click="Button_Click_3">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/UI/Auto.png" Stretch="Fill"/>
+                    </Button.Background>
+                </Button>
+                <Button Width="40" Height="40" ToolTip="Skip" Opacity="0.6" Click="Button_Click_2">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/UI/Skip.png" Stretch="Fill"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="setting" Width="40" Height="40" ToolTip="Setting" Opacity="0.6" Click="Button_Click">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/SETTING.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="toTitle" Width="40" Height="40" ToolTip="Home" Opacity="0.6" Click="Button_Click_1">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/HOME.png"/>
+                    </Button.Background>
+                </Button>
+            </StackPanel>
+        </materialDesign:PopupBox>
+
     </Grid>
 </Window>

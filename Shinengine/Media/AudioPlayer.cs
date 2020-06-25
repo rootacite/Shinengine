@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using Shinengine.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,14 +12,18 @@ namespace Shinengine.Media
     {
         Thread PlayThread = null;
         public bool canplay = true;
-        public AudioPlayer(string url, bool loop = false, float volum = 1)
+        public WaveOutEvent outputDevice;
+
+        public AudioPlayer(string url, bool loop = false, float? volum = null)
         {
-            PlayThread = new Thread(() =>
+            if (volum == null)
+                volum = SharedSetting.BGMVolum;
+               PlayThread = new Thread(() =>
              {
                  var audioFile = new AudioFileReader(url);
-                 var outputDevice = new WaveOutEvent();
+                 outputDevice = new WaveOutEvent();
                  outputDevice.Init(audioFile);
-                 outputDevice.Volume = volum;
+                 outputDevice.Volume = (float)volum;
                  do
                  {
                      outputDevice.Play(); // 异步执行
@@ -43,5 +48,7 @@ namespace Shinengine.Media
             PlayThread.IsBackground = true;
             PlayThread.Start();
         }
+
+
     }
 }

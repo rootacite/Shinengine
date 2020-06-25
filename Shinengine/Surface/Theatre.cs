@@ -88,7 +88,7 @@ namespace Shinengine.Surface
             } 
         }
 
-        public void SwitchTo(int area, int index, double ?time = null, bool isAysn = true)
+        public void SwitchTo(int area, int index, double ?time = null, bool isAysn = false)
         {
             if (time == null) time = SharedSetting.textSpeed;
 
@@ -99,9 +99,9 @@ namespace Shinengine.Surface
             Rect targetArea = ChAreas[area].area;
 
             WICBitmap rost_pitch = ChAreas[area].switches[index];
-
+            
             shower.Dispatcher.Invoke(()=> {
-                dx_switch = new Direct2DImage(new Size2((int)shower.Width, (int)shower.Height), 30)
+                dx_switch = new Direct2DImage(new Size2((int)shower.Width, (int)shower.Height), 30)//////////////AAA
                 {
                     
                 };
@@ -110,7 +110,7 @@ namespace Shinengine.Surface
             shower.Dispatcher.Invoke(() => { soul_rate = whereIsShowed.Height / Init_action.Size.Height; });
             dx_switch.StartDrawing += (e, v, w, h) =>
              {
-                 D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);
+                 D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);/////////////////AAA
                  e.BeginDraw();
                  e.Clear(null);
 
@@ -121,10 +121,10 @@ namespace Shinengine.Surface
 
                  e.EndDraw();
 
-                 m_ipq.Dispose();
+                 m_ipq.Dispose();//////////////////BB
                  return true;
              };
-            ManualResetEvent msbn = new ManualResetEvent(false);
+            ManualResetEvent msbn = new ManualResetEvent(false);//////////////////AAA
             if (time == 0)
             {
                 dx_switch.DrawProc += (e, v, w, h) =>
@@ -154,6 +154,7 @@ namespace Shinengine.Surface
 
                     m_ipq.Dispose();
                     m_ipq2.Dispose();
+                    if(!isAysn)  msbn.Set();
                     return DrawProcResult.Death;
                 };
             }
@@ -165,8 +166,8 @@ namespace Shinengine.Surface
 
                 dx_switch.DrawProc += (e, v, w, h) =>
                 {
-                    D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);
-                    D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(e, rost_pitch);
+                    D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);//////////////AAA
+                    D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(e, rost_pitch);///////////////AAA
 
                     e.BeginDraw();
                     e.Clear(null);
@@ -195,13 +196,13 @@ namespace Shinengine.Surface
                         m_ipq.Dispose();
                         m_ipq2.Dispose();
 
-                        msbn.Set();
-                        return DrawProcResult.Death;
+                        if(!isAysn) msbn.Set();
+                        return DrawProcResult.Death;//////////////////BB
                     }
                     varb += interrase;
 
-                    m_ipq.Dispose();
-                    m_ipq2.Dispose();
+                    m_ipq.Dispose();//////////////////BB
+                    m_ipq2.Dispose();//////////////////BB
                     return DrawProcResult.Commit;
                 };
             }
@@ -209,7 +210,11 @@ namespace Shinengine.Surface
 
             dx_switch.Disposed += (e, v) => {if(Last_Draw!=null)if(!Last_Draw.IsDisposed) Last_Draw.Dispose(); Last_Draw = v; };
             shower.Dispatcher.Invoke(() => { dx_switch.DrawStartup(shower); });
-            if (!isAysn) msbn.WaitOne();
+            if (!isAysn) {
+                msbn.WaitOne();
+                msbn.Dispose();//////////////////BB
+            }
+            msbn.Dispose();
         }
 
         public void Dispose()
@@ -221,9 +226,8 @@ namespace Shinengine.Surface
                     t.Dispose();
                 }
             }
-            if (Last_Draw != null)
-                if(!Last_Draw.IsDisposed)
-                Last_Draw.Dispose();
+
+            this.Remove(0, true);
         }
     }
     public class Character
@@ -303,7 +307,7 @@ namespace Shinengine.Surface
             if (voice != null)
             {
                 if (voice_player != null) voice_player.canplay = false;
-                voice_player = new AudioPlayer(voice, false);
+                voice_player = new AudioPlayer(voice, false, SharedSetting.VoiceVolum);
             }
             target.Say(lines, this._name);
         }
@@ -331,6 +335,7 @@ namespace Shinengine.Surface
             }
             if(Last_Draw!=null)if(!Last_Draw.IsDisposed)
             Last_Draw.Dispose();
+            Init_action.Dispose();
         }
 
         public void Show(double? time = null,bool isAsyn = false)
@@ -489,8 +494,8 @@ namespace Shinengine.Surface
 
             return Init_action;
         }
-        WICBitmap last_save = null;
-        Direct2DImage videoCtrl = null;
+        public WICBitmap last_save = null;
+        public Direct2DImage videoCtrl = null;
         public Image Background { get; private set; } = null;
         public Stage(Image bk)
         {
@@ -500,15 +505,25 @@ namespace Shinengine.Surface
         /// <summary>
         /// 将舞台的背景设置为一个图片，如果是第一次调用，time必须为0
         /// </summary>
-        /// <param name="uri">图片路径</param>
+        /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
         /// <param name="isAsyn">是否异步（true为异步）</param>
-        public void setAsImage(string uri, double? time = null, bool isAsyn = false)
+        public void setAsImage(string url, double? time = null, bool isAsyn = false)
         {
             #region 时间参数设置
             if (time == null) time = SharedSetting.switchSpeed;
             if (videoCtrl != null)
+            {
+                ManualResetEvent ficter = new ManualResetEvent(false);
+                videoCtrl.Disposed += (e, v) =>
+                {
+                    ficter.Set();
+                };
                 videoCtrl.Dispose();
+
+                ficter.WaitOne();
+                ficter.Dispose();
+            }
             if (time < 1.0 / 30.0 && time != 0)
             {
                 throw new Exception("time can not be less than 1/30s");
@@ -528,28 +543,27 @@ namespace Shinengine.Surface
                 {
                     Loadedsouce = null
                 };
-                WICBitmap mbp_ss = Stage.LoadBitmap(uri);//第一次申请资源
+                WICBitmap mbp_ss = Stage.LoadBitmap(url);//第一次申请资源
                
                 D2DBitmap ral_picA = last_save == null ? null : D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
 
-                  D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View,mbp_ss);
+                 D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View,mbp_ss);
 
-                  if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
-                  last_save = mbp_ss;
+                  
 
-         
-                    videoCtrl.StartDrawing += (t, v, b, s) =>
+
+                videoCtrl.StartDrawing += (t, v, b, s) =>
                 {
-                    t.BeginDraw();
-                    if (ral_picA != null)
-                       t.DrawBitmap(ral_picA,
-                 new RawRectangleF(0, 0, b, s),
-                  1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                  new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height));
+                t.BeginDraw();
+                if (ral_picA != null)
+                    t.DrawBitmap(ral_picA,
+                  new RawRectangleF(0, 0, b, s),
+                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                   new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height));
 
-                    t.EndDraw();
-                    return true;
-                };
+                t.EndDraw();
+                return true;
+                 };
 
                 videoCtrl.DrawProc += (t, v, b, s) =>
                 {
@@ -567,8 +581,6 @@ namespace Shinengine.Surface
                     t.EndDraw();
                     if (vara < 0 || varb > 1)
                     {
-                       
-
                         return DrawProcResult.Death;
                     }
                     vara -= increment;
@@ -582,7 +594,10 @@ namespace Shinengine.Surface
                       if (ral_picA != null)
                           ral_picA.Dispose();
                       ral_picB.Dispose();
-                      v.Dispose();
+                      if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                      last_save = v;
+                      videoCtrl = null;
+                      mbp_ss.Dispose();
                   };
                 videoCtrl.DrawStartup(Background);
             }));
@@ -600,12 +615,22 @@ namespace Shinengine.Surface
         /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
         /// <param name="isAsyn">是否异步（true为异步）</param>
-        public void setAsVideo(string url, double? time = null, bool isAsyn = false)
+        public void setAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
         {
             if (time == null) time = SharedSetting.switchSpeed;
             if (videoCtrl != null)
+            {
+
+                ManualResetEvent ficter = new ManualResetEvent(false);
+                videoCtrl.Disposed += (e, v) => 
+                {
+                    ficter.Set();
+                };
                 videoCtrl.Dispose();
 
+                ficter.WaitOne();
+                ficter.Dispose();
+            }
             D2DBitmap ral_pic = null;
             var m_sourc = new VideoStreamDecoder(url);
 
@@ -647,6 +672,10 @@ namespace Shinengine.Surface
                 videoCtrl.Disposed += (Loadedsouce,s) => { (Loadedsouce as VideoStreamDecoder).Dispose();
                     if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
                     last_save = s;
+                    videoCtrl = null;
+
+                    if (msc_evt != null)
+                        msc_evt.Set();
                 };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
@@ -660,9 +689,12 @@ namespace Shinengine.Surface
                     var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
                     if (!res)
                     {
-                        videoCtrl = null;
-                        if(msc_evt!=null)
-                        msc_evt.Set();
+                        if (loop)
+                        {
+                            video.Position(0);
+
+                            return DrawProcResult.Ignore;
+                        }
                         return DrawProcResult.Death;
                     }
                     var ImGc = new ImagingFactory();
@@ -705,6 +737,9 @@ namespace Shinengine.Surface
                 videoCtrl.Disposed += (Loadedsouce, s) => { (Loadedsouce as VideoStreamDecoder).Dispose(); 
                     if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
                     last_save = s;
+                    videoCtrl = null;
+                    if (msc_evt != null)
+                        msc_evt.Set();
                 };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
@@ -718,9 +753,11 @@ namespace Shinengine.Surface
                     var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
                     if (!res)
                     {
-                        videoCtrl = null;
-                        if(msc_evt!=null)
-                        msc_evt.Set();
+                        if (loop)
+                        {
+                            video.Position(0);
+                            return DrawProcResult.Ignore;
+                        }
                         return DrawProcResult.Death;
                     }
                     var ImGc = new ImagingFactory();
@@ -749,6 +786,7 @@ namespace Shinengine.Surface
             {
                 msc_evt.WaitOne();
                 msc_evt.Dispose();
+                ral_pic.Dispose();
             }
         }
         /// <summary>
@@ -783,13 +821,13 @@ namespace Shinengine.Surface
         }
         public void Show( double? time = null,bool isAsyn = false)
         {
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.switchSpeed / 2.0;
             EasyAmal amsc = new EasyAmal(usageArea, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
         }
         public void Hide(double? time = null, bool isAsyn = false)
         {
-           if(time==null) time = SharedSetting.switchSpeed;
+           if(time==null) time = SharedSetting.switchSpeed/2.0;
             EasyAmal amsc = new EasyAmal(usageArea, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
         }
@@ -896,12 +934,35 @@ namespace Shinengine.Surface
     }
     public class Theatre
     {
-        ManualResetEvent call_next = new ManualResetEvent(false);
+        public ManualResetEvent call_next = new ManualResetEvent(false);
         public Usage usage { get; private set; }
         public Stage stage { get; private set; }
         public AirPlant airplant { get; private set; }
-        private Grid bkSre = null;
+        public Grid bkSre = null;
+        private bool onExit = false;
+        public void Exit()
+        {
+            if (stage.videoCtrl != null)
+            {
+                var dispoer=new Thread(()=> {
+                    ManualResetEvent ficter = new ManualResetEvent(false);
+                    stage.videoCtrl.Disposed += (e, v) =>
+                    {
+                        ficter.Set();
+                    };
+                    stage.videoCtrl.Dispose();
 
+                    ficter.WaitOne();
+                    ficter.Dispose();
+                });
+                dispoer.IsBackground = true;
+                dispoer.Start();
+            }
+            if (call_next != null)
+                call_next.Set();
+            call_next = null;
+            onExit = true;
+        }
         private Grid _charterLayer = null;
 
         public Grid CharacterLayer { get { return _charterLayer; } }
@@ -918,14 +979,23 @@ namespace Shinengine.Surface
         {
             bkSre.Dispatcher.Invoke(new Action(() => { bkSre.Background = new System.Windows.Media.SolidColorBrush(color); }));
         }
-        public void waitForClick(Window Home)
+        public void waitForClick(UIElement Home)
         {
-
+            if (GamingTheatre.isSkiping)
+                return;
+            if(GamingTheatre.AutoMode)
+            {
+                Thread.Sleep((int)(SharedSetting.AutoTime * 1000.0));
+                return;
+            }    
             MouseButtonEventHandler localtion = new MouseButtonEventHandler((e, v) => { call_next.Set(); });
             Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp += localtion; });
 
             call_next.WaitOne();
-
+            if (onExit)
+            {
+                throw new Exception();
+            }
             Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp -= localtion; });
             call_next.Reset();
         }

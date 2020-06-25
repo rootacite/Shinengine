@@ -55,7 +55,7 @@ namespace Shinengine.Media
             dstData = new byte_ptrArray4();
             dstLinesize = new int_array4();
             convertedFrameBufferPtr = Marshal.AllocHGlobal(ffmpeg.av_image_get_buffer_size(AVPixelFormat.AV_PIX_FMT_BGRA, _pCodecContext->width, _pCodecContext->height, 1));
-            ffmpeg.av_image_fill_arrays(ref dstData, ref dstLinesize, 
+            ffmpeg.av_image_fill_arrays(ref dstData, ref dstLinesize,
                 (byte*)convertedFrameBufferPtr,
                 AVPixelFormat.AV_PIX_FMT_BGRA, _pCodecContext->width, _pCodecContext->height, 1);
         }
@@ -81,9 +81,11 @@ namespace Shinengine.Media
             ffmpeg.avcodec_close(_pCodecContext);
             var pFormatContext = _pFormatContext;
             ffmpeg.avformat_close_input(&pFormatContext);
+
+
         }
 
-        public bool TryDecodeNextFrame(out IntPtr data,out int pitch)
+        public bool TryDecodeNextFrame(out IntPtr data, out int pitch)
         {
             ffmpeg.av_frame_unref(_pFrame);
             ffmpeg.av_frame_unref(_receivedFrame);
@@ -116,9 +118,9 @@ namespace Shinengine.Media
             } while (error == ffmpeg.AVERROR(ffmpeg.EAGAIN));
             error.ThrowExceptionIfError();
 
-         
-       
-          
+
+
+
             if (_pCodecContext->hw_device_ctx != null)
             {
                 ffmpeg.av_hwframe_transfer_data(_receivedFrame, _pFrame, 0).ThrowExceptionIfError();
@@ -148,8 +150,12 @@ namespace Shinengine.Media
 
             return result;
         }
-    }
 
+        public void Position(long pos)
+        {
+            ffmpeg.av_seek_frame(_pFormatContext, _streamIndex, pos, ffmpeg.AVSEEK_FLAG_BACKWARD);
+        }
+    }
     public static class Extension   //  必须是一个静态类
     {
         public static int ThrowExceptionIfError(this int value)    //必须为public static 类型，且参数使用this关键字

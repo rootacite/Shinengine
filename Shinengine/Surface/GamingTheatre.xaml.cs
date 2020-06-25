@@ -26,6 +26,9 @@ namespace Shinengine.Surface
     /// </summary>
     public partial class GamingTheatre : Window
     {
+        public static bool isSkiping = false;
+        public static bool AutoMode = false;
+
         bool onHidden = false;
 
         Window _main_window = null;
@@ -37,6 +40,7 @@ namespace Shinengine.Surface
         public GamingTheatre(Window main_window)
         {
             InitializeComponent();
+          
             _main_window = main_window;
             m_theatre = new Theatre(BG, Usage, SBK, AirPt, character_usage, Lines, character, ShowIn);
 
@@ -78,6 +82,7 @@ namespace Shinengine.Surface
                 t.EndDraw();
 
                 ims++;
+                parl_map.Dispose();
                 return DrawProcResult.Commit;
             };
             m_logo.Disposed += (s,ss) =>
@@ -88,11 +93,15 @@ namespace Shinengine.Surface
                     f.Dispose();
                 }
                 ss.Dispose();
-            };
-        //    m_logo.DrawStartup(Logo);
+           };
+           m_logo.DrawStartup(Logo);
+
         }
         public delegate int ScriptHandle(Theatre theatre);
         Task scriptTask = null;
+
+        public AudioPlayer m_player = null;
+
         public void Start(ScriptHandle scriptHandle)
         {
             scriptTask = new Task(()=> { scriptHandle(m_theatre); });
@@ -101,7 +110,7 @@ namespace Shinengine.Surface
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            
+     
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -115,6 +124,9 @@ namespace Shinengine.Surface
 
         private void SBK_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
+
+            isSkiping = false;
+            AutoMode = false;
             if (!onHidden)
             {
                 m_theatre.usage.Hide(null, true);
@@ -131,11 +143,46 @@ namespace Shinengine.Surface
 
         private void SBK_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            isSkiping = false;
+            AutoMode = false;
             if (onHidden)
             {
                 m_theatre.usage.Show(null, true);
                 onHidden = false;
                 return;
+            }
+        }
+        private void PopupBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+           
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)///Skip
+        {
+            isSkiping = !isSkiping;
+            if (isSkiping)
+            {
+                if (this.m_theatre.call_next != null) this.m_theatre.call_next.Set();
+            }
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)///Auto
+        {
+
+            AutoMode = !AutoMode;
+            if (AutoMode)
+            {
+                if (this.m_theatre.call_next != null) this.m_theatre.call_next.Set();
             }
         }
     }

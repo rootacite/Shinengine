@@ -24,6 +24,8 @@ using Color = System.Windows.Media.Color;
 using NAudio.Wave;
 using System.Threading;
 using System.Drawing;
+using SharpDX.DXGI;
+using Shinengine.Data;
 
 namespace Shinengine.Surface
 {
@@ -33,171 +35,217 @@ namespace Shinengine.Surface
     public partial class MainWindow : Window
     {
 
-        #region 初始化成员
-        VideoPlayer gameview = null;
-        [DllImport("Shinehelper.dll")]
-        unsafe extern static public byte* getPCM();
-        [DllImport("Shinehelper.dll")]
-        extern public static bool waveInit(IntPtr hWnd, int channels, int sample_rate, int bits_per_sample, int size);
-        [DllImport("Shinehelper.dll")]
-        unsafe extern public static void waveWrite(byte* in_buf, int in_buf_len);
-        [DllImport("Shinehelper.dll")]
-        extern public static void waveClose();
-        IntPtr hWnd =(IntPtr) 0;
-        Direct2DImage DxBkGround = null;
-        [DllImport("winmm")]
-        static extern void timeBeginPeriod(int t);
-        [DllImport("winmm")]
-        static extern void timeEndPeriod(int t);
+        Title title = null;
+        GamingBook bookMode = null;
+        GamingTheatre theatreMode = null;
+        Setting settere = null;
 
-        unsafe public DrawProcResult DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
-        {
-            var video = Loadedsouce as VideoStreamDecoder;
-            if (video == null)
-                return DrawProcResult.Ignore;
+        StaticCharacter.ChangeableAreaInfo[] m_Infos = null;
+        private StaticCharacter character_1;
 
-            IntPtr dataPoint;
-            int pitch;
-            var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
-            if (!res) {
-                DxBkGround = null;
-                return DrawProcResult.Death;
-            }
-            var ImGc = new ImagingFactory();
-            var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height,SharpDX.WIC.PixelFormat.Format32bppPBGRA,new DataRectangle(dataPoint, pitch));
-            var BitSrc = D2DBitmap.FromWicBitmap(view,WICBIT);
-
-            view.BeginDraw();
-                view.DrawBitmap(BitSrc,
-                  new RawRectangleF(0, 0, Width, Height),
-                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                   new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
-
-            
-            view.EndDraw();
-
-            ImGc.Dispose();
-            WICBIT.Dispose();
-            BitSrc.Dispose();
-            return DrawProcResult.Commit;
-        }
-
-        [Obsolete]
-        #endregion
         public MainWindow()
         {
             InitializeComponent();
-           
-            FFmpegBinariesHelper.RegisterFFmpegBinaries();
-            timeBeginPeriod(1);
-
-            this.Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/UI/loading.png")));
-          
-            return;
-        }
-
-        [Obsolete]
-        private void BackGround_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-
-
-            
-            return;
-        }
-        
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            timeEndPeriod(10);
-            if (DxBkGround != null)
-                DxBkGround.Dispose();
-            if (gameview != null)
-            {
-                gameview.Close();
-            }
-        }
-
-        private void Grid_MouseMove(object sender, MouseEventArgs e)
-        {
-            // _Position = e.GetPosition(this);
-         //   Canvas.SetZIndex(test, Canvas.GetZIndex(test) - 1);
-        }
-        public AudioPlayer m_BGkMusic = null;
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-
-            m_BGkMusic = new AudioPlayer("assets\\BGM\\10.wav", true);
-
-
-            hWnd = new WindowInteropHelper(this).Handle;
-            DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
-            {
-                Loadedsouce = new VideoStreamDecoder("assets\\title.wmv")
-            };
-
-            DxBkGround.Disposed += (Loadedsouce,s) => { (Loadedsouce as VideoStreamDecoder).Dispose(); s.Dispose(); };
-            DxBkGround.DrawProc += DrawCallback;
-
-            DxBkGround.DrawStartup(BackGround);
-            
-        }
-
-        private void StartButton_Click(object sender, RoutedEventArgs e)
-        {
-           
-            StaticCharacter.ChangeableAreaInfo[] m_Infos = new StaticCharacter.ChangeableAreaInfo[1];
+            m_Infos = new StaticCharacter.ChangeableAreaInfo[1];
             m_Infos[0].area = new Rect(0, 0, 1500, 1500);
             m_Infos[0].pics = new string[3];
             m_Infos[0].pics[0] = "assets\\Character\\BS_RE2x_face___000.png";
             m_Infos[0].pics[1] = "assets\\Character\\BS_RE2x_face___001.png";
             m_Infos[0].pics[2] = "assets\\Character\\BS_RE2x_face___002.png";
 
-            if (m_BGkMusic != null)
-            {
-                 m_BGkMusic.canplay = false;
-            }
+            FFmpegBinariesHelper.RegisterFFmpegBinaries();
+            return;
+        }
+        private GamingBook switchToBookmode()
+        {
+            GamingBook mbp = new GamingBook(this);
+            mbp.Inint(new Data.DataStream("Book1.xml"));
+            mbp.Start(0);
 
-            this.Background = new System.Windows.Media.SolidColorBrush(Colors.White);
-            EasyAmal mnoi = null;
-             mnoi = new EasyAmal(BkGrid, "(Opacity)", 1.0, 0.0, 1.6,(e,v)=>
+            bookMode = mbp;
+            return mbp; 
+        }
+        private Title switchToTitle()
+        {
+            Title mlp = new Title();
+            mlp.StartButton.Click += (e, v) =>
             {
-                m_BGkMusic = new AudioPlayer("assets\\BGM\\01.wav", true, 0.45f);
-                GamingTheatre m_game = new GamingTheatre(this);
-                this.Content = m_game.Content;
-                mnoi.stbd.Stop();
-                m_game.Start((s) =>
+
+                mlp.StartButton.IsEnabled = false;
+                mlp.Background = new System.Windows.Media.SolidColorBrush(Colors.White);
+                EasyAmal maa = null;
+
+                 maa = new EasyAmal(title.BkGrid, "(Opacity)",1.0,0.0, SharedSetting.switchSpeed/2,(e,v)=>
                 {
-                    s.usage.Hide(0);
-                    s.setBackground(Color.FromRgb(0, 0, 0));
-                    s.stage.setAsImage("assets\\CG\\10.png",0,false);
+                    theatreMode = switchToTheatremode();
+                    this.Content = theatreMode.Content;
+                    maa.stbd.Stop();
+                    
+                    title.Close();
+                  
+
+                });
+                maa.Start(true);
+            };
+            title = mlp;
+            return mlp;
+        }
+
+        private GamingTheatre switchToTheatremode()
+        {
+
+
+            GamingTheatre m_game = new GamingTheatre(this);
+
+            m_game.toTitle.Click += (e, v) =>
+            {
+                  title = switchToTitle();
+                  this.Content = title.Content;
+                theatreMode.Close();
+
+                theatreMode.m_logo.Dispose();
+                if (theatreMode.m_player != null)
+                    theatreMode.m_player.canplay = false;
+                theatreMode.m_theatre.Exit();
+
+                if (theatreMode != null)
+                    theatreMode = null;
+            };
+
+            m_game.setting.Click += (e, v) =>
+            {
+                if (GamingTheatre.isSkiping)
+                {
+                    return;
+                }
+                var lpic = m_game.m_theatre.stage.last_save;
+
+                var mbps = new WriteableBitmap((int)m_game.BG.Width, (int)m_game.BG.Height, 72, 72, System.Windows.Media.PixelFormats.Pbgra32, null);
+                mbps.Lock();
+
+                var mic_lock = lpic.Lock(BitmapLockFlags.Read);
+                unsafe
+                {
+                    Direct2DImage.RtlMoveMemory((void*)mbps.BackBuffer, (void*)mic_lock.Data.DataPointer, mbps.PixelHeight * mbps.BackBufferStride);
+                }
+                mic_lock.Dispose();
+                mbps.AddDirtyRect(new Int32Rect(0, 0, (int)m_game.BG.Width, (int)m_game.BG.Height));
+                mbps.Unlock();
+                var m_thread_intp = new Thread(()=> {
+                    m_game.m_theatre.usage.Hide(null, false);
+                    m_game.Dispatcher.Invoke(new Action(()=> {
+                        Setting mst = new Setting(mbps, this, this.Content, m_game.m_player);
+                        settere = mst;
+                        EasyAmal mpos = new EasyAmal(settere.foreg, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+
+                        bool canFocue = false;
+                        settere.mpOi.MouseRightButtonUp += (e, v) =>
+                        {
+                            if (canFocue) return;
+                            canFocue = true;
+                            new Thread(()=> {
+                               
+                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) => {
+                                    settere.Close();
+                                    this.Content = m_game.Content;
+                                    m_game.m_theatre.usage.Show(null, true);
+                                    settere = null;
+                                });
+                                mpos2.Start(true);
+                            }).Start();
+                           
+                        };
+                        mpos.Start(true);
+                        this.Content = mst.Content;
+                    }));
+                   
+                });
+                m_thread_intp.IsBackground = true;
+                m_thread_intp.Start();
+               
+            };
+
+            m_game.BG.Opacity = 0;
+            m_game.Usage.Opacity = 0;
+            m_game.Start((s) =>
+            {
+                try
+                {
+                    s.setBackground(Colors.White);
+                    s.stage.setAsImage("assets\\CG\\10.png", 0, false);
                     s.stage.Show(null, true);
                     s.usage.Show();
 
-                    var character_1 = new StaticCharacter("墨小菊", "assets\\Character\\BS_RE20_01B.png", s.CharacterLayer, false, m_Infos, null, false);
-                    character_1.SwitchTo(0,1);
+                    m_game.m_player = new AudioPlayer("assets\\BGM\\01.wav", true);
+
+                    character_1 = new StaticCharacter("墨小菊", "assets\\Character\\BS_RE20_01B.png", s.CharacterLayer, false, m_Infos, null, false);
+                    character_1.SwitchTo(0, 1, 0, false);
                     character_1.Show();
-                    while (true)
-                    {
-                     //   s.stage.setAsImage("assets\\CG\\10.png", 0.3, false);
-                        character_1.SwitchTo(0, 1, null, false);
-                       // character_1.Say(s.airplant, "好久不见!", "assets\\sound\\01.wma");
 
-                        s.waitForClick(this);
+                    s.waitForClick(s.bkSre);
 
-                       // s.stage.setAsVideo("assets\\title.wmv", 0.3, false);
-                        character_1.SwitchTo(0, 2, null, false);
-                      //  character_1.Say(s.airplant, "你什么时候去死啊");
-                        s.waitForClick(this);
 
-                        GC.Collect();
-                    }
+                    character_1.Hide();
+                    s.stage.setAsVideo("assets\\movie\\H005a.mpg", null, true);
+                    s.waitForClick(s.bkSre);
+                    s.stage.setAsVideo("assets\\movie\\H005b.mpg", null, true);
+                    s.waitForClick(s.bkSre);
+                    s.stage.setAsVideo("assets\\movie\\H005c.mpg", null, true);
+                    s.waitForClick(s.bkSre);
+                    s.stage.setAsVideo("assets\\movie\\H005d.mpg", null, true);
+                    s.waitForClick(s.bkSre);
+                    s.stage.setAsVideo("assets\\movie\\H005e.mpg", null, true);
+                    s.waitForClick(s.bkSre);
+                    s.stage.setAsVideo("assets\\movie\\H005f.mpg", null, true);
+
+                    s.waitForClick(s.bkSre);
+
+                }
+                catch
+                {
+                    character_1.Dispose();
                     return 0;
-                });
-                m_game.Close();
+                }
+                return 0;
             });
-            mnoi.Start(true);
-         
+            return m_game;
+           
 
+        }
+        private void BkGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            switchToTitle();
+            this.Content = title.Content;
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (title != null)
+                title.Close();
+
+            if (theatreMode != null)
+                theatreMode.Close();
+
+            if (settere != null)
+                settere.Close();
+
+            if (bookMode != null)
+                bookMode.Close();
+
+            PInvoke.Kernel32.ExitProcess(0);
+        }
+
+        private void mmKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+                GamingTheatre.isSkiping = true;
+            if (theatreMode != null) if (theatreMode.m_theatre.call_next != null) theatreMode.m_theatre.call_next.Set();
+        }
+
+        private void mmKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+                GamingTheatre.isSkiping = false;
         }
     }
 }
