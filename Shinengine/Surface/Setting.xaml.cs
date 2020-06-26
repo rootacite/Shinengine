@@ -17,24 +17,23 @@ namespace Shinengine.Surface
     /// <summary>
     /// Setting.xaml 的交互逻辑
     /// </summary>
-    public partial class Setting : Window
+    public partial class Setting : Page
     {
-        Window _mainwindow = null;
-        AudioPlayer _ioPt = null; 
-        public Setting(ImageSource bkGround, Window mainwindow, object cont, AudioPlayer ioPt)
+        AudioPlayer _ioPt = null;
+        AudioPlayer _ioPo = null;
+        public Setting(ImageSource bkGround,AudioPlayer ioPt,AudioPlayer ioPo)
         {
             _ioPt = ioPt;
+            _ioPo = ioPo;
             InitializeComponent();
-            _mainwindow = mainwindow;
             Bkgnd.Source = bkGround;
 
-          //  Loaded += (e, v) => {  };
-             Closed += (e, v) => { _mainwindow.Content = cont; };
-
-            SwitchSpeed.Value = SharedSetting.switchSpeed * 10.0;
-            TextSpeed.Value = SharedSetting.textSpeed * 10.0;
-            BGMVm.Value = SharedSetting.BGMVolum * 100.0;
-            VoiceVm.Value = SharedSetting.VoiceVolum * 100.0;
+            SwitchSpeed.Value = (int)(SharedSetting.switchSpeed * 10.0);
+            TextSpeed.Value = (int)(SharedSetting.textSpeed * 10.0);
+            BGMVm.Value = (int)(SharedSetting.BGMVolum * 100.0);
+            VoiceVm.Value = (int)(SharedSetting.VoiceVolum * 100.0);
+            AutoSpeed.Value = SharedSetting.AutoTime;
+            EmVm.Value = (int)(SharedSetting.EmVolum * 100.0);
         }
 
         private void Grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -54,12 +53,23 @@ namespace Shinengine.Surface
         private void BGMVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             SharedSetting.BGMVolum = (float)(e.NewValue / 100.0);
-         if(_ioPt!=null)   _ioPt.outputDevice.Volume = SharedSetting.BGMVolum;
+            if (_ioPt != null) _ioPt.outputDevice.Volume = SharedSetting.BGMVolum;
         }
 
         private void VoiceVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             SharedSetting.VoiceVolum = (float)(e.NewValue / 100.0);
+        }
+
+        private void AutoSpeed_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            SharedSetting.AutoTime = e.NewValue;
+        }
+
+        private void EmVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            SharedSetting.EmVolum= (float)(e.NewValue / 100.0);
+            if (_ioPo != null) _ioPo.outputDevice.Volume = SharedSetting.EmVolum;
         }
     }
 }

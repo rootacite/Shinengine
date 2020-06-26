@@ -43,8 +43,11 @@
     <None Remove="textbar.png" />
     <None Remove="TITLE.png" />
     <None Remove="UI\Auto.png" />
+    <None Remove="UI\AutoMini.png" />
+    <None Remove="UI\Backlog.png" />
     <None Remove="UI\BookPage.png" />
     <None Remove="UI\character.png" />
+    <None Remove="UI\Exit.png" />
     <None Remove="UI\exit_0.png" />
     <None Remove="UI\HOME.png" />
     <None Remove="UI\LOAD.png" />
@@ -53,6 +56,7 @@
     <None Remove="UI\SETTING.png" />
     <None Remove="UI\SettingPage.png" />
     <None Remove="UI\Skip.png" />
+    <None Remove="UI\SkipMini.png" />
     <None Remove="UI\start_0.png" />
     <None Remove="UI\textbar.png" />
     <None Remove="UI\TITLE.png" />
@@ -72,13 +76,13 @@
 
   <ItemGroup>
     <Resource Include="UI\Auto.png" />
+    <Resource Include="UI\Backlog.png" />
     <Resource Include="UI\BookPage.png" />
     <Resource Include="UI\character.png" />
+    <Resource Include="UI\Exit.png" />
     <Resource Include="UI\exit_0.png" />
     <Resource Include="UI\HOME.png" />
-    <Resource Include="UI\next_0.png" />
     <Resource Include="UI\SETTING.png" />
-    <Resource Include="UI\SettingPage.png" />
     <Resource Include="UI\Skip.png" />
     <Resource Include="UI\start_0.png" />
     <Resource Include="UI\textbar.png" />
@@ -90,7 +94,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="sysdata.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

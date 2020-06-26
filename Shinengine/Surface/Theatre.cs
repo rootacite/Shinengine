@@ -36,12 +36,13 @@ using System.Drawing.Imaging;
 using System.Windows.Interop;
 using BitmapDecoder = SharpDX.WIC.BitmapDecoder;
 using Shinengine.Data;
+using System.Diagnostics;
 
 namespace Shinengine.Surface
 {
     sealed public class DynamicCharacter : Character
     {
-        public DynamicCharacter(string name, string template, Grid layer, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
+        public DynamicCharacter(string name, string template, Canvas layer, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             :base(name, template, layer, canshow, time, isAscy, vel_x, vel_y)
         {
 
@@ -65,7 +66,7 @@ namespace Shinengine.Surface
         List<ChangeableAreaDescription> ChAreas = null;
         private Direct2DImage dx_switch;
 
-        public StaticCharacter(string name, string init_pic, Grid whereIs, bool canshow = true, ChangeableAreaInfo[] actions_souce = null, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
+        public StaticCharacter(string name, string init_pic, Canvas whereIs, bool canshow = true, ChangeableAreaInfo[] actions_souce = null, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             : base(name, init_pic, whereIs, canshow, time, isAscy, vel_x, vel_y)
         {
             if (actions_souce == null) return;
@@ -130,7 +131,7 @@ namespace Shinengine.Surface
                 dx_switch.DrawProc += (e, v, w, h) =>
                 {
                    
-                    D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);
+                    D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Init_action);
                     D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(e, rost_pitch);
 
                     e.BeginDraw();
@@ -138,7 +139,7 @@ namespace Shinengine.Surface
                     e.DrawBitmap(m_ipq,
                 new RawRectangleF(0, 0, w, h),
                  1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                 new RawRectangleF(0, 0, Last_Draw.Size.Width, Last_Draw.Size.Height));
+                 new RawRectangleF(0, 0, Init_action.Size.Width, Init_action.Size.Height));
 
                     e.DrawBitmap(m_ipq2,
             new RawRectangleF(
@@ -168,6 +169,7 @@ namespace Shinengine.Surface
                 {
                     D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);//////////////AAA
                     D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(e, rost_pitch);///////////////AAA
+                    D2DBitmap m_ipq3 = D2DBitmap.FromWicBitmap(e, Init_action);
 
                     e.BeginDraw();
                     e.Clear(null);
@@ -177,6 +179,11 @@ namespace Shinengine.Surface
                 new RawRectangleF(0, 0, w, h),
                  1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                  new RawRectangleF(0, 0, Last_Draw.Size.Width, Last_Draw.Size.Height));
+
+                    e.DrawBitmap(m_ipq3,
+                new RawRectangleF(0, 0, w, h),
+                 (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                 new RawRectangleF(0, 0, Init_action.Size.Width, Init_action.Size.Height));
 
                     e.DrawBitmap(m_ipq2,
             new RawRectangleF(
@@ -203,6 +210,7 @@ namespace Shinengine.Surface
 
                     m_ipq.Dispose();//////////////////BB
                     m_ipq2.Dispose();//////////////////BB
+                    m_ipq3.Dispose();
                     return DrawProcResult.Commit;
                 };
             }
@@ -239,9 +247,9 @@ namespace Shinengine.Surface
         protected WICBitmap Last_Draw = null;
 
         protected Image shower = null;
-        protected Grid whereIsShowed = null;
+        protected Canvas whereIsShowed = null;
 
-        public Character(string name, string template, Grid layer, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
+        public Character(string name, string template, Canvas layer, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
         {
             if (time == null) time = SharedSetting.switchSpeed;
             _name = name;
@@ -256,7 +264,6 @@ namespace Shinengine.Surface
 
                 shower.Width = Init_action.Size.Width * (layer.Height / Init_action.Size.Height);
                 shower.Height = layer.Height;
-                shower.HorizontalAlignment = HorizontalAlignment.Center;
                 shower.VerticalAlignment = VerticalAlignment.Bottom;
                 shower.Stretch = Stretch.Fill;
 
@@ -361,6 +368,8 @@ namespace Shinengine.Surface
 
         public EasyAmal(UIElement target, string attribute, double from, double to, double nSpeed, EventHandler completed = null)
         {
+            if (nSpeed == 0)
+                nSpeed = 0.001;
             uIElement = target;
             target.Dispatcher.Invoke(new Action(() =>
             {
@@ -549,19 +558,16 @@ namespace Shinengine.Surface
 
                  D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View,mbp_ss);
 
-                  
 
+                
 
                 videoCtrl.StartDrawing += (t, v, b, s) =>
                 {
                 t.BeginDraw();
                 if (ral_picA != null)
-                    t.DrawBitmap(ral_picA,
-                  new RawRectangleF(0, 0, b, s),
-                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                   new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height));
+                        t.DrawBitmap(ral_picA, (float)vara, BitmapInterpolationMode.Linear);
 
-                t.EndDraw();
+                    t.EndDraw();
                 return true;
                  };
 
@@ -569,10 +575,7 @@ namespace Shinengine.Surface
                 {
                     t.BeginDraw();
                     if (ral_picA != null)
-                        t.DrawBitmap(ral_picA,
-             new RawRectangleF(0, 0, b, s),
-              (float)vara, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-              new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height));
+                        t.DrawBitmap(ral_picA,(float)vara,BitmapInterpolationMode.Linear);
                     t.DrawBitmap(ral_picB,
             new RawRectangleF(0, 0, b, s),
              (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
@@ -648,10 +651,7 @@ namespace Shinengine.Surface
                 {
                     t.BeginDraw();
 
-                    t.DrawBitmap(ral_pic,
-             new RawRectangleF(0, 0, b, s),
-              1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-              new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
+                    t.DrawBitmap(ral_pic,1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear);
 
                     t.EndDraw();
                     return true;
@@ -704,10 +704,7 @@ namespace Shinengine.Surface
                     view.BeginDraw();
                     if (vara > 0 && varb < 1)
                     {
-                        view.DrawBitmap(ral_pic,
-                     new RawRectangleF(0, 0, Width, Height),
-                      (float)vara, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                      new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
+                        view.DrawBitmap(ral_pic,(float)vara, SharpDX.Direct2D1.BitmapInterpolationMode.Linear);
                         view.DrawBitmap(BitSrc,
                       new RawRectangleF(0, 0, Width, Height),
                        (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
@@ -814,6 +811,7 @@ namespace Shinengine.Surface
     }
     public class Usage
     {
+        public static bool locked = false;
         public Grid usageArea { get; private set; } = null;
         public Usage(Grid ua)
         {
@@ -821,13 +819,15 @@ namespace Shinengine.Surface
         }
         public void Show( double? time = null,bool isAsyn = false)
         {
+            if (locked) return;
             if (time == null) time = SharedSetting.switchSpeed / 2.0;
             EasyAmal amsc = new EasyAmal(usageArea, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
         }
         public void Hide(double? time = null, bool isAsyn = false)
         {
-           if(time==null) time = SharedSetting.switchSpeed/2.0;
+            if (locked) return;
+            if (time==null) time = SharedSetting.switchSpeed/2.0;
             EasyAmal amsc = new EasyAmal(usageArea, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
         }
@@ -841,23 +841,54 @@ namespace Shinengine.Surface
 
         private TextBlock Lines_Usage = null;
         private TextBlock Character_Usage = null;
+        private TextBlock _Contents = null;
 
         private List<TextBlock> freedomLines = new List<TextBlock>();
 
-        public AirPlant(Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Grid _Vist)
+        public AirPlant(Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Grid _Vist , TextBlock Content)
         {
             underView = air;
             chat_usage = names;
             Lines_Usage = _Lines;
             Character_Usage = _Charecter;
             Vist = _Vist;
-
+            _Contents = Content;
             chat_usage.Opacity = 0;
         }
 
         public void Say(string line, string character = "", double ?time = null)
         {
             if (time == null) time = SharedSetting.textSpeed;
+            
+            #region log call
+            string load_printed = "";
+
+            string ral_printf_str = "";
+            if (character != "")
+            {
+                ral_printf_str+= "[" + character + "] ";
+            }
+            ral_printf_str += line;
+
+            foreach (var c in ral_printf_str)
+            {
+
+                Vist.Dispatcher.Invoke(new Action(() =>
+                {
+                    load_printed += c;
+                    var ap_l = GamingBook.MeasureTextWidth(_Contents, _Contents.FontSize, load_printed);
+                    if (ap_l.Width > _Contents.Width)
+                    {
+                        _Contents.Dispatcher.Invoke(new Action(() => { GamingTheatre.Preparation += '\n'; }));
+                        load_printed = "";
+                    }
+                    GamingTheatre.Preparation += c;
+                }));
+            }
+            GamingTheatre.Preparation += "\n";
+            #endregion
+
+            
             EasyAmal esyn = new EasyAmal(Lines_Usage, "(Opacity)", 1.0, 0.0, (double)time);
             esyn.Start(false);
             Lines_Usage.Dispatcher.Invoke(new Action(() =>
@@ -877,7 +908,6 @@ namespace Shinengine.Surface
                     _st.Start(true);
                 }
             }));
-
             esyn = new EasyAmal(Lines_Usage, "(Opacity)", 0.0, 1.0, (double)time);
             esyn.Start(false);
 
@@ -934,6 +964,11 @@ namespace Shinengine.Surface
     }
     public class Theatre
     {
+
+        public AudioPlayer m_player = null;
+        public AudioPlayer m_em_player = null;
+
+
         public ManualResetEvent call_next = new ManualResetEvent(false);
         public Usage usage { get; private set; }
         public Stage stage { get; private set; }
@@ -963,15 +998,15 @@ namespace Shinengine.Surface
             call_next = null;
             onExit = true;
         }
-        private Grid _charterLayer = null;
+        private Canvas _charterLayer = null;
 
-        public Grid CharacterLayer { get { return _charterLayer; } }
+        public Canvas CharacterLayer { get { return _charterLayer; } }
 
-        public Theatre(Image _BackGround, Grid _UsageArea, Grid rbk, Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Grid charterLayer)
+        public Theatre(Image _BackGround, Grid _UsageArea, Grid rbk, Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Canvas charterLayer, TextBlock backlog)
         {
             usage = new Usage(_UsageArea);
             stage = new Stage(_BackGround);
-            airplant = new AirPlant(air, names, _Lines, _Charecter, rbk);
+            airplant = new AirPlant(air, names, _Lines, _Charecter, rbk, backlog);
             bkSre = rbk;
             _charterLayer = charterLayer;
         }
@@ -987,16 +1022,18 @@ namespace Shinengine.Surface
             {
                 Thread.Sleep((int)(SharedSetting.AutoTime * 1000.0));
                 return;
-            }    
-            MouseButtonEventHandler localtion = new MouseButtonEventHandler((e, v) => { call_next.Set(); });
-            Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp += localtion; });
+            }
+            MouseButtonEventHandler localtion = new MouseButtonEventHandler((e, v) => { if (!Usage.locked) call_next.Set(); });
+            MouseWheelEventHandler location2 = new MouseWheelEventHandler((e, v) => { if (!Usage.locked && v.Delta < 0) call_next.Set(); });
+
+            Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp += localtion; Home.MouseWheel += location2; });
 
             call_next.WaitOne();
             if (onExit)
             {
                 throw new Exception();
             }
-            Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp -= localtion; });
+            Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp -= localtion; Home.MouseWheel -= location2; });
             call_next.Reset();
         }
 

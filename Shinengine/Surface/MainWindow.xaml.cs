@@ -26,6 +26,11 @@ using System.Threading;
 using System.Drawing;
 using SharpDX.DXGI;
 using Shinengine.Data;
+using System.Windows.Controls;
+using System.Collections.Generic;
+using FFmpeg.AutoGen;
+using Image = System.Windows.Controls.Image;
+using Shinengine.Scripts;
 
 namespace Shinengine.Surface
 {
@@ -34,24 +39,111 @@ namespace Shinengine.Surface
     /// </summary>
     public partial class MainWindow : Window
     {
+        public void resizeToGrid(UIElementCollection grid, double width_rate, double height_rate)
+        {
+            
+            foreach (var i in grid)
+            {
+                var _i = i as UIElement;
+                if (_i.GetType() == typeof(System.Windows.Controls.Grid))
+                {
+                    var _i_r = _i as Grid;
+                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage") 
+                    {
+                        _i_r.Width = _i_r.Width * width_rate;
+                        _i_r.Height = _i_r.Height * height_rate;
 
+                        var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                        _i_r.Margin = new_margin;
+                    }
+                    resizeToGrid(_i_r.Children, width_rate, height_rate);
+                    continue;
+                }
+                if(_i is Image)
+                {
+                    var _i_r = _i as Image;
+                    _i_r.Width = _i_r.Width * width_rate;
+                    _i_r.Height = _i_r.Height * height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+                }
+                else if (_i is Button)
+                {
+                    var _i_r = _i as Button;
+                    _i_r.Width = _i_r.Width * width_rate;
+                    _i_r.Height = _i_r.Height * height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+                }
+                else if (_i is Canvas)
+                {
+                    var _i_r = _i as Canvas;
+                    _i_r.Width = _i_r.Width * width_rate;
+                    _i_r.Height = _i_r.Height * height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+                }
+                else if (_i is TextBlock)
+                {
+                    var _i_r = _i as TextBlock;
+                    _i_r.Width = _i_r.Width * width_rate;
+                    _i_r.Height = _i_r.Height * height_rate;
+
+                    _i_r.FontSize = _i_r.FontSize * height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+                }
+                else if (_i is Slider)
+                {
+                    var _i_r = _i as Slider;
+                    _i_r.Width = _i_r.Width * width_rate;
+                    _i_r.Height = _i_r.Height * height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+                }
+                else if(_i is StackPanel)
+                {
+                    var _i_r = _i as StackPanel;
+                    _i_r.Width = _i_r.Width * width_rate;
+                    _i_r.Height = _i_r.Height * height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+
+                    resizeToGrid(_i_r.Children, width_rate, height_rate);
+                }
+
+            }
+        }
+        private void resizeEvt(Grid page,Size2 oldSize, Size2 newSize)
+        {
+            double width_rate = (double)newSize.Width / (double)oldSize.Width;
+            double height_rate = (double)newSize.Height / (double)oldSize.Height;
+
+            resizeToGrid(page.Children, width_rate, height_rate);
+        }
         Title title = null;
         GamingBook bookMode = null;
         GamingTheatre theatreMode = null;
         Setting settere = null;
 
         StaticCharacter.ChangeableAreaInfo[] m_Infos = null;
-        private StaticCharacter character_1;
+    
 
         public MainWindow()
         {
             InitializeComponent();
-            m_Infos = new StaticCharacter.ChangeableAreaInfo[1];
-            m_Infos[0].area = new Rect(0, 0, 1500, 1500);
-            m_Infos[0].pics = new string[3];
-            m_Infos[0].pics[0] = "assets\\Character\\BS_RE2x_face___000.png";
-            m_Infos[0].pics[1] = "assets\\Character\\BS_RE2x_face___001.png";
-            m_Infos[0].pics[2] = "assets\\Character\\BS_RE2x_face___002.png";
+            if (SharedSetting.FullS)
+            {
+
+                this.WindowStyle = WindowStyle.None;
+                this.WindowState = System.Windows.WindowState.Maximized;
+            }
 
             FFmpegBinariesHelper.RegisterFFmpegBinaries();
             return;
@@ -63,11 +155,55 @@ namespace Shinengine.Surface
             mbp.Start(0);
 
             bookMode = mbp;
+            if (SharedSetting.FullS)
+            {
+                resizeEvt(bookMode.Book, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+
+            }
             return mbp; 
         }
         private Title switchToTitle()
         {
             Title mlp = new Title();
+            mlp.setting.Click += (e, v) => 
+            {
+                settere = new Setting(new BitmapImage(new Uri("pack://siteoforigin:,,,/assets/CG/10.png")), null, null);
+                if (SharedSetting.FullS)
+                {
+                    resizeEvt(settere.mpOi, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+                }
+                settere.foreg.MouseRightButtonUp += (e, v) => 
+                {
+                    switchToTitle();
+                    this.Content = title.Content;
+                };
+                settere.fullandwindow.Click += (e, v) => 
+                {
+                    SharedSetting.FullS = !SharedSetting.FullS;
+                    if (SharedSetting.FullS)
+                    {
+                        this.WindowStyle = WindowStyle.None;
+                        this.WindowState = System.Windows.WindowState.Maximized;
+                        resizeEvt(settere.mpOi, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+                    }
+                    else
+                    {
+                        this.WindowStyle = WindowStyle.SingleBorderWindow;
+                        this.WindowState = System.Windows.WindowState.Normal;
+                        resizeEvt(settere.mpOi, new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight), new Size2(1280, 720));
+                    }
+
+                };
+                this.Content = settere.Content;
+            };
+            mlp.EnExit.Click += (e, v) =>
+            {
+                this.Close();
+            };
+            mlp.ExitButton.Click += (e, v) => 
+            {
+                this.Close();
+            };
             mlp.StartButton.Click += (e, v) =>
             {
 
@@ -79,15 +215,18 @@ namespace Shinengine.Surface
                 {
                     theatreMode = switchToTheatremode();
                     this.Content = theatreMode.Content;
-                    maa.stbd.Stop();
-                    
-                    title.Close();
-                  
 
+                    maa.stbd.Stop();
                 });
                 maa.Start(true);
             };
             title = mlp;
+            if (SharedSetting.FullS)
+            {
+                resizeEvt(title.BkGrid, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+
+            }
+
             return mlp;
         }
 
@@ -95,17 +234,20 @@ namespace Shinengine.Surface
         {
 
 
-            GamingTheatre m_game = new GamingTheatre(this);
-
+            GamingTheatre m_game = new GamingTheatre();
+            if (SharedSetting.FullS)
+            {
+                resizeEvt(m_game.SBK, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+            }
+            m_game.Init(this);
             m_game.toTitle.Click += (e, v) =>
             {
-                  title = switchToTitle();
-                  this.Content = title.Content;
-                theatreMode.Close();
+                title = switchToTitle();
+                this.Content = title.Content;
 
                 theatreMode.m_logo.Dispose();
-                if (theatreMode.m_player != null)
-                    theatreMode.m_player.canplay = false;
+                if (theatreMode.m_theatre.m_player != null)
+                    theatreMode.m_theatre.m_player.canplay = false;
                 theatreMode.m_theatre.Exit();
 
                 if (theatreMode != null)
@@ -117,6 +259,11 @@ namespace Shinengine.Surface
                 if (GamingTheatre.isSkiping)
                 {
                     return;
+                }
+                GamingTheatre.AutoMode = false;
+                if (m_game.ShowIn.Children.Contains(m_game.auto_icon))
+                {
+                    m_game.ShowIn.Children.Remove(m_game.auto_icon);
                 }
                 var lpic = m_game.m_theatre.stage.last_save;
 
@@ -131,11 +278,19 @@ namespace Shinengine.Surface
                 mic_lock.Dispose();
                 mbps.AddDirtyRect(new Int32Rect(0, 0, (int)m_game.BG.Width, (int)m_game.BG.Height));
                 mbps.Unlock();
-                var m_thread_intp = new Thread(()=> {
+
+                var m_thread_intp = new Thread(() =>
+                {
                     m_game.m_theatre.usage.Hide(null, false);
-                    m_game.Dispatcher.Invoke(new Action(()=> {
-                        Setting mst = new Setting(mbps, this, this.Content, m_game.m_player);
+                    m_game.Dispatcher.Invoke(new Action(() =>
+                    {
+                        Setting mst = new Setting(mbps, m_game.m_theatre.m_player, m_game.m_theatre.m_em_player);
+                        if (SharedSetting.FullS)
+                        {
+                            resizeEvt(mst.mpOi, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+                        }
                         settere = mst;
+                        settere.fullandwindow.IsEnabled = false;
                         EasyAmal mpos = new EasyAmal(settere.foreg, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
 
                         bool canFocue = false;
@@ -143,94 +298,53 @@ namespace Shinengine.Surface
                         {
                             if (canFocue) return;
                             canFocue = true;
-                            new Thread(()=> {
-                               
-                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) => {
-                                    settere.Close();
+                            new Thread(() =>
+                            {
+
+                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                                {
                                     this.Content = m_game.Content;
                                     m_game.m_theatre.usage.Show(null, true);
                                     settere = null;
                                 });
                                 mpos2.Start(true);
                             }).Start();
-                           
+
                         };
                         mpos.Start(true);
                         this.Content = mst.Content;
                     }));
-                   
+
                 });
                 m_thread_intp.IsBackground = true;
                 m_thread_intp.Start();
-               
+
             };
 
+            m_game.EnExit.Click += (e, v) =>
+            {
+                this.Close();
+            };
+          
             m_game.BG.Opacity = 0;
             m_game.Usage.Opacity = 0;
-            m_game.Start((s) =>
-            {
-                try
-                {
-                    s.setBackground(Colors.White);
-                    s.stage.setAsImage("assets\\CG\\10.png", 0, false);
-                    s.stage.Show(null, true);
-                    s.usage.Show();
+            m_game.Start(Chapter1.Chapter1Script);
 
-                    m_game.m_player = new AudioPlayer("assets\\BGM\\01.wav", true);
-
-                    character_1 = new StaticCharacter("墨小菊", "assets\\Character\\BS_RE20_01B.png", s.CharacterLayer, false, m_Infos, null, false);
-                    character_1.SwitchTo(0, 1, 0, false);
-                    character_1.Show();
-
-                    s.waitForClick(s.bkSre);
-
-
-                    character_1.Hide();
-                    s.stage.setAsVideo("assets\\movie\\H005a.mpg", null, true);
-                    s.waitForClick(s.bkSre);
-                    s.stage.setAsVideo("assets\\movie\\H005b.mpg", null, true);
-                    s.waitForClick(s.bkSre);
-                    s.stage.setAsVideo("assets\\movie\\H005c.mpg", null, true);
-                    s.waitForClick(s.bkSre);
-                    s.stage.setAsVideo("assets\\movie\\H005d.mpg", null, true);
-                    s.waitForClick(s.bkSre);
-                    s.stage.setAsVideo("assets\\movie\\H005e.mpg", null, true);
-                    s.waitForClick(s.bkSre);
-                    s.stage.setAsVideo("assets\\movie\\H005f.mpg", null, true);
-
-                    s.waitForClick(s.bkSre);
-
-                }
-                catch
-                {
-                    character_1.Dispose();
-                    return 0;
-                }
-                return 0;
-            });
             return m_game;
-           
+
 
         }
         private void BkGrid_Loaded(object sender, RoutedEventArgs e)
         {
             switchToTitle();
             this.Content = title.Content;
+
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            if (title != null)
-                title.Close();
 
-            if (theatreMode != null)
-                theatreMode.Close();
 
-            if (settere != null)
-                settere.Close();
-
-            if (bookMode != null)
-                bookMode.Close();
 
             PInvoke.Kernel32.ExitProcess(0);
         }

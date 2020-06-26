@@ -24,17 +24,17 @@ using Color = System.Windows.Media.Color;
 using NAudio.Wave;
 using System.Threading;
 using System.Drawing;
+using System.Windows.Controls;
 
 namespace Shinengine.Surface
 {
-    
     /// <summary>
     /// Title.xaml 的交互逻辑
     /// </summary>
-    public partial class Title : Window
+    public partial class Title : Page
     {
+        #region tools
         bool nCanrun = true;
-
 
         [DllImport("Shinehelper.dll")]
         unsafe extern static public byte* getPCM();
@@ -44,13 +44,12 @@ namespace Shinengine.Surface
         unsafe extern public static void waveWrite(byte* in_buf, int in_buf_len);
         [DllImport("Shinehelper.dll")]
         extern public static void waveClose();
-        IntPtr hWnd = (IntPtr)0;
         Direct2DImage DxBkGround = null;
         [DllImport("winmm")]
         static extern void timeBeginPeriod(int t);
         [DllImport("winmm")]
         static extern void timeEndPeriod(int t);
-
+        #endregion
         unsafe public DrawProcResult DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
         {
             var video = Loadedsouce as VideoStreamDecoder;
@@ -90,13 +89,11 @@ namespace Shinengine.Surface
             InitializeComponent();
             timeBeginPeriod(1);
 
-            this.Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/UI/loading.png")));
+            this.Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/assets/CG/loading.png")));
 
-            m_BGkMusic = new AudioPlayer("assets\\BGM\\10.wav", true);
+            m_BGkMusic = new AudioPlayer("assets\\BGM\\pcpc006_bgm_01.wma", true);
 
 
-            hWnd = new WindowInteropHelper(this).Handle;
-            
             DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
             {
                 Loadedsouce = new VideoStreamDecoder("assets\\title.wmv")
@@ -112,40 +109,10 @@ namespace Shinengine.Surface
                 m_BGkMusic.canplay = false;
                 nCanrun = false;
             };
-            
+
         }
 
-        [Obsolete]
-        private void BackGround_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-
-
-
-            return;
-        }
-        private void Window_Closed(object sender, EventArgs e)
-        {
-        }
-
-        private void Grid_MouseMove(object sender, MouseEventArgs e)
-        {
-            // _Position = e.GetPosition(this);
-            //   Canvas.SetZIndex(test, Canvas.GetZIndex(test) - 1);
-        }
         public AudioPlayer m_BGkMusic = null;
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-
-         
-
-        }
-
-        private void StartButton_Click(object sender, RoutedEventArgs e)
-        {
-
-           
-
-        }
-    } 
+    }
 }

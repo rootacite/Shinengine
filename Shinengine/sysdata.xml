@@ -3,6 +3,9 @@
   <TextSpeed>0.3</TextSpeed>
   <SwitchSpeed>0.8</SwitchSpeed>
   <BGMVm>0.6</BGMVm>
+  <EmVm>0.8</EmVm>
   <VoiceVM>1.0</VoiceVM>
   <Auto>2</Auto>
+
+  <full>true</full>
 </settings>

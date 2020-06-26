@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280" ResizeMode="CanResize" Closed="Window_Closed" KeyDown="mmKeyDown" KeyUp="mmKeyUp">
+        Title="MainWindow" Height="760" Width="1280" ResizeMode="NoResize" Closed="Window_Closed" KeyDown="mmKeyDown" KeyUp="mmKeyUp" >
     <Grid x:Name="_BkGrid" Loaded="BkGrid_Loaded">
        
     </Grid>

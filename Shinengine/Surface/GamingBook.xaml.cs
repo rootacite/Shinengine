@@ -56,16 +56,16 @@ namespace Shinengine.Surface
     /// <summary>
     /// GamingBook.xaml 的交互逻辑
     /// </summary>
-    public partial class GamingBook : Window
+    public partial class GamingBook : Page
     {
-        private FormattedText MeasureTextWidth(TextBlock target, double fontSize, string str)
+        static public FormattedText MeasureTextWidth(TextBlock target, double fontSize, string str)
         {
 
             FormattedText formattedText = new
                    FormattedText(str, System.Globalization.CultureInfo.CurrentCulture,
                    FlowDirection.LeftToRight,
                    new Typeface(target.FontFamily, target.FontStyle,
-                   this.FontWeight, target.FontStretch),
+                   target.FontWeight, target.FontStretch),
                    fontSize, target.Foreground);
 
 
@@ -121,7 +121,7 @@ namespace Shinengine.Surface
             bPlayer.SoundLocation = np.BackgroundMusic;
             bPlayer.Play();
             Preparation += np.Contents[0] + "\n";
-           CommitText();
+            CommitText();
 
             Storyboard m_proj = new Storyboard();
             Storyboard m_proj_2 = new Storyboard();
@@ -141,13 +141,13 @@ namespace Shinengine.Surface
             m_proj.Children.Add(dam_proj);
             m_proj_2.Children.Add(dam_proj_2);
 
-            Storyboard.SetTarget(m_proj,PageEdge);
+            Storyboard.SetTarget(m_proj, PageEdge);
             Storyboard.SetTarget(m_proj_2, PageEdge);
 
             Storyboard.SetTargetProperty(m_proj, new PropertyPath("(Opacity)"));
             Storyboard.SetTargetProperty(m_proj_2, new PropertyPath("(Opacity)"));
 
-            m_proj.Completed += (e,v) => { m_proj_2.Begin(); };
+            m_proj.Completed += (e, v) => { m_proj_2.Begin(); };
             m_proj_2.Completed += (e, v) => { m_proj.Begin(); };
 
             m_proj.Begin();
@@ -156,7 +156,7 @@ namespace Shinengine.Surface
 
         public void Start(int page_count)
         {
-            var m_mutil = new Thread(()=> 
+            var m_mutil = new Thread(() =>
             {
                 EasyAmal am_il = new EasyAmal(Illustration, "(Opacity)", 0.0, 1.0, 1.8);
                 EasyAmal am_pg = new EasyAmal(Page, "(Opacity)", 0.0, 1.0, 0.6);
@@ -174,16 +174,16 @@ namespace Shinengine.Surface
                         i = 0;
                         ral_page++;
 
-                        if (ral_page == page_count)
+                        if (ral_page >= page_count)
                             break;
                         call_next.WaitOne();
                         np = ms_mp.getSignalPage(ral_page);
 
-                        
-                        this.Dispatcher.Invoke(new Action(() => 
+
+                        this.Dispatcher.Invoke(new Action(() =>
                         {
                             Preparation += "\n";
-                           CommitText();
+                            CommitText();
                         }));
                         if (bPlayer.SoundLocation != np.BackgroundMusic)
                         {
@@ -199,7 +199,7 @@ namespace Shinengine.Surface
                         double vara = 1.0, varb = 0.0;
                         double increment = 1 / (0.6 * 30);
 
-                        Illustration.Dispatcher.Invoke(new Action(()=> {
+                        Illustration.Dispatcher.Invoke(new Action(() => {
 
                             var converta = Stage.BitmapImage2Bitmap(Illustration.Source as BitmapImage);
                             var convertb = Stage.BitmapImage2Bitmap(new BitmapImage(new Uri("pack://siteoforigin:,,,/" + np.Illustration)));
@@ -273,7 +273,7 @@ namespace Shinengine.Surface
                     string load_printed = "";
                     foreach (var c in np.Contents[i])
                     {
-                       
+
                         _Contents.Dispatcher.Invoke(new Action(() => {
                             load_printed += c;
                             var ap_l = MeasureTextWidth(_Contents, _Contents.FontSize, load_printed);
@@ -283,16 +283,16 @@ namespace Shinengine.Surface
                                 load_printed = "";
                             }
                             Preparation += c;
-                            CommitText(); 
+                            CommitText();
                         }));
                         Thread.Sleep(30);
                     }
                     _Contents.Dispatcher.Invoke(new Action(() => {
                         Preparation += "\n";
-                       CommitText();
+                        CommitText();
 
                     }));
-                   
+
                 }
             });
             m_mutil.IsBackground = true;
@@ -301,7 +301,7 @@ namespace Shinengine.Surface
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-        
+
         }
 
         private void Page_MouseUp(object sender, MouseButtonEventArgs e)

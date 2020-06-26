@@ -120,6 +120,32 @@ namespace Shinengine.Data
             }
         }
 
+        public static float EmVolum
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "EmVm")
+                    {
+                        return (float)Convert.ToDouble(i.Value.ToString());
+                    }
+                }
+                return 0.3f;
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "EmVm")
+                    {
+                        i.Value = value.ToString();
+                        sysData.Save("sysdata.xml");
+                    }
+                }
+            }
+        }
+
         public static double AutoTime
         {
             get
@@ -142,6 +168,35 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "Auto")
                     {
                         i.Value = value.ToString();
+                        sysData.Save("sysdata.xml");
+                    }
+                }
+            }
+        }
+
+        public static bool FullS
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "full")
+                    {
+                        if (i.Value.ToString() == "true")
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                return false;
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "full")
+                    {
+                        i.Value = value ? "true" : "false";
                         sysData.Save("sysdata.xml");
                     }
                 }
