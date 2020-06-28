@@ -37,6 +37,16 @@ using System.Windows.Interop;
 using BitmapDecoder = SharpDX.WIC.BitmapDecoder;
 using Shinengine.Data;
 using System.Diagnostics;
+using SharpDX.Direct2D1.Effects;
+using Device = SharpDX.Direct3D11.Device;
+
+using SharpDX.Direct3D11;
+using SharpDX.Direct3D;
+using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
+using DeviceContext = SharpDX.Direct2D1.DeviceContext;
+using System.Net.WebSockets;
+using Blend = SharpDX.Direct2D1.Effects.Blend;
+using System.Text;
 
 namespace Shinengine.Surface
 {
@@ -48,6 +58,9 @@ namespace Shinengine.Surface
 
         }
     }
+    /// <summary>
+    /// Character 类是抽象类，不能实例化。原则上不允许同时出现两个name相同的角色，这会在SaveLoad时引起bug
+    /// </summary>
     sealed public class StaticCharacter : Character
     {
         [DllImport("Shinehelper.dll")]
@@ -69,6 +82,25 @@ namespace Shinengine.Surface
         public StaticCharacter(string name, string init_pic, Canvas whereIs, bool canshow = true, ChangeableAreaInfo[] actions_souce = null, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             : base(name, init_pic, whereIs, canshow, time, isAscy, vel_x, vel_y)
         {
+            var load_init_array = new int[actions_souce.Length];
+            for(int i = 0;i< actions_souce.Length; i++)
+            {
+                load_init_array[i] = -1;
+            }
+            Theatre.FrameDescription.Characters.Add(new Theatre.CharacterDescription()
+            {
+                areaDis = actions_souce,
+                areasType = load_init_array,
+                layer = whereIs,
+                Showed = canshow,
+                template = init_pic,
+                name = name,
+                vel_x = vel_x,
+                vel_y = vel_y
+            });
+            
+            if (Theatre.sandboxMode) return;
+
             if (actions_souce == null) return;
             ChAreas = new List<ChangeableAreaDescription>();
             foreach (var i in actions_souce)
@@ -91,6 +123,16 @@ namespace Shinengine.Surface
 
         public void SwitchTo(int area, int index, double ?time = null, bool isAysn = false)
         {
+            foreach(var i in Theatre.FrameDescription.Characters)
+            {
+                if (i.name == this._name)
+                {
+                    i.areasType[area] = index;
+                }
+            }
+
+            if (Theatre.sandboxMode) return;
+
             if (time == null) time = SharedSetting.textSpeed;
 
             if (time < 1.0 / 30.0 && time != 0)
@@ -227,7 +269,17 @@ namespace Shinengine.Surface
 
         public void Dispose()
         {
-            foreach(var i in ChAreas)
+            foreach (var i in Theatre.FrameDescription.Characters)
+            {
+                if (i.name == this._name)
+                {
+                    Theatre.FrameDescription.Characters.Remove(i);
+                    break;
+                }
+            }
+
+            if (Theatre.sandboxMode) return;
+            foreach (var i in ChAreas)
             {
                 foreach (var t in i.switches)
                 {
@@ -238,7 +290,7 @@ namespace Shinengine.Surface
             this.Remove(0, true);
         }
     }
-    public class Character
+    public abstract class Character
     {
         AudioPlayer voice_player = null;
         public string _name = "";
@@ -251,8 +303,11 @@ namespace Shinengine.Surface
 
         public Character(string name, string template, Canvas layer, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
         {
-            if (time == null) time = SharedSetting.switchSpeed;
             _name = name;
+
+            if (Theatre.sandboxMode) return;
+
+            if (time == null) time = SharedSetting.switchSpeed;
             layer.Dispatcher.Invoke(new Action(() =>
             {
 
@@ -311,7 +366,7 @@ namespace Shinengine.Surface
 
         public void Say(AirPlant target, string lines, string voice = null)
         {
-            if (voice != null)
+            if (voice != null && !Theatre.sandboxMode)
             {
                 if (voice_player != null) voice_player.canplay = false;
                 voice_player = new AudioPlayer(voice, false, SharedSetting.VoiceVolum);
@@ -319,7 +374,7 @@ namespace Shinengine.Surface
             target.Say(lines, this._name);
         }
 
-        public void Remove(double ?time = null, bool isAscy = true)
+        protected void Remove(double ?time = null, bool isAscy = true)
         {
             if (time == null) time = SharedSetting.switchSpeed;
             ManualResetEvent msbn = new ManualResetEvent(false);
@@ -347,12 +402,34 @@ namespace Shinengine.Surface
 
         public void Show(double? time = null,bool isAsyn = false)
         {
+            for (int i = 0; i < Theatre.FrameDescription.Characters.Count; i++)
+            {
+                if (Theatre.FrameDescription.Characters[i].name == this._name)
+                {
+                    var am = Theatre.FrameDescription.Characters[i];
+                    am.Showed = true;
+                    Theatre.FrameDescription.Characters[i] = am;
+                    break;
+                }
+            }
+            if (Theatre.sandboxMode) return;
             if (time == null) time = SharedSetting.switchSpeed;
             EasyAmal amsc = new EasyAmal(shower, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
         }
         public void Hide(double ?time = null,bool isAsyn = false)
         {
+            for (int i = 0; i < Theatre.FrameDescription.Characters.Count; i++)
+            {
+                if (Theatre.FrameDescription.Characters[i].name == this._name)
+                {
+                    var am = Theatre.FrameDescription.Characters[i];
+                    am.Showed = false;
+                    Theatre.FrameDescription.Characters[i] = am;
+                    break;
+                }
+            }
+            if (Theatre.sandboxMode) return;
             if (time == null) time = SharedSetting.switchSpeed;
             EasyAmal amsc = new EasyAmal(shower, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
@@ -519,6 +596,9 @@ namespace Shinengine.Surface
         /// <param name="isAsyn">是否异步（true为异步）</param>
         public void setAsImage(string url, double? time = null, bool isAsyn = false)
         {
+            Theatre.FrameDescription.stageSouceType = true;
+            Theatre.FrameDescription.stageSouce = url;
+            if (Theatre.sandboxMode) return;
             #region 时间参数设置
             if (time == null) time = SharedSetting.switchSpeed;
             if (videoCtrl != null)
@@ -620,6 +700,9 @@ namespace Shinengine.Surface
         /// <param name="isAsyn">是否异步（true为异步）</param>
         public void setAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
         {
+            Theatre.FrameDescription.stageSouceType = false;
+            Theatre.FrameDescription.stageSouce = url;
+            if (Theatre.sandboxMode) return;
             if (time == null) time = SharedSetting.switchSpeed;
             if (videoCtrl != null)
             {
@@ -808,6 +891,296 @@ namespace Shinengine.Surface
             EasyAmal amsc = new EasyAmal(Background, "(Opacity)", 1.0, 0.0,(double) time);
             amsc.Start(isAsyn);
         }
+
+        public void SuperimposeWithImage(string url, double? time = null, bool isAsyn = false)
+        {
+            if (Theatre.sandboxMode)
+                return;
+            Theatre.FrameDescription.stageSouceType = true;
+            Theatre.FrameDescription.stageSouce = url;
+            if (Theatre.sandboxMode) return;
+            #region 时间参数设置
+            if (time == null) time = SharedSetting.switchSpeed;
+            if (videoCtrl != null)
+            {
+                ManualResetEvent ficter = new ManualResetEvent(false);
+                videoCtrl.Disposed += (e, v) =>
+                {
+                    ficter.Set();
+                };
+                videoCtrl.Dispose();
+
+                ficter.WaitOne();
+                ficter.Dispose();
+            }
+            if (time < 1.0 / 30.0 && time != 0)
+            {
+                throw new Exception("time can not be less than 1/30s");
+            }
+            double varb = 0.0;
+
+            double increment = time != 0 ? 1 / ((double)time * 30) : 1.0;
+
+            #endregion
+
+            ManualResetEvent wait_sp = null;
+            if (!isAsyn) wait_sp = new ManualResetEvent(false);
+            Background.Dispatcher.Invoke(new Action(() =>
+            {
+
+                videoCtrl = new Direct2DImage(new Size2((int)Background.Width, (int)Background.Height), 30)
+                {
+                    Loadedsouce = null
+                };
+                WICBitmap mbp_ss = Stage.LoadBitmap(url);//第一次申请资源
+
+
+                D2DBitmap ral_picA = last_save == null ? null : D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+                D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, mbp_ss);
+
+                #region 初始化Dx3d11与相关的资源，用于d2d特效的使用
+
+                Device d3DDevice = new Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
+                SharpDX.DXGI.Device dxgiDevice = d3DDevice.QueryInterface<Device>().QueryInterface<SharpDX.DXGI.Device>();
+
+                SharpDX.Direct2D1.Device d2DDevice = new SharpDX.Direct2D1.Device(dxgiDevice);
+                var deviceContext = new DeviceContext(d2DDevice, DeviceContextOptions.None);
+
+                var m_effect = new Blend(deviceContext);
+               
+                #endregion
+
+                videoCtrl.StartDrawing += (t, v, b, s) =>
+                {
+                    t.BeginDraw();
+                    if (ral_picA != null)
+                        t.DrawBitmap(ral_picA, 1, BitmapInterpolationMode.Linear);
+
+                    t.EndDraw();
+                    return true;
+                };
+
+                videoCtrl.DrawProc += (t, v, b, s) =>
+                {
+
+                    t.BeginDraw();
+
+                    m_effect.SetInput(0, ral_picA, new RawBool());
+                    m_effect.SetInput(1, ral_picB, new RawBool());
+
+
+                    if (ral_picA != null)
+                        t.DrawBitmap(ral_picA, 1, BitmapInterpolationMode.Linear);
+
+                    t.DrawBitmap(ral_picB,
+            new RawRectangleF(0, 0, b, s),
+             (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+             new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height));
+
+                    t.EndDraw();
+                    if ( varb > 1)
+                    {
+                        return DrawProcResult.Death;
+                    }
+                    varb += increment;
+                    return DrawProcResult.Commit;
+                };
+                videoCtrl.Disposed += (e, v) =>
+                {
+                    if (wait_sp != null)
+                        wait_sp.Set();
+                    if (ral_picA != null)
+                        ral_picA.Dispose();
+                    ral_picB.Dispose();
+                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                    last_save = v;
+                    videoCtrl = null;
+                    mbp_ss.Dispose();
+                };
+                videoCtrl.DrawStartup(Background);
+            }));
+
+            if (wait_sp != null)
+            {
+                wait_sp.WaitOne();
+                wait_sp.Dispose();
+                wait_sp = null;
+            }
+        }
+
+        public void SuperimposeWithVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
+        {
+            Theatre.FrameDescription.stageSouceType = false;
+            Theatre.FrameDescription.stageSouce = url;
+            if (Theatre.sandboxMode) return;
+            if (time == null) time = SharedSetting.switchSpeed;
+            if (videoCtrl != null)
+            {
+
+                ManualResetEvent ficter = new ManualResetEvent(false);
+                videoCtrl.Disposed += (e, v) =>
+                {
+                    ficter.Set();
+                };
+                videoCtrl.Dispose();
+
+                ficter.WaitOne();
+                ficter.Dispose();
+            }
+            D2DBitmap ral_pic = null;
+            var m_sourc = new VideoStreamDecoder(url);
+
+            Background.Dispatcher.Invoke(new Action(() =>
+            {
+                videoCtrl = new Direct2DImage(new Size2((int)Background.Width, (int)Background.Height), 30)
+                {
+                    Loadedsouce = m_sourc
+                };
+
+                if (last_save != null)
+                    ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+
+                videoCtrl.StartDrawing += (t, m, b, s) =>
+                {
+                    t.BeginDraw();
+
+                    t.DrawBitmap(ral_pic, 1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear);
+
+                    t.EndDraw();
+                    return true;
+                };
+            }));
+
+            ManualResetEvent msc_evt = null;
+            if (!isAsyn) msc_evt = new ManualResetEvent(false);
+
+            if (time < 1.0 / 30.0 && time != 0)
+            {
+                throw new Exception("time can not be less than 1/30s");
+            }
+            else if (time != 0)
+            {
+                double varb = 0.0;
+                double increment = 1 / ((double)time * 30);
+                videoCtrl.Disposed += (Loadedsouce, s) => {
+                    (Loadedsouce as VideoStreamDecoder).Dispose();
+                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                    last_save = s;
+                    videoCtrl = null;
+
+                    if (msc_evt != null)
+                        msc_evt.Set();
+                };
+                videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
+                {
+                    var video = Loadedsouce as VideoStreamDecoder;
+
+                    if (video == null)
+                        return DrawProcResult.Ignore;
+
+                    IntPtr dataPoint;
+                    int pitch;
+                    var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
+                    if (!res)
+                    {
+                        if (loop)
+                        {
+                            video.Position(0);
+
+                            return DrawProcResult.Ignore;
+                        }
+                        return DrawProcResult.Death;
+                    }
+                    var ImGc = new ImagingFactory();
+                    var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+                    var BitSrc = D2DBitmap.FromWicBitmap(view, WICBIT);
+
+                    view.BeginDraw();
+                    if (varb < 1)
+                    {
+                        view.DrawBitmap(ral_pic, 1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear);
+                        view.DrawBitmap(BitSrc,
+                      new RawRectangleF(0, 0, Width, Height),
+                       (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                       new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
+                    }
+                    else
+                    {
+                        view.DrawBitmap(ral_pic, 1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear);
+                        view.DrawBitmap(BitSrc,
+                      new RawRectangleF(0, 0, Width, Height),
+                       1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                       new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
+                    }
+                    view.EndDraw();
+
+                    ImGc.Dispose();
+                    WICBIT.Dispose();
+                    BitSrc.Dispose();
+
+
+                    varb += increment;
+                    return DrawProcResult.Commit;
+                };
+            }
+            else if (time == 0)
+            {
+                videoCtrl.Disposed += (Loadedsouce, s) => {
+                    (Loadedsouce as VideoStreamDecoder).Dispose();
+                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                    last_save = s;
+                    videoCtrl = null;
+                    if (msc_evt != null)
+                        msc_evt.Set();
+                };
+                videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
+                {
+                    var video = Loadedsouce as VideoStreamDecoder;
+
+                    if (video == null)
+                        return DrawProcResult.Ignore;
+
+                    IntPtr dataPoint;
+                    int pitch;
+                    var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
+                    if (!res)
+                    {
+                        if (loop)
+                        {
+                            video.Position(0);
+                            return DrawProcResult.Ignore;
+                        }
+                        return DrawProcResult.Death;
+                    }
+                    var ImGc = new ImagingFactory();
+                    var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+                    var BitSrc = D2DBitmap.FromWicBitmap(view, WICBIT);
+
+                    view.BeginDraw();
+
+                    view.DrawBitmap(BitSrc,
+                  new RawRectangleF(0, 0, Width, Height),
+                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                   new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
+
+                    view.EndDraw();
+
+                    ImGc.Dispose();
+                    WICBIT.Dispose();
+                    BitSrc.Dispose();
+                    return DrawProcResult.Commit;
+                };
+            }
+
+            Background.Dispatcher.Invoke(new Action(() => { videoCtrl.DrawStartup(Background); }));
+
+            if (msc_evt != null)
+            {
+                msc_evt.WaitOne();
+                msc_evt.Dispose();
+                ral_pic.Dispose();
+            }
+        }
     }
     public class Usage
     {
@@ -858,6 +1231,9 @@ namespace Shinengine.Surface
 
         public void Say(string line, string character = "", double ?time = null)
         {
+            Theatre.FrameDescription.line = line;
+            Theatre.FrameDescription.name = character;
+            if (Theatre.sandboxMode) return;
             if (time == null) time = SharedSetting.textSpeed;
             
             #region log call
@@ -900,12 +1276,16 @@ namespace Shinengine.Surface
                     EasyAmal _st = new EasyAmal(chat_usage, "(Opacity)", 1.0, 0.0, (double)time);
                     _st.Start(true);
                     Character_Usage.Text = character;
-                }
+                }else
                 if (character != "" && chat_usage.Opacity == 0)
                 {
                     Character_Usage.Text = character;
                     EasyAmal _st = new EasyAmal(chat_usage, "(Opacity)", 0.0, 1.0, (double)time);
                     _st.Start(true);
+                }
+                else
+                {
+                    Character_Usage.Text = character;
                 }
             }));
             esyn = new EasyAmal(Lines_Usage, "(Opacity)", 0.0, 1.0, (double)time);
@@ -964,7 +1344,70 @@ namespace Shinengine.Surface
     }
     public class Theatre
     {
+        public void SetEnvironmentMusic(string path = null)
+        {
+            if (path != null)
+            {
+                FrameDescription.Environment = path;
+            }
+            if (sandboxMode)
+                return;
+            if (m_em_player != null)
+            {
+                m_em_player.canplay = false;
+                m_em_player = null;
+            }
+            if (path != null)
+            {
+                m_em_player = new AudioPlayer(path, true, SharedSetting.EmVolum);
+            }
+        }
+        public void SetBackgroundMusic(string path = null)
+        {
+            if (path != null)
+            {
+                FrameDescription.BGM = path;
+            }
+            if (sandboxMode)
+                return;
+            if (m_player != null)
+            {
+                m_player.canplay = false;
+                m_player = null;
+            }
+            if (path != null)
+            {
+                m_player = new AudioPlayer(path, true, SharedSetting.BGMVolum);
+            }
+        }
+        public List<StaticCharacter> cts = new List<StaticCharacter>();
+        public struct CharacterDescription 
+        {
+            public string name;
+            public string template;
+            public Canvas layer;
+            public double vel_x;
+            public double vel_y;
 
+            public bool Showed;
+            public int[] areasType;
+            public StaticCharacter.ChangeableAreaInfo[] areaDis;
+        }
+
+        public struct FrameDescription
+        {
+            public static string Environment;
+            public static string BGM;
+            public static string name;
+            public static string line;
+
+            public static bool stageSouceType;
+            public static string stageSouce;
+            public static List<CharacterDescription> Characters = new List<CharacterDescription>();
+        }
+        #region rest
+        public static bool sandboxMode = false;
+        public int saved_frame = 0;
         public AudioPlayer m_player = null;
         public AudioPlayer m_em_player = null;
 
@@ -1004,6 +1447,7 @@ namespace Shinengine.Surface
 
         public Theatre(Image _BackGround, Grid _UsageArea, Grid rbk, Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Canvas charterLayer, TextBlock backlog)
         {
+            FrameDescription.Characters.Clear();
             usage = new Usage(_UsageArea);
             stage = new Stage(_BackGround);
             airplant = new AirPlant(air, names, _Lines, _Charecter, rbk, backlog);
@@ -1014,8 +1458,42 @@ namespace Shinengine.Surface
         {
             bkSre.Dispatcher.Invoke(new Action(() => { bkSre.Background = new System.Windows.Media.SolidColorBrush(color); }));
         }
-        public void waitForClick(UIElement Home)
+        #endregion
+        public void waitForClick(UIElement Home = null)
         {
+            if (sandboxMode)
+            {
+                if (saved_frame <= locatPlace)
+                    return;
+                sandboxMode = false;
+
+                if (FrameDescription.stageSouceType)
+                    stage.setAsImage(FrameDescription.stageSouce);
+                else
+                    stage.setAsVideo(FrameDescription.stageSouce);
+
+                airplant.Say(FrameDescription.line, FrameDescription.name);
+                SetBackgroundMusic(FrameDescription.BGM);
+                SetEnvironmentMusic(FrameDescription.Environment);
+
+                for (int i = 0; i < FrameDescription.Characters.Count; i++)
+                {
+                    var mp_ol = FrameDescription.Characters[i];
+                    cts[i] = new StaticCharacter(mp_ol.name, mp_ol.template, CharacterLayer, mp_ol.Showed, mp_ol.areaDis, null, true, mp_ol.vel_x, mp_ol.vel_y);
+                    FrameDescription.Characters.RemoveAt(FrameDescription.Characters.Count - 1);
+                    int iit = 0;
+                    foreach(var t in mp_ol.areasType)
+                    {
+                        if (t != -1)
+                            cts[i].SwitchTo(iit, t);
+                        iit++;
+                    }
+                }
+            }
+            if (Home == null)
+            {
+                Home = bkSre;
+            }
             if (GamingTheatre.isSkiping)
                 return;
             if(GamingTheatre.AutoMode)
@@ -1024,18 +1502,23 @@ namespace Shinengine.Surface
                 return;
             }
             MouseButtonEventHandler localtion = new MouseButtonEventHandler((e, v) => { if (!Usage.locked) call_next.Set(); });
-            MouseWheelEventHandler location2 = new MouseWheelEventHandler((e, v) => { if (!Usage.locked && v.Delta < 0) call_next.Set(); });
+            MouseWheelEventHandler location2 = new MouseWheelEventHandler((e, v) => { if (!Usage.locked && v.Delta < 0 &&!v.Handled) call_next.Set(); });
 
             Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp += localtion; Home.MouseWheel += location2; });
 
             call_next.WaitOne();
             if (onExit)
             {
-                throw new Exception();
+                throw new Exception("Exitted");
             }
             Home.Dispatcher.Invoke(() => { Home.MouseLeftButtonUp -= localtion; Home.MouseWheel -= location2; });
             call_next.Reset();
         }
-
+        private int locatPlace = 0;
+        public void SetNextLocatPosition(int place)
+        {
+            sandboxMode = true;
+            locatPlace = place;
+        }
     }
 }

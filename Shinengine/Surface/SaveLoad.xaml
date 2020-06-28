@@ -1,0 +1,58 @@
+﻿<Page x:Class="Shinengine.Surface.SaveLoad"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Shinengine.Surface"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="SaveLoad">
+
+    <Grid x:Name="Forgan">
+        <Image Stretch="Fill" Source="/RegularUI/saveload.png" Height="720" Width="1280" HorizontalAlignment="Left" VerticalAlignment="Top">
+        </Image>
+        <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="16,18,1164,666">
+            退出
+        </Button>
+        <Grid x:Name="save1" Height="270" Width="234" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100 100 0 0">
+            <Grid.Background>
+                <ImageBrush ImageSource="/RegularUI/btn.png"/>
+            </Grid.Background>
+
+            <Button x:Name="save_1_event" Height="120" Width="220" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 40 0 0" Background="{x:Null}" BorderBrush="{x:Null}" Click="save_1_event_Click"/>
+            <TextBlock x:Name="save_1_content" Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="85" Width="220" Foreground="White" Margin="0 160 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+            <TextBlock Text="Save.01"  HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="220" Foreground="White" Margin="0 -230 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+        </Grid>
+        <Grid x:Name="save2" Height="270" Width="234" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="400 100 0 0">
+            <Grid.Background>
+                <ImageBrush ImageSource="/RegularUI/btn.png"/>
+            </Grid.Background>
+
+            <Button x:Name="save_2_event" Height="120" Width="220" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 40 0 0" Background="{x:Null}" BorderBrush="{x:Null}" Click="save_2_event_Click"/>
+            <TextBlock x:Name="save_2_content" Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="85" Width="220" Foreground="White" Margin="0 160 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+            <TextBlock Text="Save.02"  HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="220" Foreground="White" Margin="0 -230 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+        </Grid>
+
+        <Grid x:Name="save3" Height="270" Width="234" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="700 100 0 0">
+            <Grid.Background>
+                <ImageBrush ImageSource="/RegularUI/btn.png"/>
+            </Grid.Background>
+
+            <Button x:Name="save_3_event" Height="120" Width="220" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 40 0 0" Background="{x:Null}" BorderBrush="{x:Null}" Click="save_3_event_Click"/>
+            <TextBlock x:Name="save_3_content" Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="85" Width="220" Foreground="White" Margin="0 160 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+            <TextBlock Text="Save.03"  HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="220" Foreground="White" Margin="0 -230 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+        </Grid>
+
+        <Grid x:Name="save4" Height="270" Width="234" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="1000 100 0 0">
+            <Grid.Background>
+                <ImageBrush ImageSource="/RegularUI/btn.png"/>
+            </Grid.Background>
+
+            <Button x:Name="save_4_event" Height="120" Width="220" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0 40 0 0" Background="{x:Null}" BorderBrush="{x:Null}" Click="save_4_event_Click"/>
+            <TextBlock x:Name="save_4_content" Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="85" Width="220" Foreground="White" Margin="0 160 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+            <TextBlock Text="Save.04"  HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="220" Foreground="White" Margin="0 -230 0 0" FontSize="24" FontFamily="Bodoni MT Black" />
+        </Grid>
+
+
+    </Grid>
+</Page>

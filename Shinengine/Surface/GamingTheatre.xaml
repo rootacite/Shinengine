@@ -6,7 +6,7 @@
       mc:Ignorable="d" 
       d:DesignHeight="720"
       d:DesignWidth="1280"
-      Title="GamingTheatre">
+      Title="GamingTheatre"  KeyDown="ll_KeyDown" KeyUp="ll_KeyUp">
 
     <Grid x:Name="SBK" MouseUp="SBK_MouseUp" MouseRightButtonUp="SBK_MouseRightButtonUp" MouseLeftButtonUp="SBK_MouseLeftButtonUp" MouseWheel="SBK_MouseWheel">
         
@@ -32,6 +32,9 @@
             <StackPanel Orientation="Horizontal" Margin="980 0 0 0">
                 <Slider x:Name="restIlt" Orientation="Vertical"  Minimum="0" Maximum="18" Width="50"  Height="650" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="restIlt_ValueChanged" />
             </StackPanel>
+            <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="16,18,1164,666" Click="exitlpg_Click">
+                退出
+            </Button>
         </Grid>
         <materialDesign:PopupBox x:Name="Menu" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
                                          PlacementMode="BottomAndAlignCentres"
@@ -39,6 +42,11 @@
                                          ToolTip="Menu"
                                          Background="#FFECD915" Width="50" Height="50" Margin="0,20,20,0" VerticalAlignment="Top" HorizontalAlignment="Right">
             <StackPanel>
+                <Button x:Name="SaveLoad" Width="40" Height="40" ToolTip="Save/Load" Opacity="0.6">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/SaveLoad.png"/>
+                    </Button.Background>
+                </Button>
                 <Button  Width="40" Height="40" ToolTip="Auto" Opacity="0.6" Click="Button_Click_3">
                     <Button.Background>
                         <ImageBrush ImageSource="/UI/Auto.png" Stretch="Fill"/>
@@ -62,6 +70,11 @@
                 <Button x:Name="EnExit" Width="40" Height="40" ToolTip="Exit" Opacity="0.6">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/Exit.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="EnLog" Width="40" Height="40" ToolTip="Log" Opacity="0.6" Click="EnLog_Click">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/Log.png"/>
                     </Button.Background>
                 </Button>
             </StackPanel>

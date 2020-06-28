@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -72,4 +73,143 @@ namespace Shinengine.Data
             return result;
         }
     }
+
+    public static class SaveData 
+    {
+        static XDocument sysData = XDocument.Load("saves.xml");
+        static IEnumerable<XNode> atrs = sysData.Root.Nodes();
+        public struct SaveInfo 
+        {
+            public int chapter;
+            public int frames;
+            public string comment;
+            public Bitmap imp;
+        }
+
+        public static SaveInfo save1
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data1")
+                    {
+                        var mLp = i.Value.ToString().Split(':').ToList();
+                        var img = Bitmap.FromFile("data\\save001.png");
+                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
+                    }
+                }
+                throw new Exception();
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data1")
+                    {
+                        string data_save = value.chapter.ToString() + ":" + value.frames.ToString();
+                        i.Value = data_save;
+                        i.Attribute("comment").Value = value.comment;
+                        value.imp.Save("data\\save001.png", System.Drawing.Imaging.ImageFormat.Png);
+                        sysData.Save("saves.xml");
+                    }
+                }
+            }
+
+        }
+        public static SaveInfo save2
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data2")
+                    {
+                        var mLp = i.Value.ToString().Split(':').ToList();
+                        var img = Bitmap.FromFile("data\\save002.png");
+                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
+                    }
+                }
+                throw new Exception();
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data2")
+                    {
+                        string data_save = value.chapter.ToString() + ":" + value.frames.ToString();
+                        i.Value = data_save;
+                        i.Attribute("comment").Value = value.comment;
+                        value.imp.Save("data\\save002.png", System.Drawing.Imaging.ImageFormat.Png);
+                        sysData.Save("saves.xml");
+                    }
+                }
+            }
+
+        }
+        public static SaveInfo save3
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data3")
+                    {
+                        var mLp = i.Value.ToString().Split(':').ToList();
+                        var img = Bitmap.FromFile("data\\save003.png");
+                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
+                    }
+                }
+                throw new Exception();
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data3")
+                    {
+                        string data_save = value.chapter.ToString() + ":" + value.frames.ToString();
+                        i.Value = data_save;
+                        i.Attribute("comment").Value = value.comment;
+                        value.imp.Save("data\\save003.png", System.Drawing.Imaging.ImageFormat.Png);
+                        sysData.Save("saves.xml");
+                    }
+                }
+            }
+
+        }
+        public static SaveInfo save4
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data4")
+                    {
+                        var mLp = i.Value.ToString().Split(':').ToList();
+                        var img = Bitmap.FromFile("data\\save004.png");
+                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
+                    }
+                }
+                throw new Exception();
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "data4")
+                    {
+                        string data_save = value.chapter.ToString() + ":" + value.frames.ToString();
+                        i.Value = data_save;
+                        i.Attribute("comment").Value = value.comment;
+                        value.imp.Save("data\\save004.png", System.Drawing.Imaging.ImageFormat.Png);
+                        sysData.Save("saves.xml");
+                    }
+                }
+            }
+
+        }
+    }
+
 }

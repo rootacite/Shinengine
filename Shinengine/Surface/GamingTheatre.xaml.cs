@@ -4,6 +4,7 @@ using SharpDX.WIC;
 using Shinengine.Media;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +45,8 @@ namespace Shinengine.Surface
         {
             InitializeComponent();
             Preparation = "";
+            isSkiping = false;
+            AutoMode = false;
         }
         public void Init(Window main_window)
         {
@@ -105,10 +108,19 @@ namespace Shinengine.Surface
         }
         public delegate int ScriptHandle(Theatre theatre);
         Task scriptTask = null;
-
-        public void Start(ScriptHandle scriptHandle)
+        public int ResultOfTheatre = 0;
+        public void Start(ScriptHandle scriptHandle , Action endEvent = null)
         {
-            scriptTask = new Task(() => { scriptHandle(m_theatre); });
+            scriptTask = new Task(() =>
+            {
+                int result = scriptHandle(m_theatre);
+                if (result != -1)
+                {
+                    ResultOfTheatre = result;
+                    this.Dispatcher.Invoke(endEvent);
+                }
+
+            });
             scriptTask.Start();
         }
 
@@ -123,6 +135,18 @@ namespace Shinengine.Surface
 
             isSkiping = false;
             AutoMode = false;
+            if (isBakcloging)
+            {
+                text_count_picker = 0;
+                Surface.Usage.locked = false;
+                m_theatre.usage.Show(null, true);
+                EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.switchSpeed);
+                m_pip.Start(true);
+                isBakcloging = false;
+                Menu.IsEnabled = true;
+                e.Handled = true;
+                return;
+            }
             if (isSkiping)
             {
                 if (!this.ShowIn.Children.Contains(skip_icon))
@@ -163,6 +187,7 @@ namespace Shinengine.Surface
                 onHidden = false;
                 return;
             }
+
         }
 
         private void SBK_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -271,6 +296,7 @@ namespace Shinengine.Surface
             Source = new BitmapImage(new Uri(@"pack://siteoforigin:,,,/assets/local/SkipMini.png"))
         };
 
+        public bool isBakcloging = false;
         long text_count_picker = 0;
         private void SBK_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -288,9 +314,14 @@ namespace Shinengine.Surface
 
                     text_count_picker -= 1;
                     CommitText();
+                    restIlt.Value = 0;
+                    isBakcloging = true;
+                    Menu.IsEnabled = false;
+
+                    e.Handled = true;
                     return;
                 }
-                if(-text_count_picker < lines.Count-18)
+                if((-text_count_picker - 1) < lines.Count-27)
                 text_count_picker -= 1;
             }
             else
@@ -304,30 +335,32 @@ namespace Shinengine.Surface
                     m_theatre.usage.Show(null, true);
                     EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.switchSpeed);
                     m_pip.Start(true);
+                    isBakcloging = false;
+                    Menu.IsEnabled = true;
 
-                    
+                    e.Handled = true;
                     return;
                 }
             }
+            restIlt.Value = (-text_count_picker - 1);
 
-            restIlt.Value = -text_count_picker;
         }
         private void restIlt_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            CommitText((int)(restIlt.Value + 18));
+            CommitText((int)(e.NewValue + 27));
         }
         public static string Preparation = "";  //显示最后18行
-        private void CommitText(int start_line = 18)
+        private void CommitText(int start_line = 27)
         {
             List<string> lines = Preparation.Substring(0, Preparation.Length - 1).Split('\n').ToList();
-            restIlt.Maximum = lines.Count - 18 < 0 ? 0 : lines.Count - 18;
+            restIlt.Maximum = lines.Count - 27 < 0 ? 0 : lines.Count - 27;
             if (lines.Count <= start_line)
             {
                 _Contents.Text = string.Join("\n", lines);
                 return;
             }
             List<string> _lines = new List<string>();
-            for (int i = lines.Count - start_line; i - (lines.Count - start_line) < 18; i++)
+            for (int i = lines.Count - start_line; i - (lines.Count - start_line) < 27; i++)
             {
                 if (i >= lines.Count)
                     break;
@@ -337,5 +370,57 @@ namespace Shinengine.Surface
             _Contents.Text = string.Join("\n", _lines);
             return;
         }
+
+        private void EnLog_Click(object sender, RoutedEventArgs e)
+        {
+            if (Preparation.Length == 0)
+                return;
+            List<string> lines = Preparation.Substring(0, Preparation.Length - 1).Split('\n').ToList();
+
+            if (text_count_picker == 0)
+            {
+                m_theatre.usage.Hide(null, true);
+                Surface.Usage.locked = true;
+                EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 0.0, 1.0, Data.SharedSetting.switchSpeed);
+                m_pip.Start(true);
+
+                text_count_picker -= 1;
+                CommitText();
+                restIlt.Value = 0;
+                isBakcloging = true;
+                Menu.IsEnabled = false;
+
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void exitlpg_Click(object sender, RoutedEventArgs e)
+        {
+            if (isBakcloging)
+            {
+                text_count_picker = 0;
+                Surface.Usage.locked = false;
+                m_theatre.usage.Show(null, true);
+                EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.switchSpeed);
+                m_pip.Start(true);
+                isBakcloging = false;
+                Menu.IsEnabled = true;
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void ll_KeyDown(object sender, KeyEventArgs e)
+        {
+           
+        }
+
+        private void ll_KeyUp(object sender, KeyEventArgs e)
+        {
+           
+        }
+
+
     }
 }

@@ -36,6 +36,33 @@
     <None Remove="LOAD.png" />
     <None Remove="next_0 - 复制.png" />
     <None Remove="next_0.png" />
+    <None Remove="RegularUI\btn.png" />
+    <None Remove="RegularUI\Extra\cg01.png" />
+    <None Remove="RegularUI\Extra\cg02.png" />
+    <None Remove="RegularUI\Extra\cg03.png" />
+    <None Remove="RegularUI\Extra\cg04.png" />
+    <None Remove="RegularUI\Extra\cg05.png" />
+    <None Remove="RegularUI\Extra\cg06.png" />
+    <None Remove="RegularUI\Extra\cg07.png" />
+    <None Remove="RegularUI\Extra\cg08.png" />
+    <None Remove="RegularUI\Extra\cg09.png" />
+    <None Remove="RegularUI\Extra\cg10.png" />
+    <None Remove="RegularUI\Extra\cg11.png" />
+    <None Remove="RegularUI\Extra\cg12.png" />
+    <None Remove="RegularUI\Extra\cg13.png" />
+    <None Remove="RegularUI\Extra\cg14.png" />
+    <None Remove="RegularUI\Extra\cg15.png" />
+    <None Remove="RegularUI\Extra\cg16.png" />
+    <None Remove="RegularUI\Extra\cg17.png" />
+    <None Remove="RegularUI\Extra\cg18.png" />
+    <None Remove="RegularUI\Extra\cg19.png" />
+    <None Remove="RegularUI\Extra\cg20.png" />
+    <None Remove="RegularUI\Extra\cg21.png" />
+    <None Remove="RegularUI\Extra\cg22.png" />
+    <None Remove="RegularUI\Extra\cg23.png" />
+    <None Remove="RegularUI\Extra\cg24.png" />
+    <None Remove="RegularUI\Extra\cg25.png" />
+    <None Remove="RegularUI\saveload.png" />
     <None Remove="SAVE.png" />
     <None Remove="Shine.ico" />
     <None Remove="start_0.png" />
@@ -51,8 +78,10 @@
     <None Remove="UI\exit_0.png" />
     <None Remove="UI\HOME.png" />
     <None Remove="UI\LOAD.png" />
+    <None Remove="UI\Log.png" />
     <None Remove="UI\next_0.png" />
     <None Remove="UI\SAVE.png" />
+    <None Remove="UI\SaveLoad.png" />
     <None Remove="UI\SETTING.png" />
     <None Remove="UI\SettingPage.png" />
     <None Remove="UI\Skip.png" />
@@ -70,11 +99,39 @@
     <PackageReference Include="PInvoke.Kernel32" Version="0.6.49" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.Direct2D1" Version="4.2.0" />
+    <PackageReference Include="SharpDX.Direct3D11" Version="4.2.0" />
     <PackageReference Include="SharpDX.DXGI" Version="4.2.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="RegularUI\btn.png" />
+    <Resource Include="RegularUI\Extra\cg01.png" />
+    <Resource Include="RegularUI\Extra\cg02.png" />
+    <Resource Include="RegularUI\Extra\cg03.png" />
+    <Resource Include="RegularUI\Extra\cg04.png" />
+    <Resource Include="RegularUI\Extra\cg05.png" />
+    <Resource Include="RegularUI\Extra\cg06.png" />
+    <Resource Include="RegularUI\Extra\cg07.png" />
+    <Resource Include="RegularUI\Extra\cg08.png" />
+    <Resource Include="RegularUI\Extra\cg09.png" />
+    <Resource Include="RegularUI\Extra\cg10.png" />
+    <Resource Include="RegularUI\Extra\cg11.png" />
+    <Resource Include="RegularUI\Extra\cg12.png" />
+    <Resource Include="RegularUI\Extra\cg13.png" />
+    <Resource Include="RegularUI\Extra\cg14.png" />
+    <Resource Include="RegularUI\Extra\cg15.png" />
+    <Resource Include="RegularUI\Extra\cg16.png" />
+    <Resource Include="RegularUI\Extra\cg17.png" />
+    <Resource Include="RegularUI\Extra\cg18.png" />
+    <Resource Include="RegularUI\Extra\cg19.png" />
+    <Resource Include="RegularUI\Extra\cg20.png" />
+    <Resource Include="RegularUI\Extra\cg21.png" />
+    <Resource Include="RegularUI\Extra\cg22.png" />
+    <Resource Include="RegularUI\Extra\cg23.png" />
+    <Resource Include="RegularUI\Extra\cg24.png" />
+    <Resource Include="RegularUI\Extra\cg25.png" />
+    <Resource Include="RegularUI\saveload.png" />
     <Resource Include="UI\Auto.png" />
     <Resource Include="UI\Backlog.png" />
     <Resource Include="UI\BookPage.png" />
@@ -82,6 +139,8 @@
     <Resource Include="UI\Exit.png" />
     <Resource Include="UI\exit_0.png" />
     <Resource Include="UI\HOME.png" />
+    <Resource Include="UI\Log.png" />
+    <Resource Include="UI\SaveLoad.png" />
     <Resource Include="UI\SETTING.png" />
     <Resource Include="UI\Skip.png" />
     <Resource Include="UI\start_0.png" />
@@ -91,6 +150,9 @@
 
   <ItemGroup>
     <None Update="Book1.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="saves.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="sysdata.xml">

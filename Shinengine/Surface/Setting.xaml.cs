@@ -71,5 +71,10 @@ namespace Shinengine.Surface
             SharedSetting.EmVolum= (float)(e.NewValue / 100.0);
             if (_ioPo != null) _ioPo.outputDevice.Volume = SharedSetting.EmVolum;
         }
+
+        private void exitlpg_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
