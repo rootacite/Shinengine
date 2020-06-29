@@ -17,13 +17,14 @@ using System.Windows.Shapes;
 
 
 using Shinengine.Media;
+using System.Diagnostics;
 
 namespace Shinengine.Surface
 {
     /// <summary>
     /// VideoPlayer.xaml 的交互逻辑
     /// </summary>
-    public partial class VideoPlayer : Window
+    public partial class VideoPlayer : Page
     {
         int i = 0;
 
@@ -49,7 +50,7 @@ namespace Shinengine.Surface
         {
         }
 
-        private DrawProcResult DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
+        private DrawProcResult DrawCallback(DeviceContext view, object Loadedsouce, int Width, int Height)
         {
             SharpDX.Direct2D1.Bitmap farme = null;
             if (Loadedsouce == null)
@@ -62,6 +63,10 @@ namespace Shinengine.Surface
             if (video.bits[video.nFarm]?.frame.IsDisposed == true)
                 return DrawProcResult.Ignore;
             video_time = (double)(video.bits[video.nFarm]?.time_base);
+
+         //   Debug.WriteLine("vd"+video_time.ToString());
+         //   Debug.WriteLine("au"+audio_time.ToString());
+
             if (audio_time - video_time > 0.1)
             {
                 video.bits[video.nFarm]?.frame.Dispose();
@@ -71,16 +76,14 @@ namespace Shinengine.Surface
             }
             if (audio_time - video_time < -0.1)
             {
-                return DrawProcResult.Commit;
+                return DrawProcResult.Normal;
             }
             // Console.WriteLine(video.nFarm.ToString() + "：Using");
             farme = SharpDX.Direct2D1.Bitmap.FromWicBitmap(view, video.bits[video.nFarm]?.frame);
 
             view.BeginDraw();
-            view.DrawBitmap(farme,
-                new RawRectangleF(0, 0, Width, Height),
-                1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                new RawRectangleF(0, 0, (float)video.bits[video.nFarm]?.frame.Size.Width, (float)video.bits[video.nFarm]?.frame.Size.Height));
+            view.DrawBitmap(farme, 
+                1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear );
             view.EndDraw();
 
             farme.Dispose();
@@ -88,7 +91,7 @@ namespace Shinengine.Surface
             video.bits[video.nFarm]?.frame.Dispose();
 
             video.nFarm++;
-            return DrawProcResult.Commit;
+            return DrawProcResult.Normal;
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -104,7 +107,7 @@ namespace Shinengine.Surface
         public void Start(IntPtr hWnd, string path, Action endplay)
         {
             var vest = new Video(Video.VideoMode.LoadWithPlaying, path);
-            dxVideo = new Direct2DImage(new SharpDX.Size2((int)BackGround.Width, (int)BackGround.Height), vest.Fps)
+            dxVideo = new Direct2DImage(new SharpDX.Size2((int)vest.frameSize.Width, (int)vest.frameSize.Height), vest.Fps)
             {
                 Loadedsouce = vest
             };

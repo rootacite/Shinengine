@@ -24,7 +24,7 @@
                 </Grid>
             </Grid>
 
-            <Image x:Name="Logo" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,5"  Width="35" Height="35" Stretch="Fill"/>
+            <Image x:Name="Logo" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,5"  Width="48" Height="40" Stretch="Fill"/>
         </Grid>
         <Grid x:Name="BackLogLayer"  Opacity="0" >
             <Image HorizontalAlignment="Left" VerticalAlignment="Top" Height="720" Width="900" Margin="190 0 0 0" Stretch="Fill" Source="/UI/Backlog.png" />

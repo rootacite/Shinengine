@@ -1,12 +1,13 @@
-﻿<Window x:Class="Shinengine.Surface.VideoPlayer"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Shinengine"
-        mc:Ignorable="d"
-        Title="GameView"  Height="720" Width="1280" Loaded="Window_Loaded" Closed="Window_Closed">
-    <Grid>
-        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="705" VerticalAlignment="Top" Width="1280" Cursor="Arrow" MouseUp="BackGround_MouseUp"/>
+﻿<Page x:Class="Shinengine.Surface.VideoPlayer"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Shinengine.Surface"
+      mc:Ignorable="d" 
+      d:DesignHeight="720" d:DesignWidth="1280"
+      Title="VideoPlayer">
+    <Grid x:Name="root_bk">
+        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="720" VerticalAlignment="Top" Width="1280" Cursor="Arrow" MouseUp="BackGround_MouseUp" Stretch="Fill"/>
     </Grid>
-</Window>
+</Page>

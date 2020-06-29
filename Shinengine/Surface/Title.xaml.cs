@@ -13,7 +13,7 @@ using ImageBrush = System.Windows.Media.ImageBrush;
 using System.Windows.Interop;
 
 using WICBitmap = SharpDX.WIC.Bitmap;
-using D2DBitmap = SharpDX.Direct2D1.Bitmap;
+using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
 using SharpDX.WIC;
 using System.Windows.Media;
 using System.Media;
@@ -45,12 +45,8 @@ namespace Shinengine.Surface
         [DllImport("Shinehelper.dll")]
         extern public static void waveClose();
         Direct2DImage DxBkGround = null;
-        [DllImport("winmm")]
-        static extern void timeBeginPeriod(int t);
-        [DllImport("winmm")]
-        static extern void timeEndPeriod(int t);
         #endregion
-        unsafe public DrawProcResult DrawCallback(WicRenderTarget view, object Loadedsouce, int Width, int Height)
+       /* unsafe public DrawProcResult DrawCallback(DeviceContext view, object Loadedsouce, int Width, int Height)
         {
             var video = Loadedsouce as VideoStreamDecoder;
             if (video == null)
@@ -64,9 +60,10 @@ namespace Shinengine.Surface
                 DxBkGround = null;
                 return DrawProcResult.Death;
             }
-            var ImGc = new ImagingFactory();
-            var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
-            var BitSrc = D2DBitmap.FromWicBitmap(view, WICBIT);
+            //   var WICBIT = new WICBitmap(ImGc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+            var BitSrc = new D2DBitmap(view, new Size2(video.FrameSize.Width, video.FrameSize.Height),
+                new BitmapProperties1(new SharpDX.Direct2D1.PixelFormat(SharpDX.DXGI.Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
+            BitSrc.CopyFromMemory(dataPoint, pitch);
 
             view.BeginDraw();
             view.DrawBitmap(BitSrc,
@@ -77,33 +74,29 @@ namespace Shinengine.Surface
 
             view.EndDraw();
 
-            ImGc.Dispose();
-            WICBIT.Dispose();
-
             BitSrc.Dispose();
             if (!nCanrun) return DrawProcResult.Death;
-            return DrawProcResult.Commit;
-        }
+            return DrawProcResult.Normal;
+        }*/
         public Title()
         {
             InitializeComponent();
-            timeBeginPeriod(1);
 
             this.Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/assets/CG/loading.png")));
 
             m_BGkMusic = new AudioPlayer("assets\\BGM\\pcpc006_bgm_01.wma", true);
 
+            /*
+                        DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
+                        {
+                            Loadedsouce = new VideoStreamDecoder("assets\\title.wmv")
+                        };
 
-            DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
-            {
-                Loadedsouce = new VideoStreamDecoder("assets\\title.wmv")
-            };
+                        DxBkGround.Disposed += (Loadedsouce, s) => { (Loadedsouce as VideoStreamDecoder).Dispose(); s.Dispose(); };
+                        DxBkGround.DrawProc += DrawCallback;
 
-            DxBkGround.Disposed += (Loadedsouce, s) => { (Loadedsouce as VideoStreamDecoder).Dispose(); s.Dispose(); };
-            DxBkGround.DrawProc += DrawCallback;
-
-            DxBkGround.DrawStartup(BackGround);
-
+                        DxBkGround.DrawStartup(BackGround);
+            */
             BkGrid.Unloaded += (e, v) =>
             {
                 m_BGkMusic.canplay = false;

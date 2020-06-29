@@ -223,7 +223,7 @@ namespace Shinengine.Surface
                           new RawRectangleF(0, 0, converta.Width, converta.Height));
 
                                 t.EndDraw();
-                                return true;
+                                return;
                             };
 
                             videoCtrl.DrawProc += (t, v, b, s) =>
@@ -256,7 +256,7 @@ namespace Shinengine.Surface
 
                                 //vara -= increment;
                                 varb += increment;
-                                return DrawProcResult.Commit;
+                                return DrawProcResult.Normal;
                             };
                             videoCtrl.DrawStartup(Illustration);
                         }));

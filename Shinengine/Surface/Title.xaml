@@ -9,7 +9,7 @@
       Title="Title">
     <Grid x:Name="BkGrid">
       
-        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="720" VerticalAlignment="Top" Width="1280" Stretch="Fill"/>
+        <Image x:Name="BackGround" HorizontalAlignment="Left" Margin="0,0,0,0" Height="720" VerticalAlignment="Top" Width="1280" Stretch="Fill" Source="/RegularUI/bg.png"/>
         <Button x:Name="StartButton" Style="{StaticResource BtnInfoStyle}" Content="Button" Width="104" Height="31" HorizontalAlignment="Left" Margin="101,0,0,0" VerticalAlignment="Top">
             <Button.Background>
                 <ImageBrush ImageSource="/UI/start_0.png"/>
@@ -29,6 +29,11 @@
                                          ToolTip="Menu"
                                          Background="#FFECD915" Width="50" Height="50" Margin="0,20,20,0" VerticalAlignment="Top" HorizontalAlignment="Right">
             <StackPanel>
+                <Button x:Name="SaveLoad" Width="40" Height="40" ToolTip="Save/Load" Opacity="0.6">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/SaveLoad.png"/>
+                    </Button.Background>
+                </Button>
                 <Button x:Name="setting" Width="40" Height="40" ToolTip="Setting" Opacity="0.6">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/SETTING.png"/>

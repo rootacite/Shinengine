@@ -36,6 +36,7 @@
     <None Remove="LOAD.png" />
     <None Remove="next_0 - 复制.png" />
     <None Remove="next_0.png" />
+    <None Remove="RegularUI\bg.png" />
     <None Remove="RegularUI\btn.png" />
     <None Remove="RegularUI\Extra\cg01.png" />
     <None Remove="RegularUI\Extra\cg02.png" />
@@ -105,6 +106,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="RegularUI\bg.png" />
     <Resource Include="RegularUI\btn.png" />
     <Resource Include="RegularUI\Extra\cg01.png" />
     <Resource Include="RegularUI\Extra\cg02.png" />

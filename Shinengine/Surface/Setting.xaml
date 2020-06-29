@@ -8,7 +8,7 @@
       d:DesignHeight="720" d:DesignWidth="1280"
       Title="Setting">
     <Grid x:Name="mpOi" MouseRightButtonUp="Grid_MouseRightButtonUp">
-        <Image x:Name="Bkgnd" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="1280" Height="720" Stretch="UniformToFill"/>
+        <Image x:Name="Bkgnd" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="1280" Height="720" Stretch="Fill"/>
         <Grid x:Name="foreg" Height="620" Width="1180">
 
             <StackPanel VerticalAlignment="Top" Height="80" Width="850" Orientation="Horizontal" Margin="100 5 0 0">

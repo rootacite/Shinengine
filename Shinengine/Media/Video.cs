@@ -40,6 +40,8 @@ namespace Shinengine.Media
         public List<VideoFrame?> bits = new List<VideoFrame?>();
         public List<AudioFrame?> abits = new List<AudioFrame?>();
 
+        public Size2 frameSize = new Size2();
+
         public int video_frame_max { get; private set; }
         public int audio_frame_max { get; private set; }
         public bool CanRun { get; set; } = false;
@@ -177,6 +179,9 @@ namespace Shinengine.Media
 
             Fps = (int)Math.Round(((double)pStream->avg_frame_rate.num / (double)pStream->avg_frame_rate.den), 0);
             pPacket = ffmpeg.av_packet_alloc();
+
+            frameSize.Width = width;
+            frameSize.Height = height;
         }
 
         #region 对象定义

@@ -32,24 +32,40 @@ using FFmpeg.AutoGen;
 using Image = System.Windows.Controls.Image;
 using Shinengine.Scripts;
 using System.DirectoryServices.ActiveDirectory;
+using System.Runtime.CompilerServices;
 
 namespace Shinengine.Surface
 {
+    static class ScriptList
+    { 
+        public struct ScriptDes
+        {
+            public int id;
+            public GamingTheatre.ScriptHandle script;
+            public Action scriptEnd;
+        }
+        static public ScriptDes[] Scripts = new ScriptDes[]
+        {
+            new ScriptDes(){id=0, script=Chapter1.Chapter1Script,scriptEnd=Chapter1.Chapter1ScriptEnd },
+            new ScriptDes(){id=100, script=Chapter_H1.Chapter1Script,scriptEnd=Chapter_H1.Chapter1ScriptEnd }
+        };
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-       static public void resizeToGrid(UIElementCollection grid, double width_rate, double height_rate)
+        static public void resizeToGrid(UIElementCollection grid, double width_rate, double height_rate)
         {
-            
+
             foreach (var i in grid)
             {
                 var _i = i as UIElement;
                 if (_i.GetType() == typeof(System.Windows.Controls.Grid))
                 {
                     var _i_r = _i as Grid;
-                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage" || _i_r.Name.Contains("save")) 
+                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage" || _i_r.Name.Contains("save"))
                     {
                         _i_r.Width = _i_r.Width * width_rate;
                         _i_r.Height = _i_r.Height * height_rate;
@@ -60,7 +76,7 @@ namespace Shinengine.Surface
                     resizeToGrid(_i_r.Children, width_rate, height_rate);
                     continue;
                 }
-                if(_i is Image)
+                if (_i is Image)
                 {
                     var _i_r = _i as Image;
                     _i_r.Width = _i_r.Width * width_rate;
@@ -107,7 +123,7 @@ namespace Shinengine.Surface
                     var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
                     _i_r.Margin = new_margin;
                 }
-                else if(_i is StackPanel)
+                else if (_i is StackPanel)
                 {
                     var _i_r = _i as StackPanel;
                     _i_r.Width = _i_r.Width * width_rate;
@@ -121,7 +137,7 @@ namespace Shinengine.Surface
 
             }
         }
-       static  private void resizeEvt(Grid page,Size2 oldSize, Size2 newSize)
+        static private void resizeEvt(Grid page, Size2 oldSize, Size2 newSize)
         {
             double width_rate = (double)newSize.Width / (double)oldSize.Width;
             double height_rate = (double)newSize.Height / (double)oldSize.Height;
@@ -129,18 +145,22 @@ namespace Shinengine.Surface
             resizeToGrid(page.Children, width_rate, height_rate);
         }
         static public Title title = null;
-        static public  GamingBook bookMode = null;
+        static public GamingBook bookMode = null;
         static public GamingTheatre theatreMode = null;
         static public Setting settere = null;
         static public SaveLoad sldata = null;
-
+        [DllImport("winmm")]
+        static extern void timeBeginPeriod(int t);
+        [DllImport("winmm")]
+        static extern void timeEndPeriod(int t);
         static public MainWindow m_window = null;
 
         StaticCharacter.ChangeableAreaInfo[] m_Infos = null;
-    
+
 
         public MainWindow()
         {
+            timeBeginPeriod(1);
             InitializeComponent();
             m_window = this;
             if (SharedSetting.FullS)
@@ -165,7 +185,7 @@ namespace Shinengine.Surface
                 resizeEvt(bookMode.Book, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
 
             }
-            return mbp; 
+            return mbp;
         }
         static public Title switchToTitle()
         {
@@ -217,26 +237,46 @@ namespace Shinengine.Surface
                 EasyAmal maa = null;
 
                 maa = new EasyAmal(title.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed / 2, (e, v) =>
-                    {
-                        theatreMode = switchToSignalTheatre();
-                        theatreMode.m_theatre.saved_frame = 0;
-                        theatreMode.Start(Chapter1.Chapter1Script, () =>
+                {
+                    theatreMode = switchToSignalTheatre(0, 0, null);
+                   
+
+                    maa.stbd.Stop();
+                });
+                maa.Start(true);
+            };
+            mlp.SaveLoad.Click += (e, v) => {
+                var m_thread_intp = new Thread(() =>
+                {
+                    EasyAmal mpos = new EasyAmal(mlp.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed);
+                    mpos.Start(false);/// hide tview
+                    mlp.Dispatcher.Invoke(new Action(()=> {
+                        SaveLoad msv = new SaveLoad(0, 0, null);
+                        msv.disableSave = true;
+
+                        m_window.Content = msv.Content;
+                        sldata = msv;
+                        title = null;
+                        msv.Forgan.MouseRightButtonUp += (e, v) => 
                         {
                             title = switchToTitle();
                             m_window.Content = title.Content;
+                            sldata = null;
+                        };
 
-                            theatreMode.m_logo.Dispose();
-                            theatreMode.m_theatre.SetBackgroundMusic();
-                            theatreMode.m_theatre.Exit();
+                        msv.exitlpg.Click += (e, v) =>
+                        {
+                            title = switchToTitle();
+                            m_window.Content = title.Content;
+                            sldata = null;
+                        };
+                    }));
+                   
+                    
 
-                            if (theatreMode != null)
-                                theatreMode = null;
-                        });
-                        m_window.Content = theatreMode.Content;
-
-                        maa.stbd.Stop();
-                    });
-                maa.Start(true);
+                });
+                m_thread_intp.IsBackground = true;
+                m_thread_intp.Start();
             };
             title = mlp;
             if (SharedSetting.FullS)
@@ -248,7 +288,7 @@ namespace Shinengine.Surface
             return mlp;
         }
 
-        static public GamingTheatre switchToSignalTheatre()
+        static public GamingTheatre switchToSignalTheatre(int id,int start_place,Action end)
         {
 
 
@@ -289,7 +329,7 @@ namespace Shinengine.Surface
 
                     m_game.Dispatcher.Invoke(new Action(() =>
                     {
-                        SaveLoad mst = new SaveLoad(0, m_game.m_theatre.saved_frame, m_game.m_theatre.stage.last_save);
+                        SaveLoad mst = new SaveLoad(id, m_game.m_theatre.saved_frame, m_game.m_theatre.stage.last_save);
                         if (SharedSetting.FullS)
                         {
                             resizeEvt(mst.Forgan, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
@@ -297,7 +337,7 @@ namespace Shinengine.Surface
                         sldata = mst;
 
                         bool canFocue = false;
-                        sldata.exitlpg.Click += (e, v) => 
+                        sldata.exitlpg.Click += (e, v) =>
                         {
                             if (canFocue) return;
                             canFocue = true;
@@ -358,16 +398,16 @@ namespace Shinengine.Surface
                 #region 获取上一次绘图
                 var lpic = m_game.m_theatre.stage.last_save;
 
-                var mbps = new WriteableBitmap((int)m_game.BG.Width, (int)m_game.BG.Height, 72, 72, System.Windows.Media.PixelFormats.Pbgra32, null);
+                var mbps = new WriteableBitmap((int)lpic.Size.Width, (int)lpic.Size.Height, 72, 72, System.Windows.Media.PixelFormats.Pbgra32, null);
                 mbps.Lock();
 
                 var mic_lock = lpic.Lock(BitmapLockFlags.Read);
                 unsafe
                 {
-                    Direct2DImage.RtlMoveMemory((void*)mbps.BackBuffer, (void*)mic_lock.Data.DataPointer, mbps.PixelHeight * mbps.BackBufferStride);
+                    Direct2DImage.RtlMoveMemory((void*)mbps.BackBuffer, (void*)mic_lock.Data.DataPointer, lpic.Size.Height * mbps.BackBufferStride);
                 }
                 mic_lock.Dispose();
-                mbps.AddDirtyRect(new Int32Rect(0, 0, (int)m_game.BG.Width, (int)m_game.BG.Height));
+                mbps.AddDirtyRect(new Int32Rect(0, 0, (int)lpic.Size.Width, (int)lpic.Size.Height));
                 mbps.Unlock();
                 #endregion
                 var m_thread_intp = new Thread(() =>
@@ -385,7 +425,7 @@ namespace Shinengine.Surface
                         EasyAmal mpos = new EasyAmal(settere.foreg, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
 
                         bool canFocue = false;
-                        settere.exitlpg.Click += (e, v) => 
+                        settere.exitlpg.Click += (e, v) =>
                         {
                             if (canFocue) return;
                             canFocue = true;
@@ -432,11 +472,38 @@ namespace Shinengine.Surface
             {
                 m_window.Close();
             };
-          
+            if (end == null)
+            {
+                for (int i=0;i< ScriptList.Scripts.Length; i++)
+                {
+                    if (ScriptList.Scripts[i].id == id)
+                    {
+                        m_game.Start(ScriptList.Scripts[i].script, ScriptList.Scripts[i].scriptEnd);
+                    }
+                }
+              
+            }
+            else
+            {
+                for (int i = 0; i < ScriptList.Scripts.Length; i++)
+                {
+                    if (ScriptList.Scripts[i].id == id)
+                    {
+                        m_game.Start(ScriptList.Scripts[i].script, end);
+                    }
+                }
+            }
+           
             m_game.BG.Opacity = 0;
             m_game.Usage.Opacity = 0;
+            if (start_place != 0)
+            {
+                m_game.m_theatre.SetNextLocatPosition(start_place);
+            }
+            else
+                m_game.m_theatre.saved_frame = 0;
 
-           
+            m_window.Content = m_game.Content;
 
             return m_game;
 
@@ -446,9 +513,17 @@ namespace Shinengine.Surface
 
         private void BkGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            switchToTitle();
-            this.Content = title.Content;
+             switchToTitle();
+             this.Content = title.Content;
 
+            return;
+            var mpo = new VideoPlayer();
+            this.Content = mpo.Content;
+            if (SharedSetting.FullS)
+            {
+                resizeEvt(mpo.root_bk, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+            }
+            mpo.Start(new WindowInteropHelper(this).Handle, "assets\\希EDムービー.mp4", () => { this.Close(); });
         }
 
         private void Window_Closed(object sender, EventArgs e)

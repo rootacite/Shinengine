@@ -1,4 +1,5 @@
 ﻿using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using SharpDX.WIC;
 using Shinengine.Media;
@@ -17,8 +18,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-using D2DBitmap = SharpDX.Direct2D1.Bitmap;
-
+using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
+using Image = System.Windows.Controls.Image;
 using WICBitmap = SharpDX.WIC.Bitmap;
 
 namespace Shinengine.Surface
@@ -64,13 +65,14 @@ namespace Shinengine.Surface
                     break;
                 var ImGc = new ImagingFactory();
                 var WICBIT = new WICBitmap(ImGc, vsd.FrameSize.Width, vsd.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+              //  var mp = new System.Drawing.Bitmap(vsd.FrameSize.Width, vsd.FrameSize.Height, pitch, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, dataPoint);
+             //   mp.Save("test\\" + logo_frames.Count + ".png");
+             //   mp.Dispose();
 
                 logo_frames.Add(WICBIT);
             }
             vsd.Dispose();
-
-
-            m_logo = new Direct2DImage(new SharpDX.Size2((int)Logo.Width, (int)Logo.Height), 30)
+            m_logo = new Direct2DImage(new SharpDX.Size2((int)vsd.FrameSize.Width, (int)vsd.FrameSize.Height), 30)
             {
                 Loadedsouce = logo_frames
             };
@@ -82,17 +84,14 @@ namespace Shinengine.Surface
                 if (ims == frames.Count)
                     ims = 0;
                 t.BeginDraw();
-                t.Clear(new RawColor4(0, 0, 0, 0));
+                t.Clear(new RawColor4(0,0,0,0));
                 D2DBitmap parl_map = D2DBitmap.FromWicBitmap(t, frames[ims]);
-                t.DrawBitmap(parl_map,
-             new RawRectangleF(0, 0, w, h),
-              1, SharpDX.Direct2D1.BitmapInterpolationMode.NearestNeighbor,
-              new RawRectangleF(0, 0, frames[ims].Size.Width, frames[ims].Size.Height));
+                t.DrawBitmap(parl_map,1,InterpolationMode.Anisotropic);
                 t.EndDraw();
 
                 ims++;
                 parl_map.Dispose();
-                return DrawProcResult.Commit;
+                return DrawProcResult.Normal;
             };
             m_logo.Disposed += (s, ss) =>
             {
@@ -103,7 +102,7 @@ namespace Shinengine.Surface
                 }
                 ss.Dispose();
             };
-            m_logo.DrawStartup(Logo);
+           m_logo.DrawStartup(Logo);
             #endregion
         }
         public delegate int ScriptHandle(Theatre theatre);

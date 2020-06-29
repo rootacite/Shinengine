@@ -168,5 +168,5 @@ extern "C" __declspec(dllexport) void waveClose()
 }
 
 extern "C" __declspec(dllexport) HWND GetDskWindow() {
-    return GetDesktopWindow();
+    return GetForegroundWindow();
 }

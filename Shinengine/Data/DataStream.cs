@@ -95,7 +95,10 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "data1")
                     {
                         var mLp = i.Value.ToString().Split(':').ToList();
-                        var img = Bitmap.FromFile("data\\save001.png");
+                        var ms_file = new FileStream("data\\save004.png", FileMode.Open);
+                        var img = Bitmap.FromStream(ms_file);
+                        ms_file.Dispose();
+
                         return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
                     }
                 }
@@ -112,6 +115,7 @@ namespace Shinengine.Data
                         i.Attribute("comment").Value = value.comment;
                         value.imp.Save("data\\save001.png", System.Drawing.Imaging.ImageFormat.Png);
                         sysData.Save("saves.xml");
+                        value.imp.Dispose();
                     }
                 }
             }
@@ -126,7 +130,9 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "data2")
                     {
                         var mLp = i.Value.ToString().Split(':').ToList();
-                        var img = Bitmap.FromFile("data\\save002.png");
+                        var ms_file = new FileStream("data\\save002.png", FileMode.Open);
+                        var img = Bitmap.FromStream(ms_file);
+                        ms_file.Dispose();
                         return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
                     }
                 }
@@ -143,6 +149,7 @@ namespace Shinengine.Data
                         i.Attribute("comment").Value = value.comment;
                         value.imp.Save("data\\save002.png", System.Drawing.Imaging.ImageFormat.Png);
                         sysData.Save("saves.xml");
+                        value.imp.Dispose();
                     }
                 }
             }
@@ -157,7 +164,9 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "data3")
                     {
                         var mLp = i.Value.ToString().Split(':').ToList();
-                        var img = Bitmap.FromFile("data\\save003.png");
+                        var ms_file = new FileStream("data\\save003.png", FileMode.Open);
+                        var img = Bitmap.FromStream(ms_file);
+                        ms_file.Dispose();
                         return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
                     }
                 }
@@ -174,6 +183,7 @@ namespace Shinengine.Data
                         i.Attribute("comment").Value = value.comment;
                         value.imp.Save("data\\save003.png", System.Drawing.Imaging.ImageFormat.Png);
                         sysData.Save("saves.xml");
+                        value.imp.Dispose();
                     }
                 }
             }
@@ -188,8 +198,11 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "data4")
                     {
                         var mLp = i.Value.ToString().Split(':').ToList();
-                        var img = Bitmap.FromFile("data\\save004.png");
-                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)img };
+                        var ms_file = new FileStream("data\\save004.png", FileMode.Open);
+                        var _img = Bitmap.FromStream(ms_file);
+                        ms_file.Dispose();
+
+                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]), comment = i.Attribute("comment").Value.ToString(), imp = (Bitmap)_img };
                     }
                 }
                 throw new Exception();
@@ -205,6 +218,7 @@ namespace Shinengine.Data
                         i.Attribute("comment").Value = value.comment;
                         value.imp.Save("data\\save004.png", System.Drawing.Imaging.ImageFormat.Png);
                         sysData.Save("saves.xml");
+                        value.imp.Dispose();
                     }
                 }
             }
