@@ -387,6 +387,7 @@ namespace Shinengine.Surface
 
         public void Say( string lines, string voice = null)
         {
+            m_father.m_des_init.Voice = voice;
             if (voice != null && !m_father.sandboxMode)
             {
                 if (voice_player != null) voice_player.canplay = false;
@@ -1512,6 +1513,7 @@ namespace Shinengine.Surface
 
         public struct FrameDescription
         {
+            public string Voice;
             public string SE;
             public   string Environment;
             public   string BGM;

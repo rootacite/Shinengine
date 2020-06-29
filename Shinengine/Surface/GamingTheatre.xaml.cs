@@ -2,7 +2,9 @@
 using SharpDX.Direct2D1;
 using SharpDX.Mathematics.Interop;
 using SharpDX.WIC;
+using Shinengine.Data;
 using Shinengine.Media;
+using Shinengine.Scripts;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,12 +36,12 @@ namespace Shinengine.Surface
         public static bool AutoMode = false;
 
         bool onHidden = false;
-
+        AudioPlayer m_replayer = null;
         Window _main_window = null;
         public Theatre m_theatre = null;
         public Direct2DImage m_logo = null;
 
-        private List<WICBitmap> logo_frames = new List<WICBitmap>();
+        private readonly List<WICBitmap> logo_frames = new List<WICBitmap>();
 
         int ims = 0;
         public GamingTheatre()
@@ -55,19 +57,17 @@ namespace Shinengine.Surface
             m_theatre = new Theatre(BG, Usage, SBK, AirPt, character_usage, Lines, character, ShowIn,_Contents);
             #region logo
             VideoStreamDecoder vsd = new VideoStreamDecoder("assets\\movie\\LOGO_32.mov");
-            IntPtr dataPoint;
-            int pitch;
 
             while (true)
             {
-                var res = vsd.TryDecodeNextFrame(out dataPoint, out pitch);
+                var res = vsd.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
                 if (!res)
                     break;
                 var ImGc = new ImagingFactory();
                 var WICBIT = new WICBitmap(ImGc, vsd.FrameSize.Width, vsd.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
-              //  var mp = new System.Drawing.Bitmap(vsd.FrameSize.Width, vsd.FrameSize.Height, pitch, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, dataPoint);
-             //   mp.Save("test\\" + logo_frames.Count + ".png");
-             //   mp.Dispose();
+                //  var mp = new System.Drawing.Bitmap(vsd.FrameSize.Width, vsd.FrameSize.Height, pitch, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, dataPoint);
+                //   mp.Save("test\\" + logo_frames.Count + ".png");
+                //   mp.Dispose();
 
                 logo_frames.Add(WICBIT);
             }
@@ -105,14 +105,14 @@ namespace Shinengine.Surface
            m_logo.DrawStartup(Logo);
             #endregion
         }
-        public delegate int ScriptHandle(Theatre theatre);
+        public delegate int ScriptHandle(Theatre theatre, GamingTheatre self);
         Task scriptTask = null;
         public int ResultOfTheatre = 0;
-        public void Start(ScriptHandle scriptHandle , Action endEvent = null)
+        public void Start(ScriptHandle scriptHandle, int chapter, Action endEvent = null )
         {
             scriptTask = new Task(() =>
             {
-                int result = scriptHandle(m_theatre);
+                int result = scriptHandle(m_theatre, this);
                 if (result != -1)
                 {
                     ResultOfTheatre = result;
@@ -121,6 +121,14 @@ namespace Shinengine.Surface
 
             });
             scriptTask.Start();
+            ReturnLast.Click += (e, v) =>
+            {
+                MainWindow.theatreMode.m_logo.Dispose();
+                MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
+                MainWindow.theatreMode.m_theatre.Exit();
+
+                MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(chapter, 0, null);
+            };
         }
 
 
@@ -301,7 +309,7 @@ namespace Shinengine.Surface
         {
             if (Preparation.Length == 0)
                 return;
-            List<string> lines = Preparation.Substring(0, Preparation.Length - 1).Split('\n').ToList();
+            List<string> lines = Preparation[0..^1].Split('\n').ToList();
             if (e.Delta > 0)
             {
                 if (text_count_picker == 0)
@@ -344,14 +352,14 @@ namespace Shinengine.Surface
             restIlt.Value = (-text_count_picker - 1);
 
         }
-        private void restIlt_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void RestIlt_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             CommitText((int)(e.NewValue + 27));
         }
         public static string Preparation = "";  //显示最后18行
         private void CommitText(int start_line = 27)
         {
-            List<string> lines = Preparation.Substring(0, Preparation.Length - 1).Split('\n').ToList();
+            List<string> lines = Preparation[0..^1].Split('\n').ToList();
             restIlt.Maximum = lines.Count - 27 < 0 ? 0 : lines.Count - 27;
             if (lines.Count <= start_line)
             {
@@ -374,7 +382,7 @@ namespace Shinengine.Surface
         {
             if (Preparation.Length == 0)
                 return;
-            List<string> lines = Preparation.Substring(0, Preparation.Length - 1).Split('\n').ToList();
+            List<string> lines = Preparation[0..^1].Split('\n').ToList();
 
             if (text_count_picker == 0)
             {
@@ -394,7 +402,7 @@ namespace Shinengine.Surface
             }
         }
 
-        private void exitlpg_Click(object sender, RoutedEventArgs e)
+        private void Exitlpg_Click(object sender, RoutedEventArgs e)
         {
             if (isBakcloging)
             {
@@ -410,16 +418,21 @@ namespace Shinengine.Surface
             }
         }
 
-        private void ll_KeyDown(object sender, KeyEventArgs e)
+        private void Ll_KeyDown(object sender, KeyEventArgs e)
         {
            
         }
 
-        private void ll_KeyUp(object sender, KeyEventArgs e)
+        private void Ll_KeyUp(object sender, KeyEventArgs e)
         {
            
         }
 
-
+        private void EnVoice_Click(object sender, RoutedEventArgs e)
+        {
+            if (m_replayer != null)
+                m_replayer.canplay = false;
+            m_replayer = new AudioPlayer(m_theatre.m_des_init.Voice, false, SharedSetting.VoiceVolum);
+        }
     }
 }

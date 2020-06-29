@@ -9,6 +9,9 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Surface\Extra\ExtraHome.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Surface\GamingBook.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -29,6 +32,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Surface\Extra\ExtraHome.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Surface\GamingBook.xaml">
       <SubType>Designer</SubType>
     </Page>

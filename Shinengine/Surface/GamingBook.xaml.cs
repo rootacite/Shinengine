@@ -75,7 +75,7 @@ namespace Shinengine.Surface
         string Preparation = "";  //显示最后18行
         private void CommitText(int start_line = 18)
         {
-            List<string> lines = Preparation.Substring(0, Preparation.Length - 1).Split('\n').ToList();
+            List<string> lines = Preparation[0..^1].Split('\n').ToList();
             restIlt.Maximum = lines.Count - 18 < 0 ? 0 : lines.Count - 18;
             if (lines.Count <= start_line)
             {
@@ -93,12 +93,12 @@ namespace Shinengine.Surface
             _Contents.Text = string.Join("\n", _lines);
             return;
         }
-        ManualResetEvent call_next = new ManualResetEvent(false);
+        readonly ManualResetEvent call_next = new ManualResetEvent(false);
 
         SoundPlayer bPlayer = null;
         DataStream ms_mp;
 
-        Window _main_window = null;
+        readonly Window _main_window = null;
         public GamingBook(Window main_window)
         {
             _main_window = main_window;
@@ -117,8 +117,10 @@ namespace Shinengine.Surface
 
 
             Illustration.Source = new BitmapImage(new Uri("pack://siteoforigin:,,,/" + np.Illustration));
-            bPlayer = new SoundPlayer();
-            bPlayer.SoundLocation = np.BackgroundMusic;
+            bPlayer = new SoundPlayer
+            {
+                SoundLocation = np.BackgroundMusic
+            };
             bPlayer.Play();
             Preparation += np.Contents[0] + "\n";
             CommitText();
@@ -126,17 +128,21 @@ namespace Shinengine.Surface
             Storyboard m_proj = new Storyboard();
             Storyboard m_proj_2 = new Storyboard();
 
-            DoubleAnimation dam_proj = new DoubleAnimation();
-            dam_proj.From = 1;
-            dam_proj.To = 0.25;
-            dam_proj.Duration = TimeSpan.FromSeconds(2.5);
-            dam_proj.FillBehavior = FillBehavior.HoldEnd;
+            DoubleAnimation dam_proj = new DoubleAnimation
+            {
+                From = 1,
+                To = 0.25,
+                Duration = TimeSpan.FromSeconds(2.5),
+                FillBehavior = FillBehavior.HoldEnd
+            };
 
-            DoubleAnimation dam_proj_2 = new DoubleAnimation();
-            dam_proj_2.From = 0.25;
-            dam_proj_2.To = 1;
-            dam_proj_2.Duration = TimeSpan.FromSeconds(2.5);
-            dam_proj_2.FillBehavior = FillBehavior.HoldEnd;
+            DoubleAnimation dam_proj_2 = new DoubleAnimation
+            {
+                From = 0.25,
+                To = 1,
+                Duration = TimeSpan.FromSeconds(2.5),
+                FillBehavior = FillBehavior.HoldEnd
+            };
 
             m_proj.Children.Add(dam_proj);
             m_proj_2.Children.Add(dam_proj_2);
@@ -189,8 +195,10 @@ namespace Shinengine.Surface
                         {
                             bPlayer.Stop();
                             bPlayer.Dispose();
-                            bPlayer = new SoundPlayer();
-                            bPlayer.SoundLocation = np.BackgroundMusic;
+                            bPlayer = new SoundPlayer
+                            {
+                                SoundLocation = np.BackgroundMusic
+                            };
                             bPlayer.Play();
                         }
 
@@ -199,7 +207,8 @@ namespace Shinengine.Surface
                         double vara = 1.0, varb = 0.0;
                         double increment = 1 / (0.6 * 30);
 
-                        Illustration.Dispatcher.Invoke(new Action(() => {
+                        Illustration.Dispatcher.Invoke(new Action(() =>
+                        {
 
                             var converta = Stage.BitmapImage2Bitmap(Illustration.Source as BitmapImage);
                             var convertb = Stage.BitmapImage2Bitmap(new BitmapImage(new Uri("pack://siteoforigin:,,,/" + np.Illustration)));
@@ -267,14 +276,16 @@ namespace Shinengine.Surface
 
                     call_next.WaitOne();
                     call_next.Reset();
-                    _Contents.Dispatcher.Invoke(new Action(() => {
+                    _Contents.Dispatcher.Invoke(new Action(() =>
+                    {
                         restIlt.Value = 0;
                     }));
                     string load_printed = "";
                     foreach (var c in np.Contents[i])
                     {
 
-                        _Contents.Dispatcher.Invoke(new Action(() => {
+                        _Contents.Dispatcher.Invoke(new Action(() =>
+                        {
                             load_printed += c;
                             var ap_l = MeasureTextWidth(_Contents, _Contents.FontSize, load_printed);
                             if (ap_l.Width > _Contents.Width)
@@ -287,15 +298,18 @@ namespace Shinengine.Surface
                         }));
                         Thread.Sleep(30);
                     }
-                    _Contents.Dispatcher.Invoke(new Action(() => {
+                    _Contents.Dispatcher.Invoke(new Action(() =>
+                    {
                         Preparation += "\n";
                         CommitText();
 
                     }));
 
                 }
-            });
-            m_mutil.IsBackground = true;
+            })
+            {
+                IsBackground = true
+            };
             m_mutil.Start();
         }
 
@@ -310,7 +324,7 @@ namespace Shinengine.Surface
                 call_next.Set();
         }
 
-        private void restIlt_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void RestIlt_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             CommitText((int)(restIlt.Value + 18));
         }

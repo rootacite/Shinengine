@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 using Device = SharpDX.Direct3D11.Device1;
 
 using SharpDX.Direct3D11;
 using SharpDX.Direct3D;
-using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using DeviceContext = SharpDX.Direct2D1.DeviceContext;
-using System.Net.WebSockets;
-using Blend = SharpDX.Direct2D1.Effects.Blend;
-using System.Text;
 
 
 using SharpDX;
@@ -23,8 +17,6 @@ using SharpDX.DXGI;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 
-using SharpDX.Mathematics.Interop;
-
 using System.Windows.Threading;
 using System.Threading;
 using Image = System.Windows.Controls.Image;
@@ -34,14 +26,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
 using System.Windows;
-using FFmpeg.AutoGen;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
 using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
-using MapFlags = SharpDX.DXGI.MapFlags;
-using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using System.Drawing;
 
 namespace Shinengine.Media
@@ -276,8 +265,6 @@ namespace Shinengine.Media
         {
 
         }//ignore
-        bool intp = false;
-        Graphics mppp = Graphics.FromHwnd(GetDskWindow());
         unsafe public void Commit()
         {
             D2DBitmap m_local_buffer = new D2DBitmap(View, new Size2(Width, Height),

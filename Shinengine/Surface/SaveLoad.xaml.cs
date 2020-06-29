@@ -171,13 +171,11 @@ namespace Shinengine.Surface
 
                 if (MainWindow.theatreMode == null)//如果是从标题进入读档
                 {
-                    MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter,imp.Value.frames, null);
+                   
                     EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                     {
-                        MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                        EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                        mpos.Start(true);/// hide tview
- 
+                        MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+                       
                         MainWindow.sldata = null;
                     });
                    _mpos2.Start(true);
@@ -188,12 +186,10 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.theatreMode.m_theatre.Exit();
 
-                MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+              
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                 {
-                    MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                    EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                    mpos.Start(true);/// hide tview
+                    MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
                     MainWindow.sldata = null;
                 });
@@ -253,7 +249,7 @@ namespace Shinengine.Surface
                         }
                     }
 
-                    SaveData.save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
+                    SaveData.save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_2_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -262,13 +258,10 @@ namespace Shinengine.Surface
                 alreadyKeep = true;
                 if (MainWindow.theatreMode == null)
                 {
-                    MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+                  
                     EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                     {
-                        MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                        EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                        mpos.Start(true);/// hide tview
-
+                        MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
                         MainWindow.sldata = null;
                     });
                     _mpos2.Start(true);
@@ -278,12 +271,10 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.theatreMode.m_theatre.Exit();
 
-                MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+             
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                 {
-                    MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                    EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                    mpos.Start(true);/// hide tview
+                    MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
                     MainWindow.sldata = null;
                 });
@@ -342,7 +333,7 @@ namespace Shinengine.Surface
                             continue;
                         }
                     }
-                    SaveData.save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
+                    SaveData.save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_3_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -351,12 +342,10 @@ namespace Shinengine.Surface
                 alreadyKeep = true;
                 if (MainWindow.theatreMode == null)
                 {
-                    MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+                  
                     EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                     {
-                        MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                        EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                        mpos.Start(true);/// hide tview
+                        MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
                         MainWindow.sldata = null;
                     });
@@ -367,12 +356,10 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.theatreMode.m_theatre.Exit();
 
-                MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+            
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                 {
-                    MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                    EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                    mpos.Start(true);/// hide tview
+                    MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
                     MainWindow.sldata = null;
                 });
@@ -430,7 +417,7 @@ namespace Shinengine.Surface
                             continue;
                         }
                     }
-                    SaveData.save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
+                    SaveData.save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_4_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -439,12 +426,10 @@ namespace Shinengine.Surface
                 alreadyKeep = true;
                 if (MainWindow.theatreMode == null)
                 {
-                    MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+                  
                     EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                     {
-                        MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                        EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
-                        mpos.Start(true);/// hide tview
+                        MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
                         MainWindow.sldata = null;
                     });
@@ -455,7 +440,7 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.theatreMode.m_theatre.Exit();
 
-                MainWindow.theatreMode = MainWindow.switchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
+                MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
                 {
                     MainWindow.m_window.Content = MainWindow.theatreMode.Content;

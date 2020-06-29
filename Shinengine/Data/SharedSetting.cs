@@ -1,9 +1,11 @@
 ﻿using Shinengine.Surface;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Xml.Linq;
+using static Shinengine.Data.SaveData;
 
 namespace Shinengine.Data
 {
@@ -197,6 +199,46 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "full")
                     {
                         i.Value = value ? "true" : "false";
+                        sysData.Save("sysdata.xml");
+                    }
+                }
+            }
+        }
+
+        public static SaveInfo? Last
+        {
+            get
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "last")
+                    {
+                        if (i.Value.ToString() == "null")
+                        {
+                            return null;
+                        }
+                        var mLp = i.Value.ToString().Split(':').ToList();
+
+                        return new SaveInfo() { chapter = Convert.ToInt32(mLp[0]), frames = Convert.ToInt32(mLp[1]) };
+                    }
+                }
+                throw new Exception();
+            }
+            set
+            {
+                foreach (XElement i in atrs)
+                {
+                    if (i.Name.ToString() == "last")
+                    {
+                        if (value == null)
+                        {
+                            i.Value = "null";
+                            sysData.Save("sysdata.xml");
+                            return;
+                        }
+                        string data_save = value.Value.chapter.ToString() + ":" + value.Value.frames.ToString();
+                        i.Value = data_save;
+                       
                         sysData.Save("sysdata.xml");
                     }
                 }

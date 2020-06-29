@@ -7,5 +7,6 @@
   <VoiceVM>1.0</VoiceVM>
   <Auto>2</Auto>
 
-  <full>true</full>
+  <full>false</full>
+  <last>null</last>
 </settings>

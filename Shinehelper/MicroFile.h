@@ -22,11 +22,11 @@ using namespace std;
  class DLLAPI MicroFile
 {
 public:
-	//╢Р©╙нд╪Ч╬Д╠Зё╛╠ё╢Фнд╪ЧцШё╛╡╩дэ╡ывВ4Gртионд╪Ч
+	//╢Р©╙нд╪Ч╬Д╠Зё╛╠ё╢Фнд╪ЧцШё╛╡╩дэ╡ыв│EGртионд╪Ч
 	MicroFile(LPCWSTR filename);
-	//╧ь╠унд╪Ч╬Д╠Зё╛гЕюМдз╢Ф
+	//╧ь╠унд╪Ч╬Д╠Зё╛гЕюЗЮз╢│E
 	~MicroFile();
-	//╫╚нд╪ЧмЙуШв╟хКдз╢Ф
+	//╫╚нд╪Чм│EШв╟х│Eз╢│E
 	virtual BOOL Load();
 	//гЕ©унд╪Ч
 	void Clear();
@@ -34,9 +34,9 @@ public:
 	virtual BOOL Save();
 	//╩Ях║нд╪Ч╢Сп║
 	DWORD Size();
-	///╫╚р╩╤нйЩ╬щмфхКнд╪Чд╘н╡
+	///╫╚р╩╤нйЩ╬щмфх│Eд╪Чд╘н╡
 	void Push(LPCVOID sour, ULONG size);
-	///╫╚р╩╤нйЩ╬щ╢снд╪Чд╘н╡╣╞ЁЖ
+	///╫╚р╩╤нйЩ╬щ╢снд╪Чд╘н╡╣╞Ё│E
 	void Pop(LPVOID sour, ULONG size);
 	//╢с╣╠г╟╤ах║н╩жц╫ьх║йЩ╬щ
 	void Sub(LPVOID tart,int size);
@@ -144,7 +144,7 @@ public:
 	 BOOL operator-=(DWORD count);
 	 	BOOL operator+=(DWORD count);
 	 void Push(LPCVOID sour);
-	///╫╚р╩╤нйЩ╬щ╢снд╪Чд╘н╡╣╞ЁЖ
+	///╫╚р╩╤нйЩ╬щ╢снд╪Чд╘н╡╣╞Ё│E
 	 void Pop(LPVOID tart);
 	 DWORD Size();
 	 BOOL Get(LPBYTE tart);

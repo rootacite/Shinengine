@@ -38,6 +38,7 @@
     <None Remove="next_0.png" />
     <None Remove="RegularUI\bg.png" />
     <None Remove="RegularUI\btn.png" />
+    <None Remove="RegularUI\extra.png" />
     <None Remove="RegularUI\Extra\cg01.png" />
     <None Remove="RegularUI\Extra\cg02.png" />
     <None Remove="RegularUI\Extra\cg03.png" />
@@ -63,7 +64,10 @@
     <None Remove="RegularUI\Extra\cg23.png" />
     <None Remove="RegularUI\Extra\cg24.png" />
     <None Remove="RegularUI\Extra\cg25.png" />
+    <None Remove="RegularUI\logo00.png" />
+    <None Remove="RegularUI\logo01.png" />
     <None Remove="RegularUI\saveload.png" />
+    <None Remove="RegularUI\sys_warning_bg.png" />
     <None Remove="SAVE.png" />
     <None Remove="Shine.ico" />
     <None Remove="start_0.png" />
@@ -77,10 +81,13 @@
     <None Remove="UI\character.png" />
     <None Remove="UI\Exit.png" />
     <None Remove="UI\exit_0.png" />
+    <None Remove="UI\Extra.png" />
     <None Remove="UI\HOME.png" />
     <None Remove="UI\LOAD.png" />
     <None Remove="UI\Log.png" />
+    <None Remove="UI\Next.png" />
     <None Remove="UI\next_0.png" />
+    <None Remove="UI\Return.png" />
     <None Remove="UI\SAVE.png" />
     <None Remove="UI\SaveLoad.png" />
     <None Remove="UI\SETTING.png" />
@@ -90,6 +97,7 @@
     <None Remove="UI\start_0.png" />
     <None Remove="UI\textbar.png" />
     <None Remove="UI\TITLE.png" />
+    <None Remove="UI\Voice.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -108,6 +116,7 @@
   <ItemGroup>
     <Resource Include="RegularUI\bg.png" />
     <Resource Include="RegularUI\btn.png" />
+    <Resource Include="RegularUI\extra.png" />
     <Resource Include="RegularUI\Extra\cg01.png" />
     <Resource Include="RegularUI\Extra\cg02.png" />
     <Resource Include="RegularUI\Extra\cg03.png" />
@@ -133,21 +142,28 @@
     <Resource Include="RegularUI\Extra\cg23.png" />
     <Resource Include="RegularUI\Extra\cg24.png" />
     <Resource Include="RegularUI\Extra\cg25.png" />
+    <Resource Include="RegularUI\logo00.png" />
+    <Resource Include="RegularUI\logo01.png" />
     <Resource Include="RegularUI\saveload.png" />
+    <Resource Include="RegularUI\sys_warning_bg.png" />
     <Resource Include="UI\Auto.png" />
     <Resource Include="UI\Backlog.png" />
     <Resource Include="UI\BookPage.png" />
     <Resource Include="UI\character.png" />
     <Resource Include="UI\Exit.png" />
     <Resource Include="UI\exit_0.png" />
+    <Resource Include="UI\Extra.png" />
     <Resource Include="UI\HOME.png" />
     <Resource Include="UI\Log.png" />
+    <Resource Include="UI\Next.png" />
+    <Resource Include="UI\Return.png" />
     <Resource Include="UI\SaveLoad.png" />
     <Resource Include="UI\SETTING.png" />
     <Resource Include="UI\Skip.png" />
     <Resource Include="UI\start_0.png" />
     <Resource Include="UI\textbar.png" />
     <Resource Include="UI\TITLE.png" />
+    <Resource Include="UI\Voice.png" />
   </ItemGroup>
 
   <ItemGroup>

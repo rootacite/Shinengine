@@ -25,6 +25,7 @@ using NAudio.Wave;
 using System.Threading;
 using System.Drawing;
 using System.Windows.Controls;
+using Shinengine.Data;
 
 namespace Shinengine.Surface
 {
@@ -34,7 +35,6 @@ namespace Shinengine.Surface
     public partial class Title : Page
     {
         #region tools
-        bool nCanrun = true;
 
         [DllImport("Shinehelper.dll")]
         unsafe extern static public byte* getPCM();
@@ -44,7 +44,6 @@ namespace Shinengine.Surface
         unsafe extern public static void waveWrite(byte* in_buf, int in_buf_len);
         [DllImport("Shinehelper.dll")]
         extern public static void waveClose();
-        Direct2DImage DxBkGround = null;
         #endregion
        /* unsafe public DrawProcResult DrawCallback(DeviceContext view, object Loadedsouce, int Width, int Height)
         {
@@ -81,7 +80,8 @@ namespace Shinengine.Surface
         public Title()
         {
             InitializeComponent();
-
+            EasyAmal sm = new EasyAmal(this.BkGrid, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+            sm.Start(true);
             this.Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/assets/CG/loading.png")));
 
             m_BGkMusic = new AudioPlayer("assets\\BGM\\pcpc006_bgm_01.wma", true);
@@ -100,7 +100,7 @@ namespace Shinengine.Surface
             BkGrid.Unloaded += (e, v) =>
             {
                 m_BGkMusic.canplay = false;
-                nCanrun = false;
+                //nCanrun = false;
             };
 
         }

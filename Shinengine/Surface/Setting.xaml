@@ -27,18 +27,18 @@
 
 
             <StackPanel Orientation="Vertical" Height="200" Width="80" Margin="-1000 0 0 0">
-                <Slider x:Name="BGMVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="BGMVm_ValueChanged" />
+                <Slider x:Name="BGMVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip=" Turning" ValueChanged="BGMVm_ValueChanged" />
             </StackPanel>
             <TextBlock Text="背景音乐音量"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="170" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="30,439,0,0"/>
 
             <StackPanel Orientation="Vertical" Height="200" Width="80" Margin="-600 0 0 0">
-                <Slider x:Name="VoiceVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="VoiceVm_ValueChanged"/>
+                <Slider x:Name="VoiceVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip=" Turning" ValueChanged="VoiceVm_ValueChanged"/>
             </StackPanel>
             <TextBlock Text="语音音量"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="104" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="245,439,0,0"/>
 
 
             <StackPanel Orientation="Vertical" Height="200" Width="80" Margin="-200 0 0 0">
-                <Slider x:Name="EmVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="EmVm_ValueChanged"/>
+                <Slider x:Name="EmVm" Orientation="Vertical"  Minimum="0" Maximum="100" Width="80"  Height="200" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip=" Turning" ValueChanged="EmVm_ValueChanged"/>
             </StackPanel>
             <TextBlock Text="环境音量"  HorizontalAlignment="Left" VerticalAlignment="Top" Height="34" Width="104" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" Margin="445,439,0,0"/>
 

@@ -14,7 +14,7 @@
                 <TextBlock x:Name="_Contents"  Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="520" Width="998" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" />
 
                 <StackPanel Orientation="Horizontal" Margin="1080 0 0 0">
-                    <Slider x:Name="restIlt" Orientation="Vertical"  Minimum="0" Maximum="18" Width="50"  Height="558" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="restIlt_ValueChanged" />
+                    <Slider x:Name="restIlt" Orientation="Vertical"  Minimum="0" Maximum="18" Width="50"  Height="558" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="RestIlt_ValueChanged" />
                 </StackPanel>
             </Grid>
         </Grid>

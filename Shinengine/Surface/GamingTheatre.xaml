@@ -6,7 +6,7 @@
       mc:Ignorable="d" 
       d:DesignHeight="720"
       d:DesignWidth="1280"
-      Title="GamingTheatre"  KeyDown="ll_KeyDown" KeyUp="ll_KeyUp">
+      Title="GamingTheatre"  KeyDown="Ll_KeyDown" KeyUp="Ll_KeyUp">
 
     <Grid x:Name="SBK" MouseUp="SBK_MouseUp" MouseRightButtonUp="SBK_MouseRightButtonUp" MouseLeftButtonUp="SBK_MouseLeftButtonUp" MouseWheel="SBK_MouseWheel">
         
@@ -30,9 +30,9 @@
             <Image HorizontalAlignment="Left" VerticalAlignment="Top" Height="720" Width="900" Margin="190 0 0 0" Stretch="Fill" Source="/UI/Backlog.png" />
             <TextBlock x:Name="_Contents"  Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" Height="720" Width="720" Foreground="LightGray" FontSize="22" FontFamily="Bodoni MT Black" />
             <StackPanel Orientation="Horizontal" Margin="980 0 0 0">
-                <Slider x:Name="restIlt" Orientation="Vertical"  Minimum="0" Maximum="18" Width="50"  Height="650" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="restIlt_ValueChanged" />
+                <Slider x:Name="restIlt" Orientation="Vertical"  Minimum="0" Maximum="18" Width="50"  Height="650" Style="{StaticResource MaterialDesignDiscreteSlider}" ToolTip="History" ValueChanged="RestIlt_ValueChanged" />
             </StackPanel>
-            <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="16,18,1164,666" Click="exitlpg_Click">
+            <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="16,18,1164,666" Click="Exitlpg_Click">
                 退出
             </Button>
         </Grid>
@@ -42,39 +42,54 @@
                                          ToolTip="Menu"
                                          Background="#FFECD915" Width="50" Height="50" Margin="0,20,20,0" VerticalAlignment="Top" HorizontalAlignment="Right">
             <StackPanel>
-                <Button x:Name="SaveLoad" Width="40" Height="40" ToolTip="Save/Load" Opacity="0.6">
+                <Button x:Name="SaveLoad" Width="40" Height="40" ToolTip="存档/读档" Opacity="0.6">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/SaveLoad.png"/>
                     </Button.Background>
                 </Button>
-                <Button  Width="40" Height="40" ToolTip="Auto" Opacity="0.6" Click="Button_Click_3">
+                <Button  Width="40" Height="40" ToolTip="自动模式" Opacity="0.6" Click="Button_Click_3">
                     <Button.Background>
                         <ImageBrush ImageSource="/UI/Auto.png" Stretch="Fill"/>
                     </Button.Background>
                 </Button>
-                <Button Width="40" Height="40" ToolTip="Skip" Opacity="0.6" Click="Button_Click_2">
+                <Button Width="40" Height="40" ToolTip="快进" Opacity="0.6" Click="Button_Click_2">
                     <Button.Background>
                         <ImageBrush ImageSource="/UI/Skip.png" Stretch="Fill"/>
                     </Button.Background>
                 </Button>
-                <Button x:Name="setting" Width="40" Height="40" ToolTip="Setting" Opacity="0.6">
+                <Button x:Name="setting" Width="40" Height="40" ToolTip="设置" Opacity="0.6">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/SETTING.png"/>
                     </Button.Background>
                 </Button>
-                <Button x:Name="toTitle" Width="40" Height="40" ToolTip="Home" Opacity="0.6">
+                <Button x:Name="toTitle" Width="40" Height="40" ToolTip="主页" Opacity="0.6">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/HOME.png"/>
                     </Button.Background>
                 </Button>
-                <Button x:Name="EnExit" Width="40" Height="40" ToolTip="Exit" Opacity="0.6">
+                <Button x:Name="EnExit" Width="40" Height="40" ToolTip="保存并退出" Opacity="0.6">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/Exit.png"/>
                     </Button.Background>
                 </Button>
-                <Button x:Name="EnLog" Width="40" Height="40" ToolTip="Log" Opacity="0.6" Click="EnLog_Click">
+                <Button x:Name="EnLog" Width="40" Height="40" ToolTip="回顾" Opacity="0.6" Click="EnLog_Click">
                     <Button.Background>
                         <ImageBrush Stretch="Fill" ImageSource="/UI/Log.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="EnVoice" Width="40" Height="40" ToolTip="语音" Opacity="0.6" Click="EnVoice_Click">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/Voice.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="CallNext" Width="40" Height="40" ToolTip="跳转至下一个选项" Opacity="0.6">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/Next.png"/>
+                    </Button.Background>
+                </Button>
+                <Button x:Name="ReturnLast" Width="40" Height="40" ToolTip="跳转至章节起始" Opacity="0.6">
+                    <Button.Background>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI/Return.png"/>
                     </Button.Background>
                 </Button>
             </StackPanel>
