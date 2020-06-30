@@ -108,7 +108,7 @@ namespace Shinengine.Surface
         public void Inint(DataStream stram)
         {
             restIlt.Maximum = 0;
-            np = stram.getSignalPage(0);
+            np = stram.GetSignalPage(0);
             ms_mp = stram;
 
             Book.Background = new System.Windows.Media.SolidColorBrush(Colors.Black);
@@ -183,7 +183,7 @@ namespace Shinengine.Surface
                         if (ral_page >= page_count)
                             break;
                         call_next.WaitOne();
-                        np = ms_mp.getSignalPage(ral_page);
+                        np = ms_mp.GetSignalPage(ral_page);
 
 
                         this.Dispatcher.Invoke(new Action(() =>

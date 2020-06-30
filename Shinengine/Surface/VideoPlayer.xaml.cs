@@ -52,7 +52,6 @@ namespace Shinengine.Surface
 
         private DrawProcResult DrawCallback(DeviceContext view, object Loadedsouce, int Width, int Height)
         {
-            SharpDX.Direct2D1.Bitmap farme = null;
             if (Loadedsouce == null)
                 return DrawProcResult.Ignore;
             Video video = Loadedsouce as Video;
@@ -79,7 +78,7 @@ namespace Shinengine.Surface
                 return DrawProcResult.Normal;
             }
             // Console.WriteLine(video.nFarm.ToString() + "：Using");
-            farme = SharpDX.Direct2D1.Bitmap.FromWicBitmap(view, video.bits[video.nFarm]?.frame);
+            Bitmap farme = Bitmap.FromWicBitmap(view, video.bits[video.nFarm]?.frame);
 
             view.BeginDraw();
             view.DrawBitmap(farme, 
@@ -123,8 +122,8 @@ namespace Shinengine.Surface
                     Thread.Sleep(1);
                 unsafe
                 {
-                    //       var intp = getPCM("assets\\09.pcm");
-                    waveInit(hWnd, video.out_channels, video.out_sample_rate, video.bit_per_sample, video.out_buffer_size);
+                    //       var intp = getPCM("assets:09.pcm");
+                    waveInit(hWnd, video.Out_channels, video.Out_sample_rate, video.Bit_per_sample, video.Out_buffer_size);
 
 
                     while (true)
@@ -132,7 +131,7 @@ namespace Shinengine.Surface
 
                         if (!video.CanRun)
                             break;
-                        if (video.entiryPlayed && i == video.abits.Count && video.nFarm == video.bits.Count)
+                        if (video.EntiryPlayed && i == video.abits.Count && video.nFarm == video.bits.Count)
                             break;
                         if (i == video.abits.Count)
                         {
@@ -141,7 +140,7 @@ namespace Shinengine.Surface
                         }
                         audio_time = (double)(video.abits[i]?.time_base);
 
-                        waveWrite((byte*)video.abits[i]?.data, video.out_buffer_size);
+                        waveWrite((byte*)video.abits[i]?.data, video.Out_buffer_size);
                         Marshal.FreeHGlobal((IntPtr)video.abits[i]?.data);
                         video.abits[i] = null;
                         i++;

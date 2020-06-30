@@ -55,7 +55,7 @@
                 <ImageBrush ImageSource="/UI/BookPage.png"/>
             </Grid.Background>
         </Grid>
-        <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="16,18,1164,666" Click="exitlpg_Click" Cursor="Hand">
+        <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="16,18,1164,666" Click="Exitlpg_Click" Cursor="Hand">
             退出
         </Button>
     </Grid>

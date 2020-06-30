@@ -51,14 +51,14 @@ namespace Shinengine.Surface
 {
     sealed public class DynamicCharacter : Character
     {
-        public DynamicCharacter(Theatre father, string name, string template, Canvas layer, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
+        public DynamicCharacter(Theatre father, string name, string template , bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             : base(father, name, template, canshow, time, isAscy, vel_x, vel_y)
         {
 
         }
     }
     /// <summary>
-    /// Character 类是抽象类，不能实例化。原则上不允许同时出现两个name相同的角色，这会在SaveLoad时引起bug
+    /// Character 类是抽象类，原则上不允许同时出现两个name相同的角色，这会在SaveLoad时引起bug
     /// </summary>
     sealed public class StaticCharacter : Character
     {
@@ -76,7 +76,7 @@ namespace Shinengine.Surface
             public Rect area;
         }
 
-        List<ChangeableAreaDescription> ChAreas = null;
+        readonly List<ChangeableAreaDescription> ChAreas = null;
         private Direct2DImage dx_switch;
 
         public StaticCharacter(Theatre father,string name, string init_pic, bool canshow = true, ChangeableAreaInfo[] actions_souce = null, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
@@ -106,10 +106,12 @@ namespace Shinengine.Surface
             ChAreas = new List<ChangeableAreaDescription>();
             foreach (var i in actions_souce)
             {
-                ChangeableAreaDescription pct_pos = new ChangeableAreaDescription();//新建一个新的可更改区域描述
-                pct_pos.area = i.area;//同步区域矩形
+                ChangeableAreaDescription pct_pos = new ChangeableAreaDescription
+                {
+                    area = i.area,//同步区域矩形
 
-                pct_pos.switches = new WICBitmap[i.pics.Length];//把pct_pos.switches的长度设置为i.pics的长度
+                    switches = new WICBitmap[i.pics.Length]//把pct_pos.switches的长度设置为i.pics的长度
+                };//新建一个新的可更改区域描述
                 for (int t = 0; t < pct_pos.switches.Length; t++)//遍历pct_pos.switches，设置为对应的素材
                 {
                     shower.Dispatcher.Invoke(new Action(() =>
@@ -134,7 +136,7 @@ namespace Shinengine.Surface
 
             if (m_father.sandboxMode) return;
 
-            if (time == null) time = SharedSetting.textSpeed;
+            if (time == null) time = SharedSetting.TextSpeed;
 
             if (time < 1.0 / 30.0 && time != 0)
             {
@@ -325,7 +327,7 @@ namespace Shinengine.Surface
 
             if (m_father.sandboxMode) return;
 
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             layer.Dispatcher.Invoke(new Action(() =>
             {
 
@@ -333,14 +335,15 @@ namespace Shinengine.Surface
 
                 Init_action = Stage.LoadBitmap(template);
 
-                shower = new Image();
+                shower = new Image
+                {
+                    Width = Init_action.Size.Width * (layer.Height / Init_action.Size.Height),
+                    Height = layer.Height,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Stretch = Stretch.Fill,
 
-                shower.Width = Init_action.Size.Width * (layer.Height / Init_action.Size.Height);
-                shower.Height = layer.Height;
-                shower.VerticalAlignment = VerticalAlignment.Bottom;
-                shower.Stretch = Stretch.Fill;
-
-                shower.Margin = new Thickness(vel_x, 0, 0, vel_y);
+                    Margin = new Thickness(vel_x, 0, 0, vel_y)
+                };
                 if (time != 0 || !canshow)
                 {
                     shower.Opacity = 0;
@@ -393,12 +396,12 @@ namespace Shinengine.Surface
                 if (voice_player != null) voice_player.canplay = false;
                 voice_player = new AudioPlayer(voice, false, SharedSetting.VoiceVolum);
             }
-            m_father.airplant.Say(lines, this._name);
+            m_father.Airplant.Say(lines, this._name);
         }
 
         protected void Remove(double? time = null, bool isAscy = true)
         {
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             ManualResetEvent msbn = new ManualResetEvent(false);
             if (time == 0)
                 whereIsShowed.Dispatcher.Invoke(new Action(() => { whereIsShowed.Children.Remove(shower); }));
@@ -435,7 +438,7 @@ namespace Shinengine.Surface
                 }
             }
             if (m_father.sandboxMode) return;
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             EasyAmal amsc = new EasyAmal(shower, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
         }
@@ -452,7 +455,7 @@ namespace Shinengine.Surface
                 }
             }
             if (m_father.sandboxMode) return;
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             EasyAmal amsc = new EasyAmal(shower, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
         }
@@ -462,7 +465,7 @@ namespace Shinengine.Surface
     public class EasyAmal
     {
         public Storyboard stbd;
-        UIElement uIElement;
+        readonly UIElement uIElement;
 
 
         public EasyAmal(UIElement target, string attribute, double from, double to, double nSpeed, EventHandler completed = null)
@@ -473,11 +476,12 @@ namespace Shinengine.Surface
             target.Dispatcher.Invoke(new Action(() =>
             {
                 stbd = new Storyboard();
-                DoubleAnimation dbam = new DoubleAnimation();
-
-                dbam.From = from;
-                dbam.To = to;
-                dbam.Duration = TimeSpan.FromSeconds(nSpeed);
+                DoubleAnimation dbam = new DoubleAnimation
+                {
+                    From = from,
+                    To = to,
+                    Duration = TimeSpan.FromSeconds(nSpeed)
+                };
                 stbd.FillBehavior = FillBehavior.HoldEnd;
                 stbd.Children.Add(dbam);
                 Storyboard.SetTarget(stbd, target);
@@ -524,14 +528,12 @@ namespace Shinengine.Surface
         public static Bitmap BitmapImage2Bitmap(BitmapImage bitmapImage)
         {
             // BitmapImage bitmapImage = new BitmapImage(new Uri("../Images/test.png", UriKind.Relative));
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(bitmapImage));
-                enc.Save(outStream);
-                Bitmap bitmap = new System.Drawing.Bitmap(outStream);
-                return new Bitmap(bitmap);
-            }
+            using MemoryStream outStream = new MemoryStream();
+            BitmapEncoder enc = new BmpBitmapEncoder();
+            enc.Frames.Add(BitmapFrame.Create(bitmapImage));
+            enc.Save(outStream);
+            Bitmap bitmap = new System.Drawing.Bitmap(outStream);
+            return new Bitmap(bitmap);
         }
         public static D2DBitmap ConvertFromSystemBitmap(System.Drawing.Bitmap bmp, DeviceContext renderTarget)
         {
@@ -542,10 +544,8 @@ namespace Shinengine.Surface
             if (bmp.PixelFormat != System.Drawing.Imaging.PixelFormat.Format32bppPArgb)
             {
                 desBitmap = new System.Drawing.Bitmap(bmp.Width, bmp.Height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
-                using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(desBitmap))
-                {
-                    g.DrawImage(bmp, 0, 0);
-                }
+                using System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(desBitmap);
+                g.DrawImage(bmp, 0, 0);
             }
             else
             {
@@ -588,8 +588,9 @@ namespace Shinengine.Surface
         /// <returns>一个WIC图片</returns>
         public static WICBitmap LoadBitmap(string init_pic)
         {
+            string rele_path = PackStream.Locate(init_pic);
             var Imgc = new ImagingFactory();
-            var Demcoder = new BitmapDecoder(Imgc, init_pic, SharpDX.IO.NativeFileAccess.Read, DecodeOptions.CacheOnLoad);
+            var Demcoder = new BitmapDecoder(Imgc, rele_path, SharpDX.IO.NativeFileAccess.Read, DecodeOptions.CacheOnLoad);
 
             BitmapFrameDecode nm_opb = Demcoder.GetFrame(0);
             var convert = new FormatConverter(Imgc);
@@ -601,7 +602,7 @@ namespace Shinengine.Surface
             Demcoder.Dispose();
             nm_opb.Dispose();
             convert.Dispose();
-
+            File.Delete(rele_path);
             return Init_action;
         }
 
@@ -620,13 +621,13 @@ namespace Shinengine.Surface
         /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
         /// <param name="isAsyn">是否异步（true为异步）</param>
-        public void setAsImage(string url, double? time = null, bool isAsyn = false)
+        public void SetAsImage(string url, double? time = null, bool isAsyn = false)
         {
             m_father.m_des_init.stageSouceType = true;
             m_father.m_des_init.stageSouce = url;
             if (m_father.sandboxMode) return;
             #region 时间参数设置
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             if (videoCtrl != null)
             {
                 ManualResetEvent ficter = new ManualResetEvent(false);
@@ -721,13 +722,13 @@ namespace Shinengine.Surface
         /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
         /// <param name="isAsyn">是否异步（true为异步）</param>
-        public void setAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
+        public void SetAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
         {
             m_father.m_des_init.stageSouceType = false;
             m_father.m_des_init.stageSouce = url;
             m_father.m_des_init.isLoop = loop;
             if (m_father.sandboxMode) return;
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             if (videoCtrl != null)
             {
 
@@ -790,14 +791,10 @@ namespace Shinengine.Surface
                 };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
-                    var video = Loadedsouce as VideoStreamDecoder;
-
-                    if (video == null)
+                    if (!(Loadedsouce is VideoStreamDecoder video))
                         return DrawProcResult.Ignore;
 
-                    IntPtr dataPoint;
-                    int pitch;
-                    var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
+                    var res = video.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
                     if (!res)
                     {
                         if (loop)
@@ -855,14 +852,10 @@ namespace Shinengine.Surface
                 };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
-                    var video = Loadedsouce as VideoStreamDecoder;
-
-                    if (video == null)
+                    if (!(Loadedsouce is VideoStreamDecoder video))
                         return DrawProcResult.Ignore;
 
-                    IntPtr dataPoint;
-                    int pitch;
-                    var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
+                    var res = video.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
                     if (!res)
                     {
                         if (loop)
@@ -905,7 +898,7 @@ namespace Shinengine.Surface
         /// <param name="isAsyn">是否异步（true为异步）</param>
         public void Show(double? time = null, bool isAsyn = false)
         {
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             EasyAmal amsc = new EasyAmal(Background, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
         }
@@ -916,7 +909,7 @@ namespace Shinengine.Surface
         /// <param name="isAsyn">是否异步（true为异步）</param>
         public void Hide(double? time = null, bool isAsyn = false)
         {
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             EasyAmal amsc = new EasyAmal(Background, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
         }
@@ -929,7 +922,7 @@ namespace Shinengine.Surface
                 throw new Exception("this api can only be called when you have called setAsImage Or setAsVideo with 0 time");
             }
             #region 时间参数设置
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             if (videoCtrl != null)
             {
                 ManualResetEvent ficter = new ManualResetEvent(false);
@@ -986,8 +979,10 @@ namespace Shinengine.Surface
                         m_op_effect.SetInput(0, ral_picB, new RawBool());
                         m_op_effect.SetValue(0, (float)varb);
 
-                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t);
-                        m_bn_effect.Mode = mode.Value;
+                        var m_bn_effect = new Blend(t)
+                        {
+                            Mode = mode.Value
+                        };
 
                         m_bn_effect.SetInput(0, ral_picA, new RawBool());
                         m_bn_effect.SetInput(1, m_op_effect.Output, new RawBool());
@@ -1054,7 +1049,7 @@ namespace Shinengine.Surface
             {
                 throw new Exception("this api can only be called when you have called setAsImage Or setAsVideo with 0 time");
             }
-            if (time == null) time = SharedSetting.switchSpeed;
+            if (time == null) time = SharedSetting.SwitchSpeed;
             if (videoCtrl != null)
             {
 
@@ -1122,13 +1117,10 @@ namespace Shinengine.Surface
                 };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
-                    var video = Loadedsouce as VideoStreamDecoder;
-                    if (video == null)
+                    if (!(Loadedsouce is VideoStreamDecoder video))
                         return DrawProcResult.Ignore;
 
-                    IntPtr dataPoint;
-                    int pitch;
-                    var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
+                    var res = video.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
                     if (!res)
                     {
                         return DrawProcResult.Death;
@@ -1147,8 +1139,10 @@ namespace Shinengine.Surface
                             m_op_effect.SetInput(0, BitSrc, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
-                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view);
-                            m_bn_effect.Mode = mode.Value;
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            {
+                                Mode = mode.Value
+                            };
 
                             m_bn_effect.SetInput(0, ral_pic, new RawBool());
                             m_bn_effect.SetInput(1, m_op_effect.Output, new RawBool());
@@ -1175,9 +1169,11 @@ namespace Shinengine.Surface
                     {
                         if (mode != null)
                         {
-                           
-                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view);
-                            m_bn_effect.Mode = mode.Value;
+
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            {
+                                Mode = mode.Value
+                            };
 
                             m_bn_effect.SetInput(0, ral_pic, new RawBool());
                             m_bn_effect.SetInput(1, BitSrc, new RawBool());
@@ -1223,14 +1219,10 @@ namespace Shinengine.Surface
                 };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
-                    var video = Loadedsouce as VideoStreamDecoder;
-
-                    if (video == null)
+                    if (!(Loadedsouce is VideoStreamDecoder video))
                         return DrawProcResult.Ignore;
 
-                    IntPtr dataPoint;
-                    int pitch;
-                    var res = video.TryDecodeNextFrame(out dataPoint, out pitch);
+                    var res = video.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
                     if (!res)
                     {
                         return DrawProcResult.Death;
@@ -1242,8 +1234,10 @@ namespace Shinengine.Surface
                     if (mode != null)
                     {
 
-                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view);
-                        m_bn_effect.Mode = mode.Value;
+                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                        {
+                            Mode = mode.Value
+                        };
 
                         m_bn_effect.SetInput(0, ral_pic, new RawBool());
                         m_bn_effect.SetInput(1, BitSrc, new RawBool());
@@ -1281,43 +1275,41 @@ namespace Shinengine.Surface
     public class Usage
     {
         public static bool locked = false;
-        public Grid usageArea { get; private set; } = null;
+        public Grid UsageArea { get; private set; } = null;
         public Usage(Grid ua)
         {
-            usageArea = ua;
+            UsageArea = ua;
         }
         public void Show(double? time = null, bool isAsyn = false)
         {
             if (locked) return;
-            if (time == null) time = SharedSetting.switchSpeed / 2.0;
-            EasyAmal amsc = new EasyAmal(usageArea, "(Opacity)", 0.0, 1.0, (double)time);
+            if (time == null) time = SharedSetting.SwitchSpeed / 2.0;
+            EasyAmal amsc = new EasyAmal(UsageArea, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
         }
         public void Hide(double? time = null, bool isAsyn = false)
         {
             if (locked) return;
-            if (time == null) time = SharedSetting.switchSpeed / 2.0;
-            EasyAmal amsc = new EasyAmal(usageArea, "(Opacity)", 1.0, 0.0, (double)time);
+            if (time == null) time = SharedSetting.SwitchSpeed / 2.0;
+            EasyAmal amsc = new EasyAmal(UsageArea, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
         }
     }
     public class AirPlant
     {
         public Theatre m_father = null;
-        private Grid Vist = null;
+        private readonly Grid Vist = null;
 
-        private Grid underView = null;
-        private Grid chat_usage = null;
+        private readonly Grid chat_usage = null;
 
-        private TextBlock Lines_Usage = null;
-        private TextBlock Character_Usage = null;
-        private TextBlock _Contents = null;
+        readonly private TextBlock Lines_Usage = null;
+        readonly private TextBlock Character_Usage = null;
+        readonly private TextBlock _Contents = null;
 
-        private List<TextBlock> freedomLines = new List<TextBlock>();
+        readonly private List<TextBlock> freedomLines = new List<TextBlock>();
 
         public AirPlant(Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Grid _Vist, TextBlock Content)
         {
-            underView = air;
             chat_usage = names;
             Lines_Usage = _Lines;
             Character_Usage = _Charecter;
@@ -1331,7 +1323,7 @@ namespace Shinengine.Surface
             m_father.m_des_init.line = line;
             m_father.m_des_init.name = character;
             if (m_father.sandboxMode) return;
-            if (time == null) time = SharedSetting.textSpeed;
+            if (time == null) time = SharedSetting.TextSpeed;
 
             #region log call
             string load_printed = "";
@@ -1393,21 +1385,23 @@ namespace Shinengine.Surface
         }
         public void SayAt(string line, RectangleF location, double? time = null, bool isAsyn = false)
         {
-            if (time == null) time = SharedSetting.textSpeed;
+            if (time == null) time = SharedSetting.TextSpeed;
             EasyAmal m_txt = null;
             Vist.Dispatcher.Invoke(new Action(() =>
             {
-                TextBlock n_mfLine = new TextBlock();
-                n_mfLine.Text = line;
-                n_mfLine.FontSize = Lines_Usage.FontSize;
-                n_mfLine.FontFamily = Lines_Usage.FontFamily;
-                n_mfLine.FontStyle = Lines_Usage.FontStyle;
-                n_mfLine.HorizontalAlignment = HorizontalAlignment.Left;
-                n_mfLine.VerticalAlignment = VerticalAlignment.Top;
-                n_mfLine.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.LightGray);
-                n_mfLine.Width = location.Width;
-                n_mfLine.Height = location.Height;
-                n_mfLine.Margin = new Thickness(location.Left, location.Top, 0, 0);
+                TextBlock n_mfLine = new TextBlock
+                {
+                    Text = line,
+                    FontSize = Lines_Usage.FontSize,
+                    FontFamily = Lines_Usage.FontFamily,
+                    FontStyle = Lines_Usage.FontStyle,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.LightGray),
+                    Width = location.Width,
+                    Height = location.Height,
+                    Margin = new Thickness(location.Left, location.Top, 0, 0)
+                };
 
                 freedomLines.Add(n_mfLine);
                 if (time == 0)
@@ -1426,7 +1420,7 @@ namespace Shinengine.Surface
 
         public void CleanAllFreedom(double? time = null)
         {
-            if (time == null) time = SharedSetting.textSpeed;
+            if (time == null) time = SharedSetting.TextSpeed;
             for (int i = 0; i < freedomLines.Count; i++)
             {
                 EasyAmal mns = new EasyAmal(freedomLines[i], "(Opacity)", 1.0, 0.0, (double)time);
@@ -1538,27 +1532,30 @@ namespace Shinengine.Surface
 
 
         public ManualResetEvent call_next = new ManualResetEvent(false);
-        public Usage usage { get; private set; }
-        public Stage stage { get; private set; }
-        public AirPlant airplant { get; private set; }
+        public Usage Usage { get; private set; }
+        public Stage Stage { get; private set; }
+        public AirPlant Airplant { get; private set; }
         public Grid bkSre = null;
         private bool onExit = false;
         public void Exit()
         {
-            if (stage.videoCtrl != null)
+            if (Stage.videoCtrl != null)
             {
-                var dispoer = new Thread(() => {
+                var dispoer = new Thread(() =>
+                {
                     ManualResetEvent ficter = new ManualResetEvent(false);
-                    stage.videoCtrl.Disposed += (e, v) =>
+                    Stage.videoCtrl.Disposed += (e, v) =>
                     {
                         ficter.Set();
                     };
-                    stage.videoCtrl.Dispose();
+                    Stage.videoCtrl.Dispose();
 
                     ficter.WaitOne();
                     ficter.Dispose();
-                });
-                dispoer.IsBackground = true;
+                })
+                {
+                    IsBackground = true
+                };
                 dispoer.Start();
             }
             if (call_next != null)
@@ -1566,27 +1563,30 @@ namespace Shinengine.Surface
             call_next = null;
             onExit = true;
         }
-        private Canvas _charterLayer = null;
 
-        public Canvas CharacterLayer { get { return _charterLayer; } }
+        public Canvas CharacterLayer { get; } = null;
 
         public Theatre(Image _BackGround, Grid _UsageArea, Grid rbk, Grid air, Grid names, TextBlock _Lines, TextBlock _Charecter, Canvas charterLayer, TextBlock backlog)
         { 
-            usage = new Usage(_UsageArea);
-            
-            stage = new Stage(_BackGround);
-            stage.m_father = this;
-            airplant = new AirPlant(air, names, _Lines, _Charecter, rbk, backlog);
-            airplant.m_father = this;
+            Usage = new Usage(_UsageArea);
+
+            Stage = new Stage(_BackGround)
+            {
+                m_father = this
+            };
+            Airplant = new AirPlant(air, names, _Lines, _Charecter, rbk, backlog)
+            {
+                m_father = this
+            };
             bkSre = rbk;
-            _charterLayer = charterLayer;
+            CharacterLayer = charterLayer;
         }
-        public void setBackground(Color color)
+        public void SetBackground(Color color)
         {
             bkSre.Dispatcher.Invoke(new Action(() => { bkSre.Background = new System.Windows.Media.SolidColorBrush(color); }));
         }
         #endregion
-        public void waitForClick(UIElement Home = null)
+        public void WaitForClick(UIElement Home = null)
         {
             if (sandboxMode)
             {
@@ -1595,11 +1595,11 @@ namespace Shinengine.Surface
                 sandboxMode = false;
 
                 if (m_des_init.stageSouceType)
-                    stage.setAsImage(m_des_init.stageSouce, null, false);
+                    Stage.SetAsImage(m_des_init.stageSouce, null, false);
                 else
-                    stage.setAsVideo(m_des_init.stageSouce, null, true, m_des_init.isLoop);
+                    Stage.SetAsVideo(m_des_init.stageSouce, null, true, m_des_init.isLoop);
 
-                airplant.Say(m_des_init.line, m_des_init.name);
+                Airplant.Say(m_des_init.line, m_des_init.name);
                 SetBackgroundMusic(m_des_init.BGM);
                 SetEnvironmentMusic(m_des_init.Environment);
 

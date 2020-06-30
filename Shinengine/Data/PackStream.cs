@@ -1,14 +1,75 @@
-﻿using System;
+﻿using ICSharpCode.SharpZipLib.Zip;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace Shinengine.Data
 {
-    class PackStream
+    static class PackStream
     {
+        static public void CreateIfNotExist(string path)
+        {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+        }
+        static public string UnZip(string target, string to, string password)
+        {
+            var filename = target.Split(':').ToArray();
+
+            FileStream fileStreamIn = new FileStream(filename[0], FileMode.Open, FileAccess.Read);
+
+            using (ZipInputStream zipInStream = new ZipInputStream(fileStreamIn))
+            {
+                zipInStream.Password = "t3o(!8.8%%:y>b4|,/3/F=";
+                ZipEntry entry = zipInStream.GetNextEntry();
+                do
+                {
+                    if (entry.IsDirectory)
+                        CreateIfNotExist(to + entry.Name);
+                    if (entry.Name != filename[1])
+                    {
+                        continue;
+                    }
+                    if(File.Exists(to + filename[1]))
+                    {
+                        return to + filename[1];
+                    }
+                    using (FileStream fileStreamOut = new FileStream(to + filename[1], FileMode.Create, FileAccess.Write))
+                    {
+
+                        int size = 2048;
+                        byte[] buffer = new byte[2048];
+                        do
+                        {
+                            size = zipInStream.Read(buffer, 0, buffer.Length);
+                            fileStreamOut.Write(buffer, 0, size);
+                        } while (size > 0);
+                        return to + filename[1];
+                    }
+                } while ((entry = zipInStream.GetNextEntry()) != null);
+                return null;
+            }
+        }
+        static public readonly string TempPath;
+        static PackStream()
+        {
+            TempPath = "Temp/ShinengineData/";
+        }
+ 
         static public string Locate(string source)
         {
-            return source;
+           
+            string result = UnZip(source, TempPath, "t3o(!8.8%%:y>b4|,/3/F=");
+            if (result == null)
+            {
+                throw new Exception("failed to locate file :" + source);
+            }
+            Debug.WriteLine("Locate " + source +" -> "+ result);
+            return result;
         } 
     }
 }

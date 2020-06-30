@@ -52,9 +52,9 @@ namespace Shinengine.Surface
 
             return source;
         }
-        int chapter = 0;
-        int _frame = 0;
-        private WICBitmap _last_draw;
+        readonly int chapter = 0;
+        readonly int _frame = 0;
+        readonly private WICBitmap _last_draw;
 
         public SaveLoad(int _chapter, int frame, WICBitmap last_draw)
         {
@@ -62,13 +62,9 @@ namespace Shinengine.Surface
             chapter = _chapter;
             _last_draw = last_draw;
             _frame = frame;
-            SaveData.SaveInfo imp_save001 = new SaveData.SaveInfo();
-            SaveData.SaveInfo imp_save002 = new SaveData.SaveInfo();
-            SaveData.SaveInfo imp_save003 = new SaveData.SaveInfo();
-            SaveData.SaveInfo imp_save004 = new SaveData.SaveInfo();
             try
             {
-                imp_save002 = SaveData.save2;
+                SaveData.SaveInfo imp_save002 = SaveData.Save2;
                 save_2_event.Background = new ImageBrush(BitmapToBitmapSource(imp_save002.imp));
                 save_2_content.Text = imp_save002.comment;
             }
@@ -78,7 +74,7 @@ namespace Shinengine.Surface
             }
             try
             {
-                imp_save003 = SaveData.save3;
+                SaveData.SaveInfo imp_save003 = SaveData.Save3;
                 save_3_event.Background = new ImageBrush(BitmapToBitmapSource(imp_save003.imp));
                 save_3_content.Text = imp_save003.comment;
             }
@@ -88,7 +84,7 @@ namespace Shinengine.Surface
             }
             try
             {
-                imp_save001 = SaveData.save1;
+                SaveData.SaveInfo imp_save001 = SaveData.Save1;
                 save_1_event.Background = new ImageBrush(BitmapToBitmapSource(imp_save001.imp));
                 save_1_content.Text = imp_save001.comment;
             }
@@ -98,7 +94,7 @@ namespace Shinengine.Surface
             }
             try
             {
-                imp_save004 = SaveData.save4;
+                SaveData.SaveInfo imp_save004 = SaveData.Save4;
                 save_4_event.Background = new ImageBrush(BitmapToBitmapSource(imp_save004.imp));
                 save_4_content.Text = imp_save004.comment;
             }
@@ -117,14 +113,14 @@ namespace Shinengine.Surface
 
         }
 
-        private void save_1_event_Click(object sender, RoutedEventArgs e)
+        private void Save_1_event_Click(object sender, RoutedEventArgs e)
         {
              
             bool en_saved = true;//是否已经存档？
             SaveData.SaveInfo? imp = null;//如果有存档，这是此次存档的信息
             try
             {
-                imp = SaveData.save1;
+                imp = SaveData.Save1;
             }
             catch
             {
@@ -149,7 +145,7 @@ namespace Shinengine.Surface
                     {
                         try
                         {
-                            File.Delete("data\\save001.png");
+                            File.Delete(@"data/save001.png");
                             break;
                         }
                         catch
@@ -160,7 +156,7 @@ namespace Shinengine.Surface
                     }
                    
 
-                    SaveData.save1 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
+                    SaveData.Save1 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -172,7 +168,7 @@ namespace Shinengine.Surface
                 if (MainWindow.theatreMode == null)//如果是从标题进入读档
                 {
                    
-                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                     {
                         MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
                        
@@ -187,7 +183,7 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.Exit();
 
               
-                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                 {
                     MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
@@ -205,18 +201,18 @@ namespace Shinengine.Surface
                 save_1_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
                 save_1_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
 
-                SaveData.save1 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
+                SaveData.Save1 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
                 data_sp.Dispose();
                 m_img.Dispose();
             }
         }
-        private void save_2_event_Click(object sender, RoutedEventArgs e)
+        private void Save_2_event_Click(object sender, RoutedEventArgs e)
         {
             bool en_saved = true;
             SaveData.SaveInfo? imp = null;
             try
             {
-                imp = SaveData.save2;
+                imp = SaveData.Save2;
             }
             catch
             {
@@ -239,7 +235,7 @@ namespace Shinengine.Surface
                     {
                         try
                         {
-                            File.Delete("data\\save002.png");
+                            File.Delete(@"data/save002.png");
                             break;
                         }
                         catch
@@ -249,7 +245,7 @@ namespace Shinengine.Surface
                         }
                     }
 
-                    SaveData.save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_2_content.Text };
+                    SaveData.Save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_2_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -259,7 +255,7 @@ namespace Shinengine.Surface
                 if (MainWindow.theatreMode == null)
                 {
                   
-                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                     {
                         MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
                         MainWindow.sldata = null;
@@ -272,7 +268,7 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.Exit();
 
              
-                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                 {
                     MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
@@ -290,18 +286,18 @@ namespace Shinengine.Surface
                 save_2_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
                 save_2_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
 
-                SaveData.save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_2_content.Text };
+                SaveData.Save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_2_content.Text };
                 data_sp.Dispose();
                 m_img.Dispose();
             }
         }
-        private void save_3_event_Click(object sender, RoutedEventArgs e)
+        private void Save_3_event_Click(object sender, RoutedEventArgs e)
         {
             bool en_saved = true;
             SaveData.SaveInfo? imp = null;
             try
             {
-                imp = SaveData.save3;
+                imp = SaveData.Save3;
             }
             catch
             {
@@ -324,7 +320,7 @@ namespace Shinengine.Surface
                     {
                         try
                         {
-                            File.Delete("data\\save003.png");
+                            File.Delete(@"data/save003.png");
                             break;
                         }
                         catch
@@ -333,7 +329,7 @@ namespace Shinengine.Surface
                             continue;
                         }
                     }
-                    SaveData.save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_3_content.Text };
+                    SaveData.Save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_3_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -343,7 +339,7 @@ namespace Shinengine.Surface
                 if (MainWindow.theatreMode == null)
                 {
                   
-                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                     {
                         MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
@@ -357,7 +353,7 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.Exit();
 
             
-                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                 {
                     MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
@@ -374,18 +370,18 @@ namespace Shinengine.Surface
                 save_3_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
                 save_3_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
 
-                SaveData.save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_3_content.Text };
+                SaveData.Save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_3_content.Text };
                 data_sp.Dispose();
                 m_img.Dispose();
             }
         }
-        private void save_4_event_Click(object sender, RoutedEventArgs e)
+        private void Save_4_event_Click(object sender, RoutedEventArgs e)
         {
             bool en_saved = true;
             SaveData.SaveInfo? imp = null;
             try
             {
-                imp = SaveData.save4;
+                imp = SaveData.Save4;
             }
             catch
             {
@@ -408,7 +404,7 @@ namespace Shinengine.Surface
                     {
                         try
                         {
-                            File.Delete("data\\save004.png");
+                            File.Delete(@"data/save004.png");
                             break;
                         }
                         catch
@@ -417,7 +413,7 @@ namespace Shinengine.Surface
                             continue;
                         }
                     }
-                    SaveData.save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_4_content.Text };
+                    SaveData.Save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_4_content.Text };
                     data_sp.Dispose();
                     m_img.Dispose();
                     return;
@@ -427,7 +423,7 @@ namespace Shinengine.Surface
                 if (MainWindow.theatreMode == null)
                 {
                   
-                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                    EasyAmal _mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                     {
                         MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
 
@@ -441,10 +437,10 @@ namespace Shinengine.Surface
                 MainWindow.theatreMode.m_theatre.Exit();
 
                 MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
-                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                 {
                     MainWindow.m_window.Content = MainWindow.theatreMode.Content;
-                    EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+                    EasyAmal mpos = new EasyAmal(MainWindow.theatreMode.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed);
                     mpos.Start(true);/// hide tview
 
                     MainWindow.sldata = null;
@@ -460,7 +456,7 @@ namespace Shinengine.Surface
                 save_4_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
                 save_4_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
 
-                SaveData.save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_4_content.Text };
+                SaveData.Save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_4_content.Text };
                 data_sp.Dispose();
                 m_img.Dispose();
             }

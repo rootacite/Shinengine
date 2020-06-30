@@ -75,8 +75,8 @@ namespace Shinengine.Media
         public event StartTask StartDrawing;
 
         private bool isRunning = false;//指示是否正在运行
-        private System.Drawing.Bitmap bufferCaller = null;
-        private Graphics bufferSurface = null;
+        private readonly System.Drawing.Bitmap bufferCaller = null;
+        private readonly Graphics bufferSurface = null;
 
         public DeviceContext View { get; private set; } = null;//绘图目标
 
@@ -188,7 +188,7 @@ namespace Shinengine.Media
                 while (isRunning)
                 {
 
-                    Debug.WriteLine("Speed:" + Speed.ToString());
+              //      Debug.WriteLine("Speed:" + Speed.ToString());
                     DrawProcResult? UpData = null;
                     
                     UpData = DrawProc?.Invoke(View, Loadedsouce, Width, Height);

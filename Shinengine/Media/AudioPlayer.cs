@@ -10,7 +10,7 @@ namespace Shinengine.Media
 {
     public class AudioPlayer
     {
-        Thread PlayThread = null;
+        readonly Thread PlayThread = null;
         public bool canplay = true;
         public WaveOutEvent outputDevice;
 
@@ -18,34 +18,39 @@ namespace Shinengine.Media
         {
             if (volum == null)
                 volum = SharedSetting.BGMVolum;
-               PlayThread = new Thread(() =>
-             {
-                 var audioFile = new AudioFileReader(url);
-                 outputDevice = new WaveOutEvent();
-                 outputDevice.Init(audioFile);
-                 outputDevice.Volume = (float)volum;
-                 do
-                 {
-                     outputDevice.Play(); // 异步执行
+            PlayThread = new Thread(() =>
+          {
+              string path_rele = PackStream.Locate(url);
+              var audioFile = new AudioFileReader(path_rele);
+              outputDevice = new WaveOutEvent();
+              outputDevice.Init(audioFile);
+              outputDevice.Volume = (float)volum;
+              do
+              {
+                  outputDevice.Play(); // 异步执行
                      while (outputDevice.PlaybackState == PlaybackState.Playing)
-                     {
-                         Thread.Sleep(100);
-                         if (!canplay)
-                         {
-                             
-                             break;
-                         }
-                            
-                     }
-                     outputDevice.Stop();
-                     audioFile.Seek(0, SeekOrigin.Begin);
-                 } while (loop && canplay);
+                  {
+                      Thread.Sleep(100);
+                      if (!canplay)
+                      {
 
-                 outputDevice.Dispose();
-                 audioFile.Close();
-                 audioFile.Dispose();
-             });
-            PlayThread.IsBackground = true;
+                          break;
+                      }
+
+                  }
+                  outputDevice.Stop();
+                  audioFile.Seek(0, SeekOrigin.Begin);
+              } while (loop && canplay);
+
+              outputDevice.Dispose();
+              audioFile.Close();
+              audioFile.Dispose();
+
+              File.Delete(path_rele);
+          })
+            {
+                IsBackground = true
+            };
             PlayThread.Start();
         }
 

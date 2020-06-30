@@ -80,16 +80,15 @@ namespace Shinengine.Surface
         public Title()
         {
             InitializeComponent();
-            EasyAmal sm = new EasyAmal(this.BkGrid, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+            EasyAmal sm = new EasyAmal(this.BkGrid, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed);
             sm.Start(true);
-            this.Background = new ImageBrush(new BitmapImage(new Uri("pack://siteoforigin:,,,/assets/CG/loading.png")));
 
-            m_BGkMusic = new AudioPlayer("assets\\BGM\\pcpc006_bgm_01.wma", true);
+            m_BGkMusic = new AudioPlayer(@"assets:BGM/pcpc006_bgm_01.wma", true);
 
             /*
                         DxBkGround = new Direct2DImage(new Size2((int)BackGround.Width, (int)BackGround.Height), 30)
                         {
-                            Loadedsouce = new VideoStreamDecoder("assets\\title.wmv")
+                            Loadedsouce = new VideoStreamDecoder("assets:title.wmv")
                         };
 
                         DxBkGround.Disposed += (Loadedsouce, s) => { (Loadedsouce as VideoStreamDecoder).Dispose(); s.Dispose(); };
@@ -100,7 +99,7 @@ namespace Shinengine.Surface
             BkGrid.Unloaded += (e, v) =>
             {
                 m_BGkMusic.canplay = false;
-                //nCanrun = false;
+                /\nCanrun = false;
             };
 
         }

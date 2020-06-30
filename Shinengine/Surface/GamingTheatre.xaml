@@ -84,7 +84,7 @@
                 </Button>
                 <Button x:Name="CallNext" Width="40" Height="40" ToolTip="跳转至下一个选项" Opacity="0.6">
                     <Button.Background>
-                        <ImageBrush Stretch="Fill" ImageSource="/UI/Next.png"/>
+                        <ImageBrush Stretch="Fill" ImageSource="/UI\next.png"/>
                     </Button.Background>
                 </Button>
                 <Button x:Name="ReturnLast" Width="40" Height="40" ToolTip="跳转至章节起始" Opacity="0.6">

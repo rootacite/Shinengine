@@ -11,9 +11,9 @@ namespace Shinengine.Data
 {
     static public class SharedSetting
     {
-        static XDocument sysData = XDocument.Load("sysdata.xml");
-        static IEnumerable<XNode> atrs = sysData.Root.Nodes();
-        public static double textSpeed 
+        static readonly XDocument sysData = XDocument.Load("sysdata.xml");
+        static readonly IEnumerable<XNode> atrs = sysData.Root.Nodes();
+        public static double TextSpeed 
         {
 
             get 
@@ -42,7 +42,7 @@ namespace Shinengine.Data
             }
 
         }
-        public static double switchSpeed
+        public static double SwitchSpeed
         {
             get
             {

@@ -182,7 +182,7 @@ namespace Shinengine.Surface
             FFmpegBinariesHelper.RegisterFFmpegBinaries();
             return;
         }
-        static public GamingBook switchToBookmode()
+        static public GamingBook SwitchToBookmode()
         {
             GamingBook mbp = new GamingBook(m_window);
             mbp.Inint(new Data.DataStream("Book1.xml"));
@@ -201,13 +201,18 @@ namespace Shinengine.Surface
             Title mlp = new Title();
             mlp.setting.Click += (e, v) =>
             {
-                settere = new Setting(new BitmapImage(new Uri("pack://siteoforigin:,,,/assets/CG/10.png")), null, null);
+                settere = new Setting(new BitmapImage(new Uri("pack://application:,,,/UI/10.png")), null, null);
                 if (SharedSetting.FullS)
                 {
                     ResizeEvt(settere.mpOi, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
                 }
                 settere.foreg.Unloaded += (e, v) => { settere = null; };
                 settere.foreg.MouseRightButtonUp += (e, v) =>
+                {
+                    SwitchToTitle();
+                    m_window.Content = title.Content;
+                };
+                settere.exitlpg.Click += (e,v) =>
                 {
                     SwitchToTitle();
                     m_window.Content = title.Content;
@@ -235,30 +240,27 @@ namespace Shinengine.Surface
             {
                 m_window.Close();
             };
-            mlp.ExitButton.Click += (e, v) =>
-            {
-                m_window.Close();
-            };
+           
             mlp.StartButton.Click += (e, v) =>
             {
-
                 mlp.StartButton.IsEnabled = false;
                 mlp.Background = new System.Windows.Media.SolidColorBrush(Colors.White);
                 EasyAmal maa = null;
 
-                maa = new EasyAmal(title.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed / 2, (e, v) =>
+                maa = new EasyAmal(title.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed / 2, (e, v) =>
                 {
                     theatreMode = SwitchToSignalTheatre(0, 0, null);
-                   
+
 
                     maa.stbd.Stop();
                 });
                 maa.Start(true);
+
             };
             mlp.SaveLoad.Click += (e, v) => {
                 var m_thread_intp = new Thread(() =>
                 {
-                    EasyAmal mpos = new EasyAmal(mlp.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed);
+                    EasyAmal mpos = new EasyAmal(mlp.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed);
                     mpos.Start(false);/// hide tview
                     mlp.Dispatcher.Invoke(new Action(() =>
                     {
@@ -295,7 +297,7 @@ namespace Shinengine.Surface
             {
                 var m_thread_intp = new Thread(() =>
                 {
-                    EasyAmal mpos = new EasyAmal(mlp.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed);
+                    EasyAmal mpos = new EasyAmal(mlp.BkGrid, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed);
                     mpos.Start(false);/// hide tview
                     mlp.Dispatcher.Invoke(new Action(() =>
                     {
@@ -372,12 +374,12 @@ namespace Shinengine.Surface
 
                 var m_thread_intp = new Thread(() =>
                 {
-                    EasyAmal mpos = new EasyAmal(m_game.SBK, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed);
+                    EasyAmal mpos = new EasyAmal(m_game.SBK, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed);
                     mpos.Start(false);/// hide tview
 
                     m_game.Dispatcher.Invoke(new Action(() =>
                     {
-                        SaveLoad mst = new SaveLoad(id, m_game.m_theatre.saved_frame, m_game.m_theatre.stage.last_save);
+                        SaveLoad mst = new SaveLoad(id, m_game.m_theatre.saved_frame, m_game.m_theatre.Stage.last_save);
                         if (SharedSetting.FullS)
                         {
                             ResizeEvt(mst.Forgan, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
@@ -392,10 +394,10 @@ namespace Shinengine.Surface
                             new Thread(() =>
                             {
 
-                                EasyAmal mpos2 = new EasyAmal(sldata.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                                EasyAmal mpos2 = new EasyAmal(sldata.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                                 {
                                     m_window.Content = m_game.Content;
-                                    EasyAmal mpos = new EasyAmal(m_game.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+                                    EasyAmal mpos = new EasyAmal(m_game.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed);
                                     mpos.Start(true);/// hide tview
                                     sldata = null;
                                 });
@@ -410,10 +412,10 @@ namespace Shinengine.Surface
                             new Thread(() =>
                             {
 
-                                EasyAmal mpos2 = new EasyAmal(sldata.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                                EasyAmal mpos2 = new EasyAmal(sldata.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                                 {
                                     m_window.Content = m_game.Content;
-                                    EasyAmal mpos = new EasyAmal(m_game.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+                                    EasyAmal mpos = new EasyAmal(m_game.SBK, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed);
                                     mpos.Start(true);/// hide tview
                                     sldata = null;
                                 });
@@ -422,7 +424,7 @@ namespace Shinengine.Surface
 
                         };
 
-                        EasyAmal mpos = new EasyAmal(mst.Forgan, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+                        EasyAmal mpos = new EasyAmal(mst.Forgan, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed);
                         mpos.Start(true);
 
                         m_window.Content = mst.Content;
@@ -446,7 +448,7 @@ namespace Shinengine.Surface
                     m_game.ShowIn.Children.Remove(m_game.auto_icon);
                 }
                 #region 获取上一次绘图
-                var lpic = m_game.m_theatre.stage.last_save;
+                var lpic = m_game.m_theatre.Stage.last_save;
 
                 var mbps = new WriteableBitmap((int)lpic.Size.Width, (int)lpic.Size.Height, 72, 72, System.Windows.Media.PixelFormats.Pbgra32, null);
                 mbps.Lock();
@@ -462,7 +464,7 @@ namespace Shinengine.Surface
                 #endregion
                 var m_thread_intp = new Thread(() =>
                 {
-                    m_game.m_theatre.usage.Hide(null, false);
+                    m_game.m_theatre.Usage.Hide(null, false);
                     m_game.Dispatcher.Invoke(new Action(() =>
                     {
                         Setting mst = new Setting(mbps, m_game.m_theatre.m_player, m_game.m_theatre.m_em_player);
@@ -472,7 +474,7 @@ namespace Shinengine.Surface
                         }
                         settere = mst;
                         settere.fullandwindow.IsEnabled = false;
-                        EasyAmal mpos = new EasyAmal(settere.foreg, "(Opacity)", 0.0, 1.0, SharedSetting.switchSpeed);
+                        EasyAmal mpos = new EasyAmal(settere.foreg, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed);
 
                         bool canFocue = false;
                         settere.exitlpg.Click += (e, v) =>
@@ -482,10 +484,10 @@ namespace Shinengine.Surface
                             new Thread(() =>
                             {
 
-                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                                 {
                                     m_window.Content = m_game.Content;
-                                    m_game.m_theatre.usage.Show(null, true);
+                                    m_game.m_theatre.Usage.Show(null, true);
                                     settere = null;
                                 });
                                 mpos2.Start(true);
@@ -498,10 +500,10 @@ namespace Shinengine.Surface
                             new Thread(() =>
                             {
 
-                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+                                EasyAmal mpos2 = new EasyAmal(settere.foreg, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
                                 {
                                     m_window.Content = m_game.Content;
-                                    m_game.m_theatre.usage.Show(null, true);
+                                    m_game.m_theatre.Usage.Show(null, true);
                                     settere = null;
                                 });
                                 mpos2.Start(true);

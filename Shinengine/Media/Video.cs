@@ -1,9 +1,11 @@
 ﻿using FFmpeg.AutoGen;
 using SharpDX;
 using SharpDX.WIC;
+using Shinengine.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -42,15 +44,15 @@ namespace Shinengine.Media
 
         public Size2 frameSize = new Size2();
 
-        public int video_frame_max { get; private set; }
-        public int audio_frame_max { get; private set; }
+        public int Video_frame_max { get; private set; }
+        public int Audio_frame_max { get; private set; }
         public bool CanRun { get; set; } = false;
         public int Fps = 0;
-        public int out_channels { get; private set; }
-        public int out_buffer_size { get; private set; }
-        public int out_sample_rate { get; private set; }
-        public int out_nb_samples { get; private set; }
-        public int bit_per_sample { get; private set; }
+        public int Out_channels { get; private set; }
+        public int Out_buffer_size { get; private set; }
+        public int Out_sample_rate { get; private set; }
+        public int Out_nb_samples { get; private set; }
+        public int Bit_per_sample { get; private set; }
 
         public delegate void CleanUp();
         public event CleanUp EndPlayed;
@@ -58,9 +60,10 @@ namespace Shinengine.Media
         public event CleanUp Disposed;
         [DllImport("Kernel32.dll")]
         unsafe extern public static void RtlMoveMemory(void* dst, void* sur, long size);
-
+        string path_rele = null;
         unsafe public Video(VideoMode mod,string url)
         {
+            path_rele = PackStream.Locate(url);
             mode = mod;
             #region ffmpeg 转码
 
@@ -70,7 +73,7 @@ namespace Shinengine.Media
 
             var _pFormatContext = pFormatContext;
             //打开流
-            ffmpeg.avformat_open_input(&_pFormatContext, url, null, null).ThrowExceptionIfError();
+            ffmpeg.avformat_open_input(&_pFormatContext, path_rele, null, null).ThrowExceptionIfError();
             // 读取媒体流信息
             ffmpeg.avformat_find_stream_info(pFormatContext, null).ThrowExceptionIfError();
             #endregion
@@ -113,21 +116,21 @@ namespace Shinengine.Media
                 #endregion
                 #region 转码音频
                 ulong out_channel_layout = ffmpeg.AV_CH_LAYOUT_STEREO;
-                //nb_samples: AAC-1024 MP3-1152
-                out_nb_samples = pcodecContext_A->frame_size;
-                bit_per_sample = pcodecContext_A->bits_per_coded_sample;
+                /\nb_samples: AAC-1024 MP3-1152
+                Out_nb_samples = pcodecContext_A->frame_size;
+                Bit_per_sample = pcodecContext_A->bits_per_coded_sample;
                 AVSampleFormat out_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
-                out_sample_rate = pcodecContext_A->sample_rate;
-                out_channels = ffmpeg.av_get_channel_layout_nb_channels(out_channel_layout);
+                Out_sample_rate = pcodecContext_A->sample_rate;
+                Out_channels = ffmpeg.av_get_channel_layout_nb_channels(out_channel_layout);
                 //Out Buffer Size
-                out_buffer_size = ffmpeg.av_samples_get_buffer_size((int*)0, out_channels, out_nb_samples, out_sample_fmt, 1);
+                Out_buffer_size = ffmpeg.av_samples_get_buffer_size((int*)0, Out_channels, Out_nb_samples, out_sample_fmt, 1);
 
   
                 //////////////////////////////////
                 long in_channel_layout = ffmpeg.av_get_default_channel_layout(pcodecContext_A->channels);
                 //Swr
                 au_convert_ctx = ffmpeg.swr_alloc();
-                au_convert_ctx = ffmpeg.swr_alloc_set_opts(au_convert_ctx, (long)out_channel_layout, out_sample_fmt, out_sample_rate,
+                au_convert_ctx = ffmpeg.swr_alloc_set_opts(au_convert_ctx, (long)out_channel_layout, out_sample_fmt, Out_sample_rate,
                     in_channel_layout, pcodecContext_A->sample_fmt, pcodecContext_A->sample_rate, 0, (void*)0);
                 ffmpeg.swr_init(au_convert_ctx);
                 #endregion
@@ -185,21 +188,21 @@ namespace Shinengine.Media
         }
 
         #region 对象定义
-        private AVFormatContext* pFormatContext = null;
-        private AVCodecContext* pCodecContext = null;
-        private AVCodecContext* pcodecContext_A = null;
-        private AVStream* pStream = null;
-        private AVStream* aStream = null;
-        private SwsContext *pConvertContext = null;
-        private SwrContext* au_convert_ctx = null;
-        private IntPtr convertedFrameBufferPtr;
-        private byte_ptrArray4 dstData;
-        private int_array4 dstLinesize;
+        readonly private AVFormatContext* pFormatContext = null;
+        readonly private AVCodecContext* pCodecContext = null;
+        readonly private AVCodecContext* pcodecContext_A = null;
+        readonly private AVStream* pStream = null;
+        readonly private AVStream* aStream = null;
+        readonly private SwsContext *pConvertContext = null;
+        readonly private SwrContext* au_convert_ctx = null;
+        readonly private IntPtr convertedFrameBufferPtr;
+        readonly private byte_ptrArray4 dstData;
+        readonly private int_array4 dstLinesize;
 
         #endregion
-        private AVFrame* pConvertedFrame;
+        readonly private AVFrame* pConvertedFrame;
 
-        private AVPacket* pPacket = null;
+        readonly private AVPacket* pPacket = null;
 
         [Obsolete]
         public unsafe void Start()
@@ -291,9 +294,9 @@ namespace Shinengine.Media
                                   {
                                       ffmpeg.swr_convert(au_convert_ctx, &out_buffer, 19200, (byte**)&pAudioFrame->data, pAudioFrame->nb_samples);
 
-                                      var mbuf = Marshal.AllocHGlobal(out_buffer_size);
+                                      var mbuf = Marshal.AllocHGlobal(Out_buffer_size);
 
-                                      RtlMoveMemory((void*)mbuf, out_buffer, out_buffer_size);
+                                      RtlMoveMemory((void*)mbuf, out_buffer, Out_buffer_size);
                                       abits.Add(new AudioFrame() { data = mbuf, time_base = timeset });
 
                                       index++;
@@ -331,7 +334,7 @@ namespace Shinengine.Media
                               if ((bool)!bits[i]?.frame.IsDisposed)
                                   bits[i]?.frame.Dispose();
                           }
-                      else { entiryPlayed = true; EndPlayed?.Invoke(); }
+                      else { EntiryPlayed = true; EndPlayed?.Invoke(); }
 
                       Debug.WriteLine("Video Disposed");
 
@@ -404,7 +407,7 @@ namespace Shinengine.Media
             }
             #endregion
         }
-        public bool entiryPlayed { get; private set; } = false;
+        public bool EntiryPlayed { get; private set; } = false;
         private int index = 0;
 
 
@@ -412,7 +415,7 @@ namespace Shinengine.Media
         {
             if (mode == VideoMode.LoadWithPlaying)
             {
-                if (!entiryPlayed)
+                if (!EntiryPlayed)
                     CanRun = false;
                 else for (int i = nFarm; i < bits.Count; i++)
                     {
@@ -430,7 +433,7 @@ namespace Shinengine.Media
 
                 Debug.WriteLine("Video Disposed");
             }
-
+            File.Delete(path_rele);
             Disposed?.Invoke();
         }
         private static unsafe string GetErrorMessage(int error)

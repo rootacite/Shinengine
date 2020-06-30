@@ -28,14 +28,14 @@ namespace Shinengine.Surface.Extra
         private void Event_HS1(object sender, RoutedEventArgs e)
         {
             
-            EasyAmal _mpos2 = new EasyAmal(this.ExtraGrid, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed, (e, c) =>
+            EasyAmal _mpos2 = new EasyAmal(this.ExtraGrid, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
             {
                 MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(100, 0, ()=>
                 {
                     var load_the = MainWindow.theatreMode.SBK;
                     var m_thread_intp = new Thread(() =>
                     {
-                        EasyAmal mpos = new EasyAmal(load_the, "(Opacity)", 1.0, 0.0, SharedSetting.switchSpeed);
+                        EasyAmal mpos = new EasyAmal(load_the, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed);
                         mpos.Start(false);/// hide tview
                         load_the.Dispatcher.Invoke(new Action(() =>
                         {

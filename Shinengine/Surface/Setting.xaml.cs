@@ -19,8 +19,8 @@ namespace Shinengine.Surface
     /// </summary>
     public partial class Setting : Page
     {
-        AudioPlayer _ioPt = null;
-        AudioPlayer _ioPo = null;
+        readonly AudioPlayer _ioPt = null;
+        readonly AudioPlayer _ioPo = null;
         public Setting(ImageSource bkGround,AudioPlayer ioPt,AudioPlayer ioPo)
         {
             _ioPt = ioPt;
@@ -28,8 +28,8 @@ namespace Shinengine.Surface
             InitializeComponent();
             Bkgnd.Source = bkGround;
 
-            SwitchSpeed.Value = (int)(SharedSetting.switchSpeed * 10.0);
-            TextSpeed.Value = (int)(SharedSetting.textSpeed * 10.0);
+            SwitchSpeed.Value = (int)(SharedSetting.SwitchSpeed * 10.0);
+            TextSpeed.Value = (int)(SharedSetting.TextSpeed * 10.0);
             BGMVm.Value = (int)(SharedSetting.BGMVolum * 100.0);
             VoiceVm.Value = (int)(SharedSetting.VoiceVolum * 100.0);
             AutoSpeed.Value = SharedSetting.AutoTime;
@@ -42,12 +42,12 @@ namespace Shinengine.Surface
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            SharedSetting.switchSpeed = e.NewValue / 10.0;
+            SharedSetting.SwitchSpeed = e.NewValue / 10.0;
         }
 
         private void TextSpeed_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            SharedSetting.textSpeed = e.NewValue / 10.0;
+            SharedSetting.TextSpeed = e.NewValue / 10.0;
         }
 
         private void BGMVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -72,7 +72,7 @@ namespace Shinengine.Surface
             if (_ioPo != null) _ioPo.outputDevice.Volume = SharedSetting.EmVolum;
         }
 
-        private void exitlpg_Click(object sender, RoutedEventArgs e)
+        private void Exitlpg_Click(object sender, RoutedEventArgs e)
         {
 
         }

@@ -7,6 +7,7 @@ using WICBitmap = SharpDX.WIC.Bitmap;
 using FFmpeg;
 using FFmpeg.AutoGen;
 using SharpDX;
+using Shinengine.Data;
 
 namespace Shinengine.Media
 {
@@ -17,17 +18,18 @@ namespace Shinengine.Media
         private readonly int _streamIndex;
         private readonly AVFrame* _pFrame;
 
-        public SwsContext* pConvertContext { get; }
+        public SwsContext* PConvertContext { get; }
 
         private readonly AVFrame* _receivedFrame;
         private readonly AVPacket* _pPacket;
-
+        private string source = null;
         public VideoStreamDecoder(string url, AVHWDeviceType HWDeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_NONE)
         {
+            source = PackStream.Locate(url);
             _pFormatContext = ffmpeg.avformat_alloc_context();
             _receivedFrame = ffmpeg.av_frame_alloc();
             var pFormatContext = _pFormatContext;
-            ffmpeg.avformat_open_input(&pFormatContext, url, null, null).ThrowExceptionIfError();
+            ffmpeg.avformat_open_input(&pFormatContext, source, null, null).ThrowExceptionIfError();
             ffmpeg.avformat_find_stream_info(_pFormatContext, null).ThrowExceptionIfError();
             AVCodec* codec = null;
             _streamIndex = ffmpeg.av_find_best_stream(_pFormatContext, AVMediaType.AVMEDIA_TYPE_VIDEO, -1, -1, &codec, 0).ThrowExceptionIfError();
@@ -46,11 +48,11 @@ namespace Shinengine.Media
             _pPacket = ffmpeg.av_packet_alloc();
             _pFrame = ffmpeg.av_frame_alloc();
 
-            pConvertContext = ffmpeg.sws_getContext(_pCodecContext->width, _pCodecContext->height, _pCodecContext->pix_fmt,
+            PConvertContext = ffmpeg.sws_getContext(_pCodecContext->width, _pCodecContext->height, _pCodecContext->pix_fmt,
               _pCodecContext->width, _pCodecContext->height, AVPixelFormat.AV_PIX_FMT_BGRA,
               ffmpeg.SWS_FAST_BILINEAR, null, null, null);
 
-            if (pConvertContext == null) throw new ApplicationException(@"Could not initialize the conversion context.");
+            if (PConvertContext == null) throw new ApplicationException(@"Could not initialize the conversion context.");
 
             dstData = new byte_ptrArray4();
             dstLinesize = new int_array4();
@@ -65,13 +67,13 @@ namespace Shinengine.Media
         public AVPixelFormat PixelFormat { get; }
         public byte_ptrArray4 dstData;
         public int_array4 dstLinesize;
-        private IntPtr convertedFrameBufferPtr;
+        readonly private IntPtr convertedFrameBufferPtr;
 
         public void Dispose()
         {
             Marshal.FreeHGlobal(convertedFrameBufferPtr);
 
-            ffmpeg.sws_freeContext(pConvertContext);
+            ffmpeg.sws_freeContext(PConvertContext);
             ffmpeg.av_frame_unref(_pFrame);
             ffmpeg.av_free(_pFrame);
 
@@ -82,7 +84,7 @@ namespace Shinengine.Media
             var pFormatContext = _pFormatContext;
             ffmpeg.avformat_close_input(&pFormatContext);
 
-
+            File.Delete(source);
         }
 
         public bool TryDecodeNextFrame(out IntPtr data, out int pitch)
@@ -124,13 +126,13 @@ namespace Shinengine.Media
             if (_pCodecContext->hw_device_ctx != null)
             {
                 ffmpeg.av_hwframe_transfer_data(_receivedFrame, _pFrame, 0).ThrowExceptionIfError();
-                ffmpeg.sws_scale(pConvertContext, _receivedFrame->data, _receivedFrame->linesize, 0, _pCodecContext->height, dstData, dstLinesize);
+                ffmpeg.sws_scale(PConvertContext, _receivedFrame->data, _receivedFrame->linesize, 0, _pCodecContext->height, dstData, dstLinesize);
                 data = convertedFrameBufferPtr;
                 pitch = dstLinesize[0];
             }
             else
             {
-                ffmpeg.sws_scale(pConvertContext, _pFrame->data, _pFrame->linesize, 0, _pCodecContext->height, dstData, dstLinesize);
+                ffmpeg.sws_scale(PConvertContext, _pFrame->data, _pFrame->linesize, 0, _pCodecContext->height, dstData, dstLinesize);
                 data = convertedFrameBufferPtr;
                 pitch = dstLinesize[0];
             }
