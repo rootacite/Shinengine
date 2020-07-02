@@ -1,0 +1,18 @@
+﻿<Page x:Class="Shinengine.Surface.Extra.ExtraMemory"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Shinengine.Surface.Extra"
+      mc:Ignorable="d" 
+      d:DesignHeight="530" d:DesignWidth="1180"
+      Title="ExtraMemory">
+
+    <Grid x:Name="root_memory">
+        <Button x:Name="HS1" Height="120" Width="220" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="22,28,0,0" BorderBrush="{x:Null}" Cursor="Hand" Click="Event_HS1" >
+            <Button.Background>
+                <ImageBrush ImageSource="/RegularUI/Extra/cg01.png"/>
+            </Button.Background>
+        </Button>
+    </Grid>
+</Page>

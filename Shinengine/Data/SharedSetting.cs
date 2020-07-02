@@ -19,7 +19,7 @@ namespace Shinengine.Data
             get 
             {
                 if (GamingTheatre.isSkiping)
-                    return 0.0;
+                    return 0;
                 foreach (XElement i in atrs)
                 {
                     if(i.Name.ToString()== "TextSpeed")
@@ -48,7 +48,7 @@ namespace Shinengine.Data
             {
 
                 if (GamingTheatre.isSkiping)
-                    return 0.0;
+                    return 0;
                 foreach (XElement i in atrs)
                 {
                     if (i.Name.ToString() == "SwitchSpeed")

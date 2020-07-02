@@ -18,7 +18,7 @@ namespace Shinengine
     {
         ~App()
         {
-            Directory.Delete(PackStream.TempPath[0..^1], true);
+            
         }
         private App()
         {
@@ -35,6 +35,11 @@ namespace Shinengine
                 MessageBox.Show("Error : File: saves.xml is missing", "error",MessageBoxButton.OK,MessageBoxImage.Error);
                 PInvoke.Kernel32.ExitProcess(-1);
             }
-        }
+            if (!File.Exists("assets.shine"))
+            {
+                MessageBox.Show("Error : File: assets.shine is missing", "error",MessageBoxButton.OK,MessageBoxImage.Error);
+                PInvoke.Kernel32.ExitProcess(-1);
+            }
+        } 
     }
 }

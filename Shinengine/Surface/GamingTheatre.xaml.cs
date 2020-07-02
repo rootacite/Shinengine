@@ -8,8 +8,10 @@ using Shinengine.Scripts;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,22 +43,14 @@ namespace Shinengine.Surface
         public Theatre m_theatre = null;
         public Direct2DImage m_logo = null;
 
-        private readonly List<WICBitmap> logo_frames = new List<WICBitmap>();
+        static private readonly List<WICBitmap> logo_frames = new List<WICBitmap>();
 
         int ims = 0;
-        public GamingTheatre()
+        static GamingTheatre()
         {
-            InitializeComponent();
-            Preparation = "";
-            isSkiping = false;
-            AutoMode = false;
-        }
-        public void Init(Window main_window)
-        {
-            _main_window = main_window;
-            m_theatre = new Theatre(BG, Usage, SBK, AirPt, character_usage, Lines, character, ShowIn,_Contents);
-            #region logo
-            VideoStreamDecoder vsd = new VideoStreamDecoder(@"assets:movie/LOGO_32.mov");
+            if (Directory.Exists("Temp"))
+                Directory.Delete("Temp", true);
+            VideoStreamDecoder vsd = new VideoStreamDecoder(@"assets.shine:movie/LOGO_32.mov");
 
             while (true)
             {
@@ -68,15 +62,30 @@ namespace Shinengine.Surface
                 //  var mp = new System.Drawing.Bitmap(vsd.FrameSize.Width, vsd.FrameSize.Height, pitch, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, dataPoint);
                 //   mp.Save("test/" + logo_frames.Count + ".png");
                 //   mp.Dispose();
-
+                ImGc.Dispose();
                 logo_frames.Add(WICBIT);
             }
             vsd.Dispose();
-            m_logo = new Direct2DImage(new SharpDX.Size2((int)vsd.FrameSize.Width, (int)vsd.FrameSize.Height), 30)
+        }
+        public GamingTheatre()
+        {
+            InitializeComponent();
+            Preparation = "";
+            isSkiping = false;
+            AutoMode = false;
+
+           
+        }
+        public void Init(Window main_window)
+        {
+            _main_window = main_window;
+            m_theatre = new Theatre(BG, Usage, SBK, AirPt, character_usage, Lines, character, ShowIn,_Contents);
+
+            #region logo
+            m_logo = new Direct2DImage(new SharpDX.Size2((int)logo_frames[0].Size.Width, (int)logo_frames[0].Size.Height), 30)
             {
                 Loadedsouce = logo_frames
             };
-
             m_logo.DrawProc += (t, s, w, h) =>
             {
                 var frames = s as List<WICBitmap>;
@@ -84,9 +93,9 @@ namespace Shinengine.Surface
                 if (ims == frames.Count)
                     ims = 0;
                 t.BeginDraw();
-                t.Clear(new RawColor4(0,0,0,0));
+                t.Clear(new RawColor4(0, 0, 0, 0));
                 D2DBitmap parl_map = D2DBitmap.FromWicBitmap(t, frames[ims]);
-                t.DrawBitmap(parl_map,1,InterpolationMode.Anisotropic);
+                t.DrawBitmap(parl_map, 1, InterpolationMode.Anisotropic);
                 t.EndDraw();
 
                 ims++;
@@ -95,15 +104,13 @@ namespace Shinengine.Surface
             };
             m_logo.Disposed += (s, ss) =>
             {
-                var frames = s as List<WICBitmap>;
-                foreach (var f in frames)
-                {
-                    f.Dispose();
-                }
                 ss.Dispose();
-            };
-           m_logo.DrawStartup(Logo);
+            }; 
+            m_logo.DrawStartup(Logo);
+
+            
             #endregion
+           
         }
         public delegate int ScriptHandle(Theatre theatre, GamingTheatre self);
         Task scriptTask = null;
@@ -359,6 +366,8 @@ namespace Shinengine.Surface
         public static string Preparation = "";  //显示最后18行
         private void CommitText(int start_line = 27)
         {
+            if (Preparation.Length == 0)
+                return;
             List<string> lines = Preparation[0..^1].Split('\n').ToList();
             restIlt.Maximum = lines.Count - 27 < 0 ? 0 : lines.Count - 27;
             if (lines.Count <= start_line)

@@ -72,11 +72,15 @@ namespace Shinengine.Media
 
         public event EndTask Disposed;
         public event FarmeTask DrawProc;
-        public event StartTask StartDrawing;
+        public event StartTask FirstDraw;
 
         private bool isRunning = false;//指示是否正在运行
         private readonly System.Drawing.Bitmap bufferCaller = null;
         private readonly Graphics bufferSurface = null;
+        private readonly SharpDX.Direct3D11.Device d3DDevice;// = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
+        private readonly SharpDX.DXGI.Device dxgiDevice;// = d3DDevice.QueryInterface<Device>().QueryInterface<SharpDX.DXGI.Device>();
+
+        private readonly SharpDX.Direct2D1.Device d2DDevice = null;
 
         public DeviceContext View { get; private set; } = null;//绘图目标
 
@@ -84,24 +88,22 @@ namespace Shinengine.Media
         public Direct2DImage(Size2 size, int Fps)
         {
             TargetDpi = Fps;
-
-
-
+            d3DDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
+            var __dxgiDevice = d3DDevice.QueryInterface<Device>();
+           dxgiDevice = __dxgiDevice.QueryInterface<SharpDX.DXGI.Device>();
+            __dxgiDevice.Dispose();
             Speed = 1.0d / (double)TargetDpi;
             Width = (int)size.Width;
             Height = (int)size.Height;
             isRunning = true;
 
+            DxFac = new D2DFactory();
+            d2DDevice = new SharpDX.Direct2D1.Device(DxFac, dxgiDevice);
             buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Pbgra32, null);
+
             bufferCaller = new System.Drawing.Bitmap(size.Width, size.Height, buffer.BackBufferStride, System.Drawing.Imaging.PixelFormat.Format32bppArgb, buffer.BackBuffer);
             bufferSurface = Graphics.FromImage(bufferCaller);
 
-            SharpDX.Direct3D11.Device d3DDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
-
-            SharpDX.DXGI.Device dxgiDevice = d3DDevice.QueryInterface<Device>().QueryInterface<SharpDX.DXGI.Device>();
-
-        
-            SharpDX.Direct2D1.Device d2DDevice = new SharpDX.Direct2D1.Device(DxFac = new D2DFactory(), dxgiDevice);
 
             View = new DeviceContext(d2DDevice, DeviceContextOptions.EnableMultithreadedOptimizations);
 
@@ -111,18 +113,17 @@ namespace Shinengine.Media
                 new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.Target | BitmapOptions.CannotDraw));
             View.Target = _bufferBack;
 
-
         }
         public void DrawStartup(Image contorl)
         {
-            if (StartDrawing != null)
+            if (FirstDraw != null)
             {
                 try
                 {
 
                     //   Debug.WriteLine("Lock");
 
-                    StartDrawing(View, null, Width, Height);
+                    FirstDraw(View, null, Width, Height);
 
 
                     contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
@@ -142,43 +143,7 @@ namespace Shinengine.Media
             {
 
                 Dpis = Times;
-                double TimesOfWait = Speed * Dpis;
-                if (TimesOfWait > 1)
-                {
-                    Speed = 1.0d / TargetDpi;
-                    Times = 0;
-                    return;
-                    //  MessageBox.Show(Speed.ToString()+","+Dpis.ToString());
-                }
-                //  Console.WriteLine(TimesOfWait.ToString());
-                double TimeOfDraw = 1.0d - TimesOfWait;
-                if (Dpis < TargetDpi)
-                {
-                    try
-                    {
-                        if (TimeOfDraw / (double)Dpis > 1.0d / TargetDpi)
-                        {
-                            Speed = 0;
-                        }
-                        else
-                            Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
-                    }
-                    catch
-                    {
-                        Speed = 1.0d / TargetDpi;
-                    }
-                }
-                if (Dpis > TargetDpi)
-                {
-                    try
-                    {
-                        Speed = (1.0f - ((TimeOfDraw / (double)Dpis) * TargetDpi)) / TargetDpi;
-                    }
-                    catch
-                    {
-                        Speed = 1.0d / TargetDpi;
-                    }
-                }
+                Debug.WriteLine("Speed:" + Dpis.ToString());
 
                 Times = 0;
             };
@@ -188,23 +153,34 @@ namespace Shinengine.Media
                 while (isRunning)
                 {
 
-              //      Debug.WriteLine("Speed:" + Speed.ToString());
+
                     DrawProcResult? UpData = null;
-                    
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+
                     UpData = DrawProc?.Invoke(View, Loadedsouce, Width, Height);
                     contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
+                    sw.Stop();
 
+                    decimal time = sw.ElapsedTicks / (decimal)Stopwatch.Frequency * 1000;
+                    decimal wait_time = 1000.0M / (decimal)TargetDpi - time;
+
+                    if (wait_time < 0)
+                    {
+                        wait_time = 0;
+                    }
+                    Debug.WriteLine("Time:" + time.ToString());
                     if (UpData == null)
                     {
                         throw new Exception();
                     }
                     if (UpData == DrawProcResult.Normal)
                     {
-                        Thread.Sleep((int)(Speed * 1000.0d));
+                        Thread.Sleep((int)wait_time);
                         Times++;
                         continue;
                     }
-                    if(UpData == DrawProcResult.Ignore)
+                    if (UpData == DrawProcResult.Ignore)
                     {
                         continue;
                     }
@@ -253,12 +229,17 @@ namespace Shinengine.Media
                     View.Dispose();
                 if (_ImagFc != null)
                     _ImagFc.Dispose();
-                if (DxFac != null)
-                    DxFac.Dispose();
+ 
                 m_Dipter2.Dispose();
                 _bufferBack.Dispose();
                 bufferSurface.Dispose();
                 bufferCaller.Dispose();
+                d2DDevice.Dispose();
+                DxFac.Dispose();
+                dxgiDevice.Dispose();
+                d3DDevice.Dispose();
+
+                GC.Collect();
             }).Start();
         }//ignore
         ~Direct2DImage()
@@ -277,7 +258,7 @@ namespace Shinengine.Media
             var m_lock = m_local_buffer.Map(MapOptions.Read);
 
             var m_bp = new System.Drawing.Bitmap(m_local_buffer.PixelSize.Width, m_local_buffer.PixelSize.Height, m_lock.Pitch, System.Drawing.Imaging.PixelFormat.Format32bppArgb, m_lock.DataPointer);
-           
+
             bufferSurface.Clear(System.Drawing.Color.Transparent);
             bufferSurface.DrawImage(m_bp, new System.Drawing.Point(0, 0));
 
@@ -289,7 +270,7 @@ namespace Shinengine.Media
             buffer.Unlock();
 
             m_local_buffer.Dispose();
-           
+
         }//把后台数据呈现到前台
     }
 

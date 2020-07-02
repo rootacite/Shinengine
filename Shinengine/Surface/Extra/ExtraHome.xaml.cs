@@ -1,4 +1,5 @@
-﻿using Shinengine.Data;
+﻿using SharpDX;
+using Shinengine.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,61 +21,19 @@ namespace Shinengine.Surface.Extra
     /// </summary>
     public partial class ExtraHome : Page
     {
+        Page ref_mode = null;
         public ExtraHome()
         {
             InitializeComponent();
-        }
 
-        private void Event_HS1(object sender, RoutedEventArgs e)
-        {
-            
-            EasyAmal _mpos2 = new EasyAmal(this.ExtraGrid, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
+             ref_mode = new ExtraMemory(); 
+            if (SharedSetting.FullS)
             {
-                MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(100, 0, ()=>
-                {
-                    var load_the = MainWindow.theatreMode.SBK;
-                    var m_thread_intp = new Thread(() =>
-                    {
-                        EasyAmal mpos = new EasyAmal(load_the, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed);
-                        mpos.Start(false);/// hide tview
-                        load_the.Dispatcher.Invoke(new Action(() =>
-                        {
-
-                            ExtraHome msv = new ExtraHome();
-
-                            MainWindow.m_window.Content = msv.Content;
-                            MainWindow.extraPage = msv;
-                            MainWindow.title = null;
-                            msv.ExtraGrid.MouseRightButtonUp += (e, v) =>
-                            {
-                                MainWindow.title = MainWindow.SwitchToTitle();
-                                MainWindow.m_window.Content = MainWindow.title.Content;
-                                MainWindow.extraPage = null;
-                            };
-
-                            msv.exitlpg.Click += (e, v) =>
-                            {
-                                MainWindow.title = MainWindow.SwitchToTitle();
-                                MainWindow.m_window.Content = MainWindow.title.Content;
-                                MainWindow.extraPage = null;
-                            };
-                        }));
-                    })
-                    {
-                        IsBackground = true
-                    };
-                    m_thread_intp.Start();
-                    MainWindow.theatreMode.m_logo.Dispose();
-                    MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
-                    MainWindow.theatreMode.m_theatre.Exit();
-
-                    if (MainWindow.theatreMode != null)
-                        MainWindow.theatreMode = null;
-                });
-              
-                MainWindow.extraPage = null;
-            });
-            _mpos2.Start(true);
+                MainWindow.ResizeEvt((ref_mode as ExtraMemory).root_memory, new Size2(1180, 530), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+            }
+            cont_os.Content = ref_mode.Content;
         }
+
+       
     }
 }

@@ -14,42 +14,27 @@ using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
 
 using WICBitmap = SharpDX.WIC.Bitmap;
-using D2DFactory = SharpDX.Direct2D1.Factory;
 using SharpDX.DXGI;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
 using PixelFormat = SharpDX.Direct2D1.PixelFormat;
 using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
 using SharpDX.Mathematics.Interop;
 using System.Collections.Generic;
-using BitmapSource = System.Windows.Media.Imaging.BitmapSource;
-using BitmapInterpolationMode = SharpDX.Direct2D1.BitmapInterpolationMode;
 using System.IO;
 
 using Bitmap = System.Drawing.Bitmap;
 using BmpBitmapEncoder = System.Windows.Media.Imaging.BmpBitmapEncoder;
 using BitmapEncoder = System.Windows.Media.Imaging.BitmapEncoder;
 using System.Drawing;
-using System.Windows.Navigation;
 using System.Runtime.InteropServices;
-using System.Drawing.Imaging;
-using System.Windows.Interop;
 using BitmapDecoder = SharpDX.WIC.BitmapDecoder;
 using Shinengine.Data;
-using System.Diagnostics;
-using SharpDX.Direct2D1.Effects;
-using Device = SharpDX.Direct3D11.Device;
-
-using SharpDX.Direct3D11;
-using SharpDX.Direct3D;
-using FeatureLevel = SharpDX.Direct3D.FeatureLevel;
 using DeviceContext = SharpDX.Direct2D1.DeviceContext;
-using System.Net.WebSockets;
 using Blend = SharpDX.Direct2D1.Effects.Blend;
-using System.Text;
 
 namespace Shinengine.Surface
 {
-    sealed public class DynamicCharacter : Character
+    sealed public class DynamicCharacter : Character//动态角色暂时未具体实现
     {
         public DynamicCharacter(Theatre father, string name, string template , bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             : base(father, name, template, canshow, time, isAscy, vel_x, vel_y)
@@ -122,7 +107,7 @@ namespace Shinengine.Surface
 
                 ChAreas.Add(pct_pos);
             }
-        }
+        }//已经确认过安全的代码,再次修改需要小心
 
         public void SwitchTo(int area, int index, double? time = null, bool isAysn = false)
         {
@@ -154,7 +139,7 @@ namespace Shinengine.Surface
             });
             double soul_rate = 0;
             shower.Dispatcher.Invoke(() => { soul_rate = whereIsShowed.Height / Init_action.Size.Height; });
-            dx_switch.StartDrawing += (e, v, w, h) =>
+            dx_switch.FirstDraw += (e, v, w, h) =>
             {
                 D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);/////////////////AAA
                 e.BeginDraw();
@@ -281,7 +266,7 @@ namespace Shinengine.Surface
                 msbn.Dispose();//////////////////BB
             }
             msbn.Dispose();
-        }
+        }//已经确认过安全的代码,再次修改需要小心
 
         public void Dispose()
         {
@@ -302,9 +287,16 @@ namespace Shinengine.Surface
                     t.Dispose();
                 }
             }
-
+            for (int i = 0; i < m_father.cts.Count; i++)
+            {
+                if (m_father.cts[i] == this)
+                {
+                    m_father.cts.RemoveAt(i);
+                    break;
+                }
+            }
             this.Remove(0, true);
-        }
+        }//已经确认可以正确释放资源
     }
     public abstract class Character
     {
@@ -386,7 +378,7 @@ namespace Shinengine.Surface
             EasyAmal aml = new EasyAmal(shower, "(Opacity)", 0.0, 1.0, (double)time);
             aml.Start(isAscy);
 
-        }
+        }//已经确认过安全的代码,再次修改需要小心
 
         public void Say( string lines, string voice = null)
         {
@@ -397,7 +389,7 @@ namespace Shinengine.Surface
                 voice_player = new AudioPlayer(voice, false, SharedSetting.VoiceVolum);
             }
             m_father.Airplant.Say(lines, this._name);
-        }
+        }//安全的代码
 
         protected void Remove(double? time = null, bool isAscy = true)
         {
@@ -423,7 +415,7 @@ namespace Shinengine.Surface
             if (Last_Draw != null) if (!Last_Draw.IsDisposed)
                     Last_Draw.Dispose();
             Init_action.Dispose();
-        }
+        }//已经确认过安全的代码,再次修改需要小心
 
         public void Show(double? time = null, bool isAsyn = false)
         {
@@ -441,7 +433,7 @@ namespace Shinengine.Surface
             if (time == null) time = SharedSetting.SwitchSpeed;
             EasyAmal amsc = new EasyAmal(shower, "(Opacity)", 0.0, 1.0, (double)time);
             amsc.Start(isAsyn);
-        }
+        }//安全的代码
         public void Hide(double? time = null, bool isAsyn = false)
         {
             for (int i = 0; i < m_father.m_des_init.Characters.Count; i++)
@@ -458,7 +450,7 @@ namespace Shinengine.Surface
             if (time == null) time = SharedSetting.SwitchSpeed;
             EasyAmal amsc = new EasyAmal(shower, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
-        }
+        }//安全的代码
     }
 
 
@@ -520,7 +512,7 @@ namespace Shinengine.Surface
                 msbn.Dispose();
             }
         }
-    }
+    }//这个类没有使用过非托管资源
     public class Stage
     {
         public Theatre m_father = null;
@@ -602,7 +594,14 @@ namespace Shinengine.Surface
             Demcoder.Dispose();
             nm_opb.Dispose();
             convert.Dispose();
-            File.Delete(rele_path);
+            try
+            {
+                File.Delete(rele_path);
+            }
+            catch
+            {
+
+            }
             return Init_action;
         }
 
@@ -616,7 +615,7 @@ namespace Shinengine.Surface
         }
 
         /// <summary>
-        /// 将舞台的背景设置为一个图片，如果是第一次调用，time必须为0
+        /// 将舞台的背景设置为一个图片，如果是第一次调用,并且没有调用过SetLastDraw，time必须为0
         /// </summary>
         /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
@@ -668,7 +667,7 @@ namespace Shinengine.Surface
 
 
 
-                videoCtrl.StartDrawing += (t, v, b, s) =>
+                videoCtrl.FirstDraw += (t, v, b, s) =>
                 {
                     t.BeginDraw();
                     if (ral_picA != null)
@@ -696,8 +695,6 @@ namespace Shinengine.Surface
                 };
                 videoCtrl.Disposed += (e, v) =>
                 {
-                    if (wait_sp != null)
-                        wait_sp.Set();
                     if (ral_picA != null)
                         ral_picA.Dispose();
                     ral_picB.Dispose();
@@ -705,6 +702,9 @@ namespace Shinengine.Surface
                     last_save = v;
                     videoCtrl = null;
                     mbp_ss.Dispose();
+
+                    if (wait_sp != null)
+                        wait_sp.Set();
                 };
                 videoCtrl.DrawStartup(Background);
             }));
@@ -715,15 +715,16 @@ namespace Shinengine.Surface
                 wait_sp.Dispose();
                 wait_sp = null;
             }
-        }
+        }//安全
         /// <summary>
-        /// 将舞台的背景设置为一个视频，如果是第一次调用，time必须为0
+        /// 将舞台的背景设置为一个视频，如果是第一次调用,并且没有调用过SetLastDraw，time必须为0 
         /// </summary>
         /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
         /// <param name="isAsyn">是否异步（true为异步）</param>
         public void SetAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
         {
+           
             m_father.m_des_init.stageSouceType = false;
             m_father.m_des_init.stageSouce = url;
             m_father.m_des_init.isLoop = loop;
@@ -742,6 +743,7 @@ namespace Shinengine.Surface
                 ficter.WaitOne();
                 ficter.Dispose();
             }
+            //////////////////////////////////
             D2DBitmap ral_pic = null;
             var m_sourc = new VideoStreamDecoder(url);
 
@@ -752,26 +754,37 @@ namespace Shinengine.Surface
                     Loadedsouce = m_sourc
                 };
 
-                if (last_save != null)
-                    ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
-
-                videoCtrl.StartDrawing += (t, m, b, s) =>
-                {
-                    t.BeginDraw();
-                    if (ral_pic != null)
-                        t.DrawBitmap(ral_pic,
-                           new RawRectangleF(0, 0, b, s),
-                            1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                            new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
-
-                    t.EndDraw();
-                    return;
-                };
+               
             }));
+            if (last_save != null)
+                ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
 
+            videoCtrl.FirstDraw += (t, m, b, s) =>
+            {
+                t.BeginDraw();
+                if (ral_pic != null)
+                    t.DrawBitmap(ral_pic,
+                       new RawRectangleF(0, 0, b, s),
+                        1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                        new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
+
+                t.EndDraw();
+                return;
+            };
             ManualResetEvent msc_evt = null;
             if (!isAsyn) msc_evt = new ManualResetEvent(false);
+            videoCtrl.Disposed += (Loadedsouce, s) => {
+                (Loadedsouce as VideoStreamDecoder).Dispose();
+                if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                last_save = s;
+                videoCtrl = null;
+                if (msc_evt != null)
+                    msc_evt.Set();
+                if (ral_pic != null)
+                    ral_pic.Dispose();
+            };
 
+            /////////////////安全的部分//////////////////////
             if (time < 1.0 / 30.0 && time != 0)
             {
                 throw new Exception("time can not be less than 1/30s");
@@ -780,15 +793,7 @@ namespace Shinengine.Surface
             {
                 double vara = 1.0, varb = 0.0;
                 double increment = 1 / ((double)time * 30);
-                videoCtrl.Disposed += (Loadedsouce, s) => {
-                    (Loadedsouce as VideoStreamDecoder).Dispose();
-                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
-                    last_save = s;
-                    videoCtrl = null;
 
-                    if (msc_evt != null)
-                        msc_evt.Set();
-                };
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
                     if (!(Loadedsouce is VideoStreamDecoder video))
@@ -842,14 +847,7 @@ namespace Shinengine.Surface
             }
             else if (time == 0)
             {
-                videoCtrl.Disposed += (Loadedsouce, s) => {
-                    (Loadedsouce as VideoStreamDecoder).Dispose();
-                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
-                    last_save = s;
-                    videoCtrl = null;
-                    if (msc_evt != null)
-                        msc_evt.Set();
-                };
+               
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
                     if (!(Loadedsouce is VideoStreamDecoder video))
@@ -880,7 +878,8 @@ namespace Shinengine.Surface
                     return DrawProcResult.Normal;
                 };
             }
-
+            ////////////////////////////////////////////////
+            
             Background.Dispatcher.Invoke(new Action(() => { videoCtrl.DrawStartup(Background); }));
 
             if (msc_evt != null)
@@ -890,7 +889,7 @@ namespace Shinengine.Surface
                 if (ral_pic != null)
                     ral_pic.Dispose();
             }
-        }
+        }//已修复内存泄漏
         /// <summary>
         /// 显示舞台
         /// </summary>
@@ -917,7 +916,7 @@ namespace Shinengine.Surface
         public void SuperimposeWithImage(string url, double? time = null, bool isAsyn = false, bool ApplyintoSaver = false, BlendMode? mode = null)
         {
             if (m_father.sandboxMode) return;
-            if(last_save==null|| last_save.IsDisposed)
+            if (last_save == null || last_save.IsDisposed)
             {
                 throw new Exception("this api can only be called when you have called setAsImage Or setAsVideo with 0 time");
             }
@@ -947,89 +946,128 @@ namespace Shinengine.Surface
 
             ManualResetEvent wait_sp = null;
             if (!isAsyn) wait_sp = new ManualResetEvent(false);
+            WICBitmap mbp_ss = Stage.LoadBitmap(url);//第一次申请资源
             Background.Dispatcher.Invoke(new Action(() =>
             {
-                WICBitmap mbp_ss = Stage.LoadBitmap(url);//第一次申请资源
                 videoCtrl = new Direct2DImage(new Size2((int)mbp_ss.Size.Width, (int)mbp_ss.Size.Height), 30)
                 {
                     Loadedsouce = null
                 };
+            }));
+            D2DBitmap ral_picA = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+            D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, mbp_ss);
 
-                D2DBitmap ral_picA = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
-                D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, mbp_ss);
-
-                videoCtrl.StartDrawing += (t, v, b, s) =>
+            videoCtrl.FirstDraw += (t, v, b, s) =>
+            {
+                t.BeginDraw();
+                if (mode != null)
                 {
-                    t.BeginDraw();
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+
+                    m_op_effect.SetInput(0, ral_picB, new RawBool());
+                    m_op_effect.SetValue(0, (float)varb);
+
+                    var m_bn_effect = new Blend(t)
+                    {
+                        Mode = mode.Value
+                    };
+
+                    m_bn_effect.SetInput(0, ral_picA, new RawBool());
+                    m_bn_effect.SetInput(1, m_op_effect.Output, new RawBool());
+
+                    t.DrawImage(m_bn_effect);
+
+                    m_op_effect.Dispose();
+                    m_bn_effect.Dispose();
+                }
+                else
+                {
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+
+                    m_op_effect.SetInput(0, ral_picB, new RawBool());
+                    m_op_effect.SetValue(0, (float)varb);
+
                     t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.DrawImage(m_op_effect);
 
-                    t.EndDraw();
+                    m_op_effect.Dispose();
+                }
+                t.EndDraw();
+                if (vara <= 0 || varb >= 1)
+                {
                     return;
-                };
-               
+                }
+                vara -= increment;
+                varb += increment;
+                return;
+            };
 
 
-                videoCtrl.DrawProc += (t, v, b, s) =>
+
+            videoCtrl.DrawProc += (t, v, b, s) =>
+            {
+                t.BeginDraw();
+                if (mode != null)
                 {
-                    t.BeginDraw();
-                    if (mode != null)
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+
+                    m_op_effect.SetInput(0, ral_picB, new RawBool());
+                    m_op_effect.SetValue(0, (float)varb);
+
+                    var m_bn_effect = new Blend(t)
                     {
-                        var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                        Mode = mode.Value
+                    };
 
-                        m_op_effect.SetInput(0, ral_picB, new RawBool());
-                        m_op_effect.SetValue(0, (float)varb);
+                    m_bn_effect.SetInput(0, ral_picA, new RawBool());
+                    m_bn_effect.SetInput(1, m_op_effect.Output, new RawBool());
 
-                        var m_bn_effect = new Blend(t)
-                        {
-                            Mode = mode.Value
-                        };
+                    t.DrawImage(m_bn_effect);
 
-                        m_bn_effect.SetInput(0, ral_picA, new RawBool());
-                        m_bn_effect.SetInput(1, m_op_effect.Output, new RawBool());
-
-                        t.DrawImage(m_bn_effect);
-
-                        m_op_effect.Dispose();
-                        m_bn_effect.Dispose();
-                    }
-                    else
-                    {
-                        var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
-
-                        m_op_effect.SetInput(0, ral_picB, new RawBool());
-                        m_op_effect.SetValue(0, (float)varb);
-
-                        t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                        t.DrawImage(m_op_effect);
-
-                        m_op_effect.Dispose();
-                    }
-                    t.EndDraw();
-                    if (vara <= 0 || varb >= 1)
-                    {
-                        return DrawProcResult.Death;
-                    }
-                    vara -= increment;
-                    varb += increment;
-                    return DrawProcResult.Normal;
-                };
-                videoCtrl.Disposed += (e, v) =>
+                    m_op_effect.Dispose();
+                    m_bn_effect.Dispose();
+                }
+                else
                 {
-                    if (wait_sp != null)
-                        wait_sp.Set();
-                    ral_picA.Dispose();
-                    ral_picB.Dispose();
-                    if (ApplyintoSaver)
-                    {
-                        if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
-                        last_save = v;
-                    }else
-                    {
-                        v.Dispose();
-                    }
-                    videoCtrl = null;
-                    mbp_ss.Dispose();
-                };
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+
+                    m_op_effect.SetInput(0, ral_picB, new RawBool());
+                    m_op_effect.SetValue(0, (float)varb);
+
+                    t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.DrawImage(m_op_effect);
+
+                    m_op_effect.Dispose();
+                }
+                t.EndDraw();
+                if (vara <= 0 || varb >= 1)
+                {
+                    return DrawProcResult.Death;
+                }
+                vara -= increment;
+                varb += increment;
+                return DrawProcResult.Normal;
+            };
+            videoCtrl.Disposed += (e, v) =>
+            {
+                if (wait_sp != null)
+                    wait_sp.Set();
+                ral_picA.Dispose();
+                ral_picB.Dispose();
+                if (ApplyintoSaver)
+                {
+                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                    last_save = v;
+                }
+                else
+                {
+                    v.Dispose();
+                }
+                videoCtrl = null;
+                mbp_ss.Dispose();
+            };
+            Background.Dispatcher.Invoke(new Action(() =>
+            {
                 videoCtrl.DrawStartup(Background);
             }));
 
@@ -1039,11 +1077,9 @@ namespace Shinengine.Surface
                 wait_sp.Dispose();
                 wait_sp = null;
             }
-        }
-
-        public void SuperimposeWithVideo(string url, double? time = null, bool isAsyn = false, bool ApplyintoSaver = false, BlendMode ?mode = null)
+        }//安全でしょう？多分。
+        public void SuperimposeWithVideo(string url, double? time = null, bool isAsyn = false,  bool ApplyintoSaver = false, BlendMode? mode = null)
         {
-           
             if (m_father.sandboxMode) return;
             if (last_save == null || last_save.IsDisposed)
             {
@@ -1072,22 +1108,55 @@ namespace Shinengine.Surface
                 {
                     Loadedsouce = m_sourc
                 };
-
-                ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
-
-                videoCtrl.StartDrawing += (t, m, b, s) =>
-                {
-                    t.BeginDraw();
-                    t.DrawBitmap(ral_pic,
-                       new RawRectangleF(0, 0, b, s),
-                        1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                        new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
-
-                    t.EndDraw();
-                    return;
-                };
             }));
+            ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
 
+            videoCtrl.FirstDraw += (t, m, b, s) =>
+            {
+                t.BeginDraw();
+                t.DrawBitmap(ral_pic,
+                   new RawRectangleF(0, 0, b, s),
+                    1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                    new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
+
+
+                var res = m_sourc.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
+                if (!res)
+                {
+                    throw new Exception();
+                }
+
+                var BitSrc = new D2DBitmap(t, new Size2(m_sourc.FrameSize.Width, m_sourc.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
+                BitSrc.CopyFromMemory(dataPoint, pitch);
+
+                if (mode != null)
+                {
+
+                    var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t)
+                    {
+                        Mode = mode.Value
+                    };
+
+                    m_bn_effect.SetInput(0, ral_pic, new RawBool());
+                    m_bn_effect.SetInput(1, BitSrc, new RawBool());
+
+                    t.DrawImage(m_bn_effect);
+
+                    m_bn_effect.Dispose();
+                }
+                else
+                {
+                    t.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.DrawBitmap(BitSrc,
+                  new RawRectangleF(0, 0, b, s),
+                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                   new RawRectangleF(0, 0, m_sourc.FrameSize.Width, m_sourc.FrameSize.Height));
+                }
+
+                BitSrc.Dispose();
+                t.EndDraw();
+                return;
+            };
             ManualResetEvent msc_evt = null;
             if (!isAsyn) msc_evt = new ManualResetEvent(false);
 
@@ -1270,6 +1339,284 @@ namespace Shinengine.Surface
                 if (ral_pic != null)
                     ral_pic.Dispose();
             }
+        }//安全でしょう？多分。
+
+         static private  List<WICBitmap> GetAllFrames(string url )
+         {
+            ImagingFactory m_fc_av = new ImagingFactory();
+            List<WICBitmap> result = new List<WICBitmap>();
+
+            var m_sourc = new VideoStreamDecoder(url);
+            while (true)
+            {
+                var res = m_sourc.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
+                if (!res)
+                {
+                    break;
+                }
+                var BitSrc = new WICBitmap(m_fc_av, m_sourc.FrameSize.Width, m_sourc.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+;               result.Add(BitSrc);
+            }
+            m_sourc.Dispose();
+            return result;
+        }
+        public void SuperimposeWithVideo_CatchOnLoad(string url, double? time = null, bool isAsyn = false,  bool ApplyintoSaver = false, BlendMode? mode = null)
+        {
+           
+            if (m_father.sandboxMode) return;
+
+            List<WICBitmap> frames = GetAllFrames(url);
+            if (frames.Count == 0)
+            {
+                throw new Exception();
+            }
+
+            if (last_save == null || last_save.IsDisposed)
+            {
+                throw new Exception("this api can only be called when you have called setAsImage Or setAsVideo with 0 time");
+            }
+            if (time == null) time = SharedSetting.SwitchSpeed;
+            if (videoCtrl != null)
+            {
+
+                ManualResetEvent ficter = new ManualResetEvent(false);
+                videoCtrl.Disposed += (e, v) =>
+                {
+                    ficter.Set();
+                };
+                videoCtrl.Dispose();
+
+                ficter.WaitOne();
+                ficter.Dispose();
+            }
+
+            Background.Dispatcher.Invoke(new Action(() =>
+            {
+                videoCtrl = new Direct2DImage(new Size2(frames[0].Size.Width, frames[0].Size.Height), 30)
+                {
+                    Loadedsouce = frames
+                };
+            }));
+            D2DBitmap ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+           
+            int nFrame = 0;
+
+            videoCtrl.FirstDraw += (t, m, b, s) =>
+            {
+                t.BeginDraw();
+                t.DrawBitmap(ral_pic,
+                   new RawRectangleF(0, 0, b, s),
+                    1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                    new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
+
+                if (mode != null)
+                {
+
+                    var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t)
+                    {
+                        Mode = mode.Value
+                    };
+                    var av_basic = D2DBitmap.FromWicBitmap(t, frames[nFrame]);
+                    m_bn_effect.SetInput(0, ral_pic, new RawBool());
+                    m_bn_effect.SetInput(1, av_basic, new RawBool());
+
+                    t.DrawImage(m_bn_effect);
+                    av_basic.Dispose();
+                    m_bn_effect.Dispose();
+                    frames[nFrame].Dispose();
+                    nFrame++;
+                }
+                else
+                {
+                    t.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    var av_basic = D2DBitmap.FromWicBitmap(t, frames[nFrame]);
+                    t.DrawBitmap(av_basic,
+                  new RawRectangleF(0, 0, b, s),
+                   1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                   new RawRectangleF(0, 0, frames[0].Size.Width, frames[0].Size.Height));
+                    frames[nFrame].Dispose();
+                    av_basic.Dispose();
+                    nFrame++;
+                }
+
+                t.EndDraw();
+                return;
+            };
+            ManualResetEvent msc_evt = null;
+            if (!isAsyn) msc_evt = new ManualResetEvent(false);
+
+            if (time < 1.0 / 30.0 && time != 0)
+            {
+                throw new Exception("time can not be less than 1/30s");
+            }
+            else if (time != 0)
+            {
+                double varb = 0.0;
+                double increment = 1 / ((double)time * 30);
+                videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
+                {
+                    view.BeginDraw();
+                    if (varb < 1)
+                    {
+
+                        if (mode != null)
+                        {
+                            var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
+                            var sv_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            m_op_effect.SetInput(0, sv_basic, new RawBool());
+                            m_op_effect.SetValue(0, (float)varb);
+
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            {
+                                Mode = mode.Value
+                            };
+
+                            m_bn_effect.SetInput(0, ral_pic, new RawBool());
+                            m_bn_effect.SetInput(1, m_op_effect.Output, new RawBool());
+
+                            view.DrawImage(m_bn_effect);
+
+                            m_op_effect.Dispose();
+                            m_bn_effect.Dispose();
+                            sv_basic.Dispose();
+                            nFrame++;
+                        }
+                        else
+                        {
+                            var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
+                            var sv_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            m_op_effect.SetInput(0, sv_basic, new RawBool());
+                            m_op_effect.SetValue(0, (float)varb);
+
+                            view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                            view.DrawImage(m_op_effect);
+
+                            sv_basic.Dispose();
+                            m_op_effect.Dispose(); 
+                            nFrame++;
+                        }
+                    }
+                    else
+                    {
+                        if (mode != null)
+                        {
+
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            {
+                                Mode = mode.Value
+                            };
+                            var av_basic = D2DBitmap.FromWicBitmap(view,frames[nFrame]);
+                            m_bn_effect.SetInput(0, ral_pic, new RawBool());
+                            m_bn_effect.SetInput(1, av_basic, new RawBool());
+
+                            view.DrawImage(m_bn_effect);
+
+                            av_basic.Dispose();
+                            nFrame++;
+                            m_bn_effect.Dispose();
+                        }
+                        else
+                        {
+                            view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                            var av_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            view.DrawBitmap(av_basic,
+                          new RawRectangleF(0, 0, Width, Height),
+                           1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                           new RawRectangleF(0, 0, frames[nFrame].Size.Width, frames[nFrame].Size.Height));
+                            av_basic.Dispose();
+                            nFrame++;
+                        }
+                    }
+
+                    view.EndDraw();
+                    if (nFrame == frames.Count)
+                        return DrawProcResult.Death;
+                    varb += increment;
+                    return DrawProcResult.Normal;
+                };
+            }
+            else if (time == 0)
+            {
+               
+                videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
+                {
+                    view.BeginDraw();
+
+                    if (mode != null)
+                    {
+
+                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                        {
+                            Mode = mode.Value
+                        };
+                        var m_n_frame = D2DBitmap.FromWicBitmap(view,frames[nFrame]);
+                        m_bn_effect.SetInput(0, ral_pic, new RawBool());
+                        m_bn_effect.SetInput(1, m_n_frame, new RawBool());
+                        m_n_frame.Dispose();
+                        view.DrawImage(m_bn_effect);
+
+                        m_bn_effect.Dispose();
+                        nFrame++;
+                    }
+                    else
+                    {
+                        view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                        var m_n_frame = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                        view.DrawBitmap(m_n_frame,
+                      new RawRectangleF(0, 0, Width, Height),
+                       1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
+                       new RawRectangleF(0, 0, frames[nFrame].Size.Width, frames[nFrame].Size.Height));
+                        m_n_frame.Dispose();
+                        nFrame++;
+                    }
+                    view.EndDraw();
+
+                    if (nFrame == frames.Count)
+                        return DrawProcResult.Death;
+                    return DrawProcResult.Normal;
+                };
+            }
+            videoCtrl.Disposed += (Loadedsouce, s) => {
+
+                foreach (var i in Loadedsouce as List<WICBitmap>)
+                {
+                    i.Dispose();
+                }
+
+                if (ApplyintoSaver)
+                {
+                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
+                    last_save = s;
+                }
+                else
+                {
+                    s.Dispose();
+                }
+                videoCtrl = null;
+
+                if (msc_evt != null)
+                    msc_evt.Set();
+                if(ral_pic!=null&& !ral_pic.IsDisposed)
+                {
+                    ral_pic.Dispose();
+                }
+            };
+            Background.Dispatcher.Invoke(new Action(() => { videoCtrl.DrawStartup(Background); }));
+
+            if (msc_evt != null)
+            {
+                msc_evt.WaitOne();
+                msc_evt.Dispose();
+                if (ral_pic != null)
+                    ral_pic.Dispose();
+            }
+        }
+        public void SetLastDraw(string url)
+        {
+            if (last_save != null)
+                if (!last_save.IsDisposed)
+                    last_save.Dispose();
+            last_save = LoadBitmap(url);
         }
     }
     public class Usage
@@ -1294,7 +1641,7 @@ namespace Shinengine.Surface
             EasyAmal amsc = new EasyAmal(UsageArea, "(Opacity)", 1.0, 0.0, (double)time);
             amsc.Start(isAsyn);
         }
-    }
+    }//这个类没有使用过非托管资源
     public class AirPlant
     {
         public Theatre m_father = null;
@@ -1433,7 +1780,7 @@ namespace Shinengine.Surface
             }
             freedomLines.Clear();
         }
-    }
+    }//这个类的常用方法中没有使用过非托管资源,暂时搁置
     public class Theatre
     {
         public void SetEnvironmentMusic(string path = null)
@@ -1453,7 +1800,7 @@ namespace Shinengine.Surface
             {
                 m_em_player = new AudioPlayer(path, true, SharedSetting.EmVolum);
             }
-        }
+        }//很难简化,或简化收益太小的代码
         public void SetBackgroundMusic(string path = null)
         {
             if (path != null)
@@ -1471,8 +1818,7 @@ namespace Shinengine.Surface
             {
                 m_player = new AudioPlayer(path, true, SharedSetting.BGMVolum);
             }
-        }
-
+        }//很难简化,或简化收益太小的代码
         public void SetLoppedEvireSound(string path = null)
         {
             if (path != null)
@@ -1490,7 +1836,9 @@ namespace Shinengine.Surface
             {
                 m_se_player = new AudioPlayer(path, true, SharedSetting.EmVolum);
             }
-        }
+        }//很难简化,或简化收益太小的代码
+
+
         public List<StaticCharacter> cts = new List<StaticCharacter>();
         public struct CharacterDescription
         {
@@ -1562,7 +1910,7 @@ namespace Shinengine.Surface
                 call_next.Set();
             call_next = null;
             onExit = true;
-        }
+        }//很难简化,或简化收益太小的代码
 
         public Canvas CharacterLayer { get; } = null;
 
@@ -1580,11 +1928,11 @@ namespace Shinengine.Surface
             };
             bkSre = rbk;
             CharacterLayer = charterLayer;
-        }
+        }//很难简化,或简化收益太小的代码
         public void SetBackground(Color color)
         {
             bkSre.Dispatcher.Invoke(new Action(() => { bkSre.Background = new System.Windows.Media.SolidColorBrush(color); }));
-        }
+        }//很难简化,或简化收益太小的代码
         #endregion
         public void WaitForClick(UIElement Home = null)
         {
@@ -1649,5 +1997,5 @@ namespace Shinengine.Surface
             sandboxMode = true;
             locatPlace = place;
         }
-    }
+    }//已经确认过安全的类
 }

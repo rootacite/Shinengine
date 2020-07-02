@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 using System.Runtime.InteropServices;
 
-
+using System.IO;
 using SharpDX;
 using SharpDX.Direct2D1;
 using System.Windows.Media.Imaging;
@@ -35,6 +35,7 @@ using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.CompilerServices;
 using MaterialDesignThemes.Wpf;
 using Shinengine.Surface.Extra;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Shinengine.Surface
 {
@@ -67,7 +68,7 @@ namespace Shinengine.Surface
                 if (_i.GetType() == typeof(System.Windows.Controls.Grid))
                 {
                     var _i_r = _i as Grid;
-                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage" || _i_r.Name.Contains("save") || _i_r.Name== "ExtraGrid")
+                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage" || _i_r.Name.Contains("save") || _i_r.Name== "ExtraGrid" || _i_r.Name== "_BkGrid")
                     {
                         _i_r.Width *= width_rate;
                         _i_r.Height *= height_rate;
@@ -148,7 +149,7 @@ namespace Shinengine.Surface
 
             }
         }
-        static private void ResizeEvt(Grid page, Size2 oldSize, Size2 newSize)
+        static public void ResizeEvt(Grid page, Size2 oldSize, Size2 newSize)
         {
             double width_rate = (double)newSize.Width / (double)oldSize.Width;
             double height_rate = (double)newSize.Height / (double)oldSize.Height;
@@ -340,7 +341,6 @@ namespace Shinengine.Surface
 
         static public GamingTheatre SwitchToSignalTheatre(int id,int start_place,Action end)
         {
-
 
             GamingTheatre m_game = new GamingTheatre();
             if (SharedSetting.FullS)
@@ -534,6 +534,7 @@ namespace Shinengine.Surface
                     m_window.Close();
                 }
             };
+            
             if (end == null)
             {
                 for (int i=0;i< ScriptList.Scripts.Length; i++)
@@ -558,6 +559,7 @@ namespace Shinengine.Surface
            
             m_game.BG.Opacity = 0;
             m_game.Usage.Opacity = 0;
+            
             if (start_place != 0)
             {
                 m_game.m_theatre.SetNextLocatPosition(start_place);
@@ -566,7 +568,7 @@ namespace Shinengine.Surface
                 m_game.m_theatre.saved_frame = 0;
 
             m_window.Content = m_game.Content;
-
+            
             return m_game;
 
 
@@ -575,21 +577,64 @@ namespace Shinengine.Surface
         
         private void BkGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            if (SharedSetting.Last == null)
+            if (SharedSetting.FullS)
             {
-                SwitchToTitle();
-                this.Content = title.Content;
+                ResizeEvt(_BkGrid, new Size2(1280, 720), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
+
             }
-            else
+            if (SharedSetting.Last != null)
             {
                 theatreMode = SwitchToSignalTheatre(SharedSetting.Last.Value.chapter, SharedSetting.Last.Value.frames, null);
                 SharedSetting.Last = null;
+                return;
             }
+            _Shower.Opacity = 0;
+            _Shower.Source = new BitmapImage(new Uri("pack://application:,,,/RegularUI/sys_warning_bg.png"));
+
+            new Thread(()=> {
+                /*
+                EasyAmal _ms = new EasyAmal(_Shower, "(Opacity)", 0.0, 1.0, 1);
+                _ms.Start(false);
+                Thread.Sleep(3500);
+                _ms = new EasyAmal(_Shower, "(Opacity)", 1.0, 0.0, 1);
+                _ms.Start(false);
+                _Shower.Dispatcher.Invoke(new Action(()=> { _Shower.Source = new BitmapImage(new Uri("pack://application:,,,/RegularUI/logo00.png")); }));
+                _ms = new EasyAmal(_Shower, "(Opacity)", 0.0, 1.0, 1);
+                _ms.Start(false);
+                Thread.Sleep(3500);
+                _ms = new EasyAmal(_Shower, "(Opacity)", 1.0, 0.0, 1);
+                _ms.Start(false);
+                */
+                _Shower.Dispatcher.Invoke(new Action(() =>
+                {
+                    if (SharedSetting.Last == null)
+                    {
+                        SwitchToTitle();
+                        this.Content = title.Content;
+                    }
+
+              
+                    return;
+                }));
+
+            }).Start();
+           
             return;
+
+
+           
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            try
+            {
+                Directory.Delete(PackStream.TempPath[0..^1], true);
+            }
+            catch(Exception)
+            {
+
+            }
             PInvoke.Kernel32.ExitProcess(0);
         }
 
@@ -616,6 +661,8 @@ namespace Shinengine.Surface
 
         private void MmKeyUp(object sender, KeyEventArgs e)
        {
+            if (e.Key == Key.Space)
+                GC.Collect();
             if (e.Key == Key.LeftCtrl)
                 GamingTheatre.isSkiping = false;
             if (theatreMode == null)

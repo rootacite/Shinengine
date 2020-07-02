@@ -45,8 +45,14 @@ namespace Shinengine.Media
               outputDevice.Dispose();
               audioFile.Close();
               audioFile.Dispose();
+              try
+              {
+                  File.Delete(path_rele);
+              }
+              catch
+              {
 
-              File.Delete(path_rele);
+              }
           })
             {
                 IsBackground = true

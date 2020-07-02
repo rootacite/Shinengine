@@ -8,9 +8,6 @@
 #include <mmsystem.h>
 #include <dsound.h>
 
-#include "MicroFile.h"
-#pragma comment (lib,"MicroFile.lib")
-
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "dsound.lib")
 
@@ -55,22 +52,9 @@ DWORD res = WAIT_OBJECT_0;
 
 HANDLE hFile;
 DWORD dwWrite;
-
-extern "C" __declspec(dllexport) byte * getPCM(LPWSTR path) {
-    HANDLE hF = CreateFile(path, GENERIC_READ, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    int i= GetLastError();
-
-    byte* result = (byte*)malloc(GetFileSize(hF, NULL));
-    ReadFile(hF, result, GetFileSize(hF, NULL), &dwWrite, NULL);
-    CloseHandle(hF);
-   // delete &hPCM;
-
-    return result;
-}
-MicroBinary* hhPCM = NULL;
+ 
 extern "C" __declspec(dllexport) bool waveInit(HWND hWnd, int channels, int sample_rate, int bits_per_sample, int size)
-{
-    hhPCM = new MicroBinary(L"out.pcm");
+{ 
     int i;
     ::size = size;
     offset = size;

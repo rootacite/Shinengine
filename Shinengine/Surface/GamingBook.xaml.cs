@@ -222,7 +222,7 @@ namespace Shinengine.Surface
                             D2DBitmap ral_picA = Stage.ConvertFromSystemBitmap(converta, videoCtrl.View);
                             D2DBitmap ral_picB = Stage.ConvertFromSystemBitmap(convertb, videoCtrl.View);
 
-                            videoCtrl.StartDrawing += (t, v, b, s) =>
+                            videoCtrl.FirstDraw += (t, v, b, s) =>
                             {
                                 t.BeginDraw();
 

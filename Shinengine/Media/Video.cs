@@ -116,7 +116,7 @@ namespace Shinengine.Media
                 #endregion
                 #region 转码音频
                 ulong out_channel_layout = ffmpeg.AV_CH_LAYOUT_STEREO;
-                /\nb_samples: AAC-1024 MP3-1152
+                //nb_samples: AAC-1024 MP3-1152
                 Out_nb_samples = pcodecContext_A->frame_size;
                 Bit_per_sample = pcodecContext_A->bits_per_coded_sample;
                 AVSampleFormat out_sample_fmt = AVSampleFormat.AV_SAMPLE_FMT_S16;
@@ -433,7 +433,14 @@ namespace Shinengine.Media
 
                 Debug.WriteLine("Video Disposed");
             }
-            File.Delete(path_rele);
+            try
+            {
+                File.Delete(path_rele);
+            }
+            catch
+            {
+
+            }
             Disposed?.Invoke();
         }
         private static unsafe string GetErrorMessage(int error)

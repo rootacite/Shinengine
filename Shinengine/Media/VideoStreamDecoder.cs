@@ -83,8 +83,14 @@ namespace Shinengine.Media
             ffmpeg.avcodec_close(_pCodecContext);
             var pFormatContext = _pFormatContext;
             ffmpeg.avformat_close_input(&pFormatContext);
+            try
+            {
+                File.Delete(source);
+            }
+            catch
+            {
 
-            File.Delete(source);
+            }
         }
 
         public bool TryDecodeNextFrame(out IntPtr data, out int pitch)

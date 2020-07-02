@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
         Title="MainWindow" ResizeMode="NoResize" Height="760" Width="1280" Closed="Window_Closed" KeyDown="MmKeyDown" KeyUp="MmKeyUp" >
-    <Grid x:Name="_BkGrid" Loaded="BkGrid_Loaded">
-       
+    <Grid x:Name="_BkGrid" Height="720" Width="1280" HorizontalAlignment="Left" VerticalAlignment="Top"  Loaded="BkGrid_Loaded">
+        <Image x:Name="_Shower" Height="720" Width="1280"  HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" />
+        
     </Grid>
 </Window>

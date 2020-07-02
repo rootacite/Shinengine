@@ -12,13 +12,10 @@
         <Grid.Background>
             <ImageBrush ImageSource="/RegularUI/extra.png"/>
         </Grid.Background>
-        <Button x:Name="exitlpg" Opacity="0.75" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" Margin="24,18,1180,666">
+        <ContentControl x:Name="cont_os" Margin="50,90,50,100"/>
+        <Button x:Name="exitlpg" Opacity="1" Style="{StaticResource MaterialDesignRaisedDarkButton}" Width="75" Height="35" ToolTip="Resource name: MaterialDesignRaisedLightDarkButton" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10">
             退出
         </Button>
-        <Button x:Name="HS1" Height="120" Width="220" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="60,94,0,0" BorderBrush="{x:Null}" Cursor="Hand" Click="Event_HS1" >
-            <Button.Background>
-                <ImageBrush ImageSource="/RegularUI/Extra/cg01.png"/>
-            </Button.Background>
-        </Button>
+       
     </Grid>
 </Page>

@@ -29,9 +29,7 @@ namespace Shinengine.Surface
         int i = 0;
 
         double video_time = 0;
-        double audio_time = 0;
-        [DllImport("Shinehelper.dll")]
-        unsafe extern static public byte* getPCM([MarshalAs(UnmanagedType.LPWStr)] string path);
+        double audio_time = 0; 
         [DllImport("Shinehelper.dll")]
         extern public static bool waveInit(IntPtr hWnd, int channels, int sample_rate, int bits_per_sample, int size);
         [DllImport("Shinehelper.dll")]
@@ -122,7 +120,7 @@ namespace Shinengine.Surface
                     Thread.Sleep(1);
                 unsafe
                 {
-                    //       var intp = getPCM("assets:09.pcm");
+                    //       var intp = getPCM("assets.shine:09.pcm");
                     waveInit(hWnd, video.Out_channels, video.Out_sample_rate, video.Bit_per_sample, video.Out_buffer_size);
 
 
