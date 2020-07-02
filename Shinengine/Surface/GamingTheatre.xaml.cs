@@ -130,11 +130,11 @@ namespace Shinengine.Surface
             scriptTask.Start();
             ReturnLast.Click += (e, v) =>
             {
-                MainWindow.theatreMode.m_logo.Dispose();
-                MainWindow.theatreMode.m_theatre.SetBackgroundMusic();
-                MainWindow.theatreMode.m_theatre.Exit();
+                MainWindow.TheatreMode.m_logo.Dispose();
+                MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
+                MainWindow.TheatreMode.m_theatre.Exit();
 
-                MainWindow.theatreMode = MainWindow.SwitchToSignalTheatre(chapter, 0, null);
+                MainWindow.TheatreMode = MainWindow.SwitchToSignalTheatre(chapter, 0, null);
             };
         }
 

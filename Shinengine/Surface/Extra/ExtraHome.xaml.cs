@@ -26,14 +26,56 @@ namespace Shinengine.Surface.Extra
         {
             InitializeComponent();
 
-             ref_mode = new ExtraMemory(); 
-            if (SharedSetting.FullS)
+            
+        }
+        private void Event_HS1(object sender, RoutedEventArgs e)
+        {
+
+            MainWindow.TheatreMode = MainWindow.SwitchToSignalTheatre(100, 0, () =>
             {
-                MainWindow.ResizeEvt((ref_mode as ExtraMemory).root_memory, new Size2(1180, 530), new Size2((int)SystemParameters.PrimaryScreenWidth, (int)SystemParameters.PrimaryScreenHeight));
-            }
-            cont_os.Content = ref_mode.Content;
+                var load_the = MainWindow.TheatreMode.SBK;
+                var m_thread_intp = new Thread(() =>
+                {
+                    EasyAmal mpos = new EasyAmal(load_the, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed);
+                    mpos.Start(false);/// hide tview
+                    load_the.Dispatcher.Invoke(new Action(() =>
+                    {
+
+                        ExtraHome msv = new ExtraHome();
+
+                        MainWindow.sys_pite.Content = msv.Content;
+                        MainWindow.ExtraPage = msv;
+                        MainWindow.Title = null;
+                        msv.ExtraGrid.MouseRightButtonUp += (e, v) =>
+                        {
+                            MainWindow.Title = MainWindow.SwitchToTitle();
+                            MainWindow.sys_pite.Content = MainWindow.Title.Content;
+                            MainWindow.ExtraPage = null;
+                        };
+
+                        msv.exitlpg.Click += (e, v) =>
+                        {
+                            MainWindow.Title = MainWindow.SwitchToTitle();
+                            MainWindow.sys_pite.Content = MainWindow.Title.Content;
+                            MainWindow.ExtraPage = null;
+                        };
+                    }));
+                })
+                {
+                    IsBackground = true
+                };
+                m_thread_intp.Start();
+                MainWindow.TheatreMode.m_logo?.Dispose();
+                MainWindow.TheatreMode.m_theatre?.SetBackgroundMusic();
+                MainWindow.TheatreMode.m_theatre?.Exit();
+
+                if (MainWindow.TheatreMode != null)
+                    MainWindow.TheatreMode = null;
+            });
+
+            MainWindow.ExtraPage = null;
+
         }
 
-       
     }
 }

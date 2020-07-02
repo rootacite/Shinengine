@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
-        Title="MainWindow" ResizeMode="NoResize" Height="760" Width="1280" Closed="Window_Closed" KeyDown="MmKeyDown" KeyUp="MmKeyUp" >
-    <Grid x:Name="_BkGrid" Height="720" Width="1280" HorizontalAlignment="Left" VerticalAlignment="Top"  Loaded="BkGrid_Loaded">
-        <Image x:Name="_Shower" Height="720" Width="1280"  HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" />
-        
+        Title="MainWindow" ResizeMode="CanResize" Height="760" Width="1300" Closed="Window_Closed" KeyDown="MmKeyDown" KeyUp="MmKeyUp" SizeChanged="Window_SizeChanged" Background="Black" >
+    <Grid x:Name="_BkGrid" HorizontalAlignment="Left" VerticalAlignment="Top"  Loaded="BkGrid_Loaded">
+        <ContentControl x:Name="sys_con_pite" HorizontalAlignment="Left" VerticalAlignment="Top" Height="720" Width="1280" Background="Black">
+            <Image x:Name="_Shower" Height="720" Width="1280"  HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" />
+        </ContentControl>
     </Grid>
 </Window>
