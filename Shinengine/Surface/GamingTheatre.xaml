@@ -14,17 +14,22 @@
         <Canvas x:Name="ShowIn" Margin="0,0,0,0"  Height="720" Width="1280"/>
 
         <Grid x:Name="Usage" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0,0,0,0">
-            <Image Height="360" Width="1280" Source="/UI/textbar.png" Stretch="Fill"/>
+            <Image Height="360" Width="1280" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 0 0 0" Source="/UI/textbar.png" Stretch="Fill"/>
 
             <Grid x:Name="AirPt" >
                 <TextBlock x:Name="Lines" Text=" "  HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="115,0,0,0" Height="135" Width="1050" Foreground="LightGray" FontSize="24" FontFamily="Bodoni MT Black" TextWrapping="Wrap" />
-                <Grid x:Name="character_usage" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,144,0,0">
+                <Grid x:Name="character_usage" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,144,0,0">
                     <Image HorizontalAlignment="Left" Height="60" Margin="0,0,0,0" VerticalAlignment="Top" Width="184" Stretch="Fill" Source="/UI/character.png"/>
                     <TextBlock TextAlignment="Center" Text=" " x:Name="character" VerticalAlignment="Center" HorizontalAlignment="Center" Height="26" Width="175" FontSize="22" Foreground="White" Background="#00000000" FontFamily="Arial Rounded MT Bold" FontStyle="Italic" FontWeight="Bold" />
                 </Grid>
             </Grid>
 
             <Image x:Name="Logo" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,12,12"  Width="32" Height="32" Stretch="Fill"/>
+            <Button Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,155,13,170" Cursor="Hand" BorderBrush="{x:Null}" Click="Button_Click" >
+                <Button.Background>
+                    <ImageBrush ImageSource="/UI/dismiss.png"/>
+                </Button.Background>
+            </Button>
         </Grid>
         <Grid x:Name="BackLogLayer"  Opacity="0" >
             <Image HorizontalAlignment="Left" VerticalAlignment="Top" Height="720" Width="900" Margin="190 0 0 0" Stretch="Fill" Source="/UI/Backlog.png" />
@@ -38,8 +43,9 @@
         </Grid>
         <materialDesign:PopupBox x:Name="Menu" Style="{StaticResource MaterialDesignMultiFloatingActionPopupBox}"
                                          PlacementMode="BottomAndAlignCentres"
-                                         ToolTipService.Placement="Right"
+                                         ToolTipService.Placement="Left"
                                          ToolTip="Menu"
+                                 
                                          Background="#FFECD915" Width="50" Height="50" Margin="0,20,20,0" VerticalAlignment="Top" HorizontalAlignment="Right">
             <StackPanel>
                 <Button x:Name="SaveLoad" Width="40" Height="40" ToolTip="存档/读档" Opacity="0.6">

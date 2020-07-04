@@ -107,6 +107,9 @@ namespace Shinengine.Surface
 
                     var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
                     _i_r.Margin = new_margin;
+
+                    ResizeToGrid(_i_r.Children, width_rate, height_rate);
+                    continue;
                 }
                 else if (_i is TextBlock)
                 {
@@ -427,7 +430,7 @@ namespace Shinengine.Surface
                 Title = SwitchToTitle();
                 MainWindow.sys_pite.Content = Title.Content;
 
-                TheatreMode.m_logo.Dispose();
+                TheatreMode.m_logo.SafeRelease();
                 TheatreMode.m_theatre.SetBackgroundMusic();
                 TheatreMode.m_theatre.Exit();
 
@@ -477,7 +480,6 @@ namespace Shinengine.Surface
                                 });
                                 mpos2.Start(true);
                             }).Start();
-
                         };
                         Sldata.Forgan.MouseRightButtonUp += (e, v) =>
                         {
@@ -721,15 +723,16 @@ namespace Shinengine.Surface
                 return;
             }
             if (e.Key == Key.LeftCtrl)
+            {
                 GamingTheatre.isSkiping = true;
 
-            if (TheatreMode.m_theatre.call_next != null) TheatreMode.m_theatre.call_next.Set();
-            TheatreMode.Menu.IsEnabled = false;
-            if (!TheatreMode.ShowIn.Children.Contains(TheatreMode.skip_icon))
-            {
-                TheatreMode.ShowIn.Children.Add(TheatreMode.skip_icon);
+                if (TheatreMode.m_theatre.call_next != null) TheatreMode.m_theatre.call_next.Set();
+                TheatreMode.Menu.IsEnabled = false;
+                if (!TheatreMode.ShowIn.Children.Contains(TheatreMode.skip_icon))
+                {
+                    TheatreMode.ShowIn.Children.Add(TheatreMode.skip_icon);
+                }
             }
-
 
         }
 
@@ -737,8 +740,7 @@ namespace Shinengine.Surface
        {
             if (e.Key == Key.Space)
                 GC.Collect();
-            if (e.Key == Key.LeftCtrl)
-                GamingTheatre.isSkiping = false;
+         
             if (TheatreMode == null)
                 return;
             if (Settere != null || TheatreMode.isBakcloging)
@@ -746,13 +748,16 @@ namespace Shinengine.Surface
                 return;
             }
 
-          
-            if (TheatreMode != null)
+            if (e.Key == Key.LeftCtrl)
             {
-                TheatreMode.Menu.IsEnabled = true;
-                if (TheatreMode.ShowIn.Children.Contains(TheatreMode.skip_icon))
+                GamingTheatre.isSkiping = false;
+                if (TheatreMode != null)
                 {
-                    TheatreMode.ShowIn.Children.Remove(TheatreMode.skip_icon);
+                    TheatreMode.Menu.IsEnabled = true;
+                    if (TheatreMode.ShowIn.Children.Contains(TheatreMode.skip_icon))
+                    {
+                        TheatreMode.ShowIn.Children.Remove(TheatreMode.skip_icon);
+                    }
                 }
             }
         }
@@ -824,7 +829,7 @@ namespace Shinengine.Surface
             else if (target is Setting)
             {
                 var _target = target as Setting;
-                ResizeEvt((target as Setting).foreg, new Size2((int)_target.foreg.ActualWidth, (int)_target.foreg.ActualHeight), new Size2(new_size.Width, new_size.Height));
+                ResizeEvt((target as Setting).mpOi, new Size2((int)_target.mpOi.ActualWidth, (int)_target.mpOi.ActualHeight), new Size2(new_size.Width, new_size.Height));
             }
             else if (target is SaveLoad)
             {

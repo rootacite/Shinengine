@@ -59,7 +59,7 @@ namespace Shinengine.Media
 
         private readonly WriteableBitmap buffer = null;//图片源
         public readonly ImagingFactory _ImagFc = null;
-        private readonly D2DBitmap _bufferBack;//用于D2D绘图的WIC图片
+        public readonly D2DBitmap _bufferBack;//用于D2D绘图的WIC图片
         private readonly D2DFactory DxFac = null;
 
         public double Speed = 0;//画每帧后等待的时间
@@ -186,7 +186,7 @@ namespace Shinengine.Media
                     }
                     if (UpData == DrawProcResult.Death)
                     {
-                        this.Dispose();
+                        this.SafeRelease();
                         break;
                     }
 
@@ -200,7 +200,7 @@ namespace Shinengine.Media
             m_Dipter.Start();
             m_Dipter2.Start();
         }
-        public void Dispose()
+        public void SafeRelease()
         {
             Console.WriteLine("dispose called");
 
@@ -225,19 +225,18 @@ namespace Shinengine.Media
                 m_local_buffer.Unmap();
                 m_local_buffer.Dispose();
 
-                if (View != null)
-                    View.Dispose();
-                if (_ImagFc != null)
-                    _ImagFc.Dispose();
+                
+                    View?.Dispose();
+                    _ImagFc?.Dispose();
  
-                m_Dipter2.Dispose();
-                _bufferBack.Dispose();
-                bufferSurface.Dispose();
-                bufferCaller.Dispose();
-                d2DDevice.Dispose();
-                DxFac.Dispose();
-                dxgiDevice.Dispose();
-                d3DDevice.Dispose();
+                m_Dipter2?.Dispose();
+                _bufferBack?.Dispose();
+                bufferSurface?.Dispose();
+                bufferCaller?.Dispose();
+                d2DDevice?.Dispose();
+                DxFac?.Dispose();
+                dxgiDevice?.Dispose();
+                d3DDevice?.Dispose();
 
                 GC.Collect();
             }).Start();

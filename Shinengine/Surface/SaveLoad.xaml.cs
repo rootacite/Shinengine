@@ -59,9 +59,18 @@ namespace Shinengine.Surface
         public SaveLoad(int _chapter, int frame, WICBitmap last_draw)
         {
             InitializeComponent();
+            this.Forgan.Loaded += (E, V) =>
+            {
+                MainWindow.m_window.ResizeMode = ResizeMode.NoResize;
+            };
+            this.Forgan.Unloaded += (E, V) =>
+            {
+                MainWindow.m_window.ResizeMode = ResizeMode.CanResize;
+            };
             chapter = _chapter;
             _last_draw = last_draw;
             _frame = frame;
+            
             try
             {
                 SaveData.SaveInfo imp_save002 = SaveData.Save2;
@@ -139,7 +148,7 @@ namespace Shinengine.Surface
                     var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                     var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                     save_1_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                    save_1_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                    save_1_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString() ;
 
                     while (true)
                     {
@@ -178,7 +187,7 @@ namespace Shinengine.Surface
 
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.Dispose();
+                MainWindow.TheatreMode.m_logo.SafeRelease();
                 MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.TheatreMode.m_theatre.Exit();
 
@@ -199,7 +208,7 @@ namespace Shinengine.Surface
                 var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                 var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                 save_1_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                save_1_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                save_1_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节" + "\n"+ DateTime.Now.ToLocalTime().ToString(); ;
 
                 SaveData.Save1 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_1_content.Text };
                 data_sp.Dispose();
@@ -229,7 +238,7 @@ namespace Shinengine.Surface
                     var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                     var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                     save_2_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                    save_2_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                    save_2_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章" + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString() ;
                
                     while (true)
                     {
@@ -263,7 +272,7 @@ namespace Shinengine.Surface
                     _mpos2.Start(true);
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.Dispose();
+                MainWindow.TheatreMode.m_logo.SafeRelease();
                 MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.TheatreMode.m_theatre.Exit();
 
@@ -284,7 +293,7 @@ namespace Shinengine.Surface
                 var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                 var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                 save_2_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                save_2_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                save_2_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章" + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString();
 
                 SaveData.Save2 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_2_content.Text };
                 data_sp.Dispose();
@@ -314,7 +323,7 @@ namespace Shinengine.Surface
                     var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                     var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                     save_3_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                    save_3_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                    save_3_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章" + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString() ;
                   
                     while (true)
                     {
@@ -348,7 +357,7 @@ namespace Shinengine.Surface
                     _mpos2.Start(true);
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.Dispose();
+                MainWindow.TheatreMode.m_logo.SafeRelease();
                 MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.TheatreMode.m_theatre.Exit();
 
@@ -368,7 +377,7 @@ namespace Shinengine.Surface
                 var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                 var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                 save_3_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                save_3_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                save_3_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章" + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString();
 
                 SaveData.Save3 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_3_content.Text };
                 data_sp.Dispose();
@@ -398,7 +407,7 @@ namespace Shinengine.Surface
                     var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                     var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                     save_4_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                    save_4_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                    save_4_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章" + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString();
                     
                     while (true)
                     {
@@ -432,7 +441,7 @@ namespace Shinengine.Surface
                     _mpos2.Start(true);
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.Dispose();
+                MainWindow.TheatreMode.m_logo.SafeRelease();
                 MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.TheatreMode.m_theatre.Exit();
 
@@ -454,7 +463,7 @@ namespace Shinengine.Surface
                 var data_sp = _last_draw.Lock(BitmapLockFlags.Read);
                 var m_img = new Bitmap(_last_draw.Size.Width, _last_draw.Size.Height, data_sp.Stride, System.Drawing.Imaging.PixelFormat.Format32bppPArgb, data_sp.Data.DataPointer);
                 save_4_event.Background = new ImageBrush(BitmapToBitmapSource(m_img));
-                save_4_content.Text = "第" + chapter.ToString() + "章 " + "第" + _frame.ToString() + "节";
+                save_4_content.Text = "第" + chapter.ToString() + "第" + chapter.ToString() + "章" + "第" + _frame.ToString() + "节" +  "\n" +DateTime.Now.ToLocalTime().ToString();
 
                 SaveData.Save4 = new SaveData.SaveInfo() { chapter = this.chapter, frames = _frame, imp = m_img, comment = save_4_content.Text };
                 data_sp.Dispose();

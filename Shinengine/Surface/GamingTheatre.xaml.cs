@@ -130,7 +130,7 @@ namespace Shinengine.Surface
             scriptTask.Start();
             ReturnLast.Click += (e, v) =>
             {
-                MainWindow.TheatreMode.m_logo.Dispose();
+                MainWindow.TheatreMode.m_logo.SafeRelease();
                 MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
                 MainWindow.TheatreMode.m_theatre.Exit();
 
@@ -189,7 +189,7 @@ namespace Shinengine.Surface
                     this.ShowIn.Children.Remove(auto_icon);
                 }
             }
-            if (!onHidden)
+            if (!onHidden && m_theatre.canCtrl)
             {
                 m_theatre.Usage.Hide(null, true);
                 onHidden = true;
@@ -236,7 +236,7 @@ namespace Shinengine.Surface
                     this.ShowIn.Children.Remove(auto_icon);
                 }
             }
-            if (onHidden)
+            if (onHidden && m_theatre.canCtrl)
             {
                 m_theatre.Usage.Show(null, true);
                 onHidden = false;
@@ -245,7 +245,7 @@ namespace Shinengine.Surface
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)///Skip
-        {
+        { 
             isSkiping = !isSkiping;
             if (isSkiping)
             {
@@ -442,6 +442,64 @@ namespace Shinengine.Surface
             if (m_replayer != null)
                 m_replayer.canplay = false;
             m_replayer = new AudioPlayer(m_theatre.m_des_init.Voice, false, SharedSetting.VoiceVolum);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            isSkiping = false;
+            AutoMode = false;
+            if (isBakcloging)
+            {
+                text_count_picker = 0;
+                Surface.Usage.locked = false;
+                m_theatre.Usage.Show(null, true);
+                EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.SwitchSpeed);
+                m_pip.Start(true);
+                isBakcloging = false;
+                Menu.IsEnabled = true;
+                e.Handled = true;
+                return;
+            }
+            if (isSkiping)
+            {
+                if (!this.ShowIn.Children.Contains(skip_icon))
+                {
+                    this.ShowIn.Children.Add(skip_icon);
+                }
+            }
+            else
+            {
+                if (this.ShowIn.Children.Contains(skip_icon))
+                {
+                    this.ShowIn.Children.Remove(skip_icon);
+                }
+            }
+            if (AutoMode)
+            {
+                if (!this.ShowIn.Children.Contains(auto_icon))
+                {
+                    this.ShowIn.Children.Add(auto_icon);
+                }
+            }
+            else
+            {
+                if (this.ShowIn.Children.Contains(auto_icon))
+                {
+                    this.ShowIn.Children.Remove(auto_icon);
+                }
+            }
+            if (!onHidden)
+            {
+                m_theatre.Usage.Hide(null, true);
+                onHidden = true;
+                return;
+            }
+            else
+            {
+                m_theatre.Usage.Show(null, true);
+                onHidden = false;
+                return;
+            }
         }
     }
 }

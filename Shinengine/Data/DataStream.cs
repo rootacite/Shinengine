@@ -95,7 +95,7 @@ namespace Shinengine.Data
                     if (i.Name.ToString() == "data1")
                     {
                         var mLp = i.Value.ToString().Split(':').ToList();
-                        var ms_file = new FileStream(@"data/save004.png", FileMode.Open);
+                        var ms_file = new FileStream(@"data/save001.png", FileMode.Open);
                         var img = Bitmap.FromStream(ms_file);
                         ms_file.Dispose();
 

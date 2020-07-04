@@ -65,7 +65,7 @@ namespace Shinengine.Surface.Extra
                     IsBackground = true
                 };
                 m_thread_intp.Start();
-                MainWindow.TheatreMode.m_logo?.Dispose();
+                MainWindow.TheatreMode.m_logo?.SafeRelease();
                 MainWindow.TheatreMode.m_theatre?.SetBackgroundMusic();
                 MainWindow.TheatreMode.m_theatre?.Exit();
 

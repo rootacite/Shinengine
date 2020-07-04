@@ -80,6 +80,7 @@ namespace Shinengine.Surface
         public Title()
         {
             InitializeComponent();
+            PInvoke.User32.SetWindowText(new WindowInteropHelper(MainWindow.m_window).Handle, "嫁の妹とえっちな関係になってヤバい！？");
             EasyAmal sm = new EasyAmal(this.BkGrid, "(Opacity)", 0.0, 1.0, SharedSetting.SwitchSpeed*2);
             sm.Start(true);
 

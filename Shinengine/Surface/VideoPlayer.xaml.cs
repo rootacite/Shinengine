@@ -94,12 +94,12 @@ namespace Shinengine.Surface
         private void Window_Closed(object sender, EventArgs e)
         {
             if (dxVideo != null)
-                dxVideo.Dispose();
+                dxVideo.SafeRelease();
         }
 
         public void Stop()
         {
-            dxVideo.Dispose();
+            dxVideo.SafeRelease();
         }
         public void Start(IntPtr hWnd, string path, Action endplay)
         {

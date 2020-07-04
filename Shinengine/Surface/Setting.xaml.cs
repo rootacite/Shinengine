@@ -34,6 +34,17 @@ namespace Shinengine.Surface
             VoiceVm.Value = (int)(SharedSetting.VoiceVolum * 100.0);
             AutoSpeed.Value = SharedSetting.AutoTime;
             EmVm.Value = (int)(SharedSetting.EmVolum * 100.0);
+
+            this.Bkgnd.Loaded += (E, V) => 
+            {
+                if (MainWindow.Title==null)
+                MainWindow.m_window.ResizeMode = ResizeMode.NoResize;
+            };
+            this.Bkgnd.Unloaded += (E, V) =>
+            {
+                if (MainWindow.Title == null)
+                    MainWindow.m_window.ResizeMode = ResizeMode.CanResize;
+            };
         }
 
         private void Grid_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
