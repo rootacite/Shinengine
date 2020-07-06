@@ -25,13 +25,14 @@ using System.Windows.Shapes;
 using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
 using Image = System.Windows.Controls.Image;
 using WICBitmap = SharpDX.WIC.Bitmap;
+using Shinengine.Theatre;
 
 namespace Shinengine.Surface
 {
     /// <summary>
     /// GamingTheatre.xaml 的交互逻辑
     /// </summary>
-    public partial class GamingTheatre : Page
+    public partial class GamingTheatre : Page, IDisposable
     {
 
         public static bool isSkiping = false;
@@ -40,9 +41,22 @@ namespace Shinengine.Surface
         bool onHidden = false;
         AudioPlayer m_replayer = null;
         Window _main_window = null;
-        public Theatre m_theatre = null;
-        public Direct2DImage m_logo = null;
+        public Shinengine.Theatre.Theatre m_theatre = null;//unmanged
+        private Direct2DImage m_logo = null;//unmanged
 
+        ~GamingTheatre()
+        {
+            Dispose();
+        }
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+            m_theatre.Dispose();
+            m_logo.Dispose();
+            IsDisposed = true;
+            GC.SuppressFinalize(this);
+        }
+        public bool IsDisposed { get; private set; } = false;
         static private readonly List<WICBitmap> logo_frames = new List<WICBitmap>();
 
         int ims = 0;
@@ -74,12 +88,12 @@ namespace Shinengine.Surface
             isSkiping = false;
             AutoMode = false;
 
-           
+
         }
         public void Init(Window main_window)
         {
             _main_window = main_window;
-            m_theatre = new Theatre(BG, Usage, SBK, AirPt, character_usage, Lines, character, ShowIn,_Contents);
+            m_theatre = new Shinengine.Theatre.Theatre(BG, Usage, SBK, AirPt, character_usage, Lines, character, ShowIn, _Contents);
 
             #region logo
             m_logo = new Direct2DImage(new SharpDX.Size2((int)logo_frames[0].Size.Width, (int)logo_frames[0].Size.Height), 30)
@@ -102,20 +116,16 @@ namespace Shinengine.Surface
                 parl_map.Dispose();
                 return DrawProcResult.Normal;
             };
-            m_logo.Disposed += (s, ss) =>
-            {
-                ss.Dispose();
-            }; 
             m_logo.DrawStartup(Logo);
 
-            
+
             #endregion
-           
+
         }
-        public delegate int ScriptHandle(Theatre theatre, GamingTheatre self);
+        public delegate int ScriptHandle(Shinengine.Theatre.Theatre theatre, GamingTheatre self);
         Task scriptTask = null;
         public int ResultOfTheatre = 0;
-        public void Start(ScriptHandle scriptHandle, int chapter, Action endEvent = null )
+        public void Start(ScriptHandle scriptHandle, int chapter, Action endEvent = null)
         {
             scriptTask = new Task(() =>
             {
@@ -130,9 +140,7 @@ namespace Shinengine.Surface
             scriptTask.Start();
             ReturnLast.Click += (e, v) =>
             {
-                MainWindow.TheatreMode.m_logo.SafeRelease();
-                MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
-                MainWindow.TheatreMode.m_theatre.Exit();
+                MainWindow.TheatreMode.Dispose();
 
                 MainWindow.TheatreMode = MainWindow.SwitchToSignalTheatre(chapter, 0, null);
             };
@@ -141,7 +149,7 @@ namespace Shinengine.Surface
 
         private void SBK_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            
+
         }
 
         private void SBK_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -152,7 +160,7 @@ namespace Shinengine.Surface
             if (isBakcloging)
             {
                 text_count_picker = 0;
-                Surface.Usage.locked = false;
+                Shinengine.Theatre.Usage.locked = false;
                 m_theatre.Usage.Show(null, true);
                 EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.SwitchSpeed);
                 m_pip.Start(true);
@@ -245,7 +253,7 @@ namespace Shinengine.Surface
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)///Skip
-        { 
+        {
             isSkiping = !isSkiping;
             if (isSkiping)
             {
@@ -322,7 +330,7 @@ namespace Shinengine.Surface
                 if (text_count_picker == 0)
                 {
                     m_theatre.Usage.Hide(null, true);
-                    Surface.Usage.locked = true;
+                    Shinengine.Theatre.Usage.locked = true;
                     EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 0.0, 1.0, Data.SharedSetting.SwitchSpeed);
                     m_pip.Start(true);
 
@@ -335,8 +343,8 @@ namespace Shinengine.Surface
                     e.Handled = true;
                     return;
                 }
-                if((-text_count_picker - 1) < lines.Count-27)
-                text_count_picker -= 1;
+                if ((-text_count_picker - 1) < lines.Count - 27)
+                    text_count_picker -= 1;
             }
             else
             {
@@ -345,7 +353,7 @@ namespace Shinengine.Surface
                 if (text_count_picker == 0)
                 {
 
-                    Surface.Usage.locked = false;
+                    Shinengine.Theatre.Usage.locked = false;
                     m_theatre.Usage.Show(null, true);
                     EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.SwitchSpeed);
                     m_pip.Start(true);
@@ -396,7 +404,7 @@ namespace Shinengine.Surface
             if (text_count_picker == 0)
             {
                 m_theatre.Usage.Hide(null, true);
-                Surface.Usage.locked = true;
+                Shinengine.Theatre.Usage.locked = true;
                 EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 0.0, 1.0, Data.SharedSetting.SwitchSpeed);
                 m_pip.Start(true);
 
@@ -416,7 +424,7 @@ namespace Shinengine.Surface
             if (isBakcloging)
             {
                 text_count_picker = 0;
-                Surface.Usage.locked = false;
+                Shinengine.Theatre.Usage.locked = false;
                 m_theatre.Usage.Show(null, true);
                 EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.SwitchSpeed);
                 m_pip.Start(true);
@@ -429,19 +437,19 @@ namespace Shinengine.Surface
 
         private void Ll_KeyDown(object sender, KeyEventArgs e)
         {
-           
+
         }
 
         private void Ll_KeyUp(object sender, KeyEventArgs e)
         {
-           
+
         }
 
         private void EnVoice_Click(object sender, RoutedEventArgs e)
         {
             if (m_replayer != null)
                 m_replayer.canplay = false;
-            m_replayer = new AudioPlayer(m_theatre.m_des_init.Voice, false, SharedSetting.VoiceVolum);
+            m_replayer = new AudioPlayer(m_theatre.Voice, false, SharedSetting.VoiceVolum);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -451,7 +459,7 @@ namespace Shinengine.Surface
             if (isBakcloging)
             {
                 text_count_picker = 0;
-                Surface.Usage.locked = false;
+                Shinengine.Theatre.Usage.locked = false;
                 m_theatre.Usage.Show(null, true);
                 EasyAmal m_pip = new EasyAmal(BackLogLayer, "(Opacity)", 1.0, 0.0, Data.SharedSetting.SwitchSpeed);
                 m_pip.Start(true);
@@ -499,6 +507,14 @@ namespace Shinengine.Surface
                 m_theatre.Usage.Show(null, true);
                 onHidden = false;
                 return;
+            }
+        }
+
+        public int current_frame 
+        {
+            get
+            {
+                return m_theatre.saved_frame;
             }
         }
     }

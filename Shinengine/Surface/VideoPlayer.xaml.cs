@@ -94,12 +94,12 @@ namespace Shinengine.Surface
         private void Window_Closed(object sender, EventArgs e)
         {
             if (dxVideo != null)
-                dxVideo.SafeRelease();
+                dxVideo.Dispose();
         }
 
         public void Stop()
         {
-            dxVideo.SafeRelease();
+            dxVideo.Dispose();
         }
         public void Start(IntPtr hWnd, string path, Action endplay)
         {
@@ -108,7 +108,7 @@ namespace Shinengine.Surface
             {
                 Loadedsouce = vest
             };
-            dxVideo.Disposed += (Loadedsouce, ss) => { (Loadedsouce as Video).Dispose(); ss.Dispose(); };
+            dxVideo.SouceDisposing += (Loadedsouce ,s) => { (Loadedsouce as Video).Dispose();  };
             dxVideo.DrawProc += DrawCallback;
 
 

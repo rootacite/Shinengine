@@ -25,6 +25,7 @@ using Bitmap = System.Drawing.Bitmap;
 using System.Threading;
 using Shinengine.Scripts;
 using System.IO;
+using Shinengine.Theatre;
 
 namespace Shinengine.Surface
 {
@@ -187,9 +188,7 @@ namespace Shinengine.Surface
 
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.SafeRelease();
-                MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
-                MainWindow.TheatreMode.m_theatre.Exit();
+                MainWindow.TheatreMode.Dispose();
 
               
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
@@ -272,9 +271,7 @@ namespace Shinengine.Surface
                     _mpos2.Start(true);
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.SafeRelease();
-                MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
-                MainWindow.TheatreMode.m_theatre.Exit();
+                MainWindow.TheatreMode.Dispose();
 
              
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
@@ -357,9 +354,7 @@ namespace Shinengine.Surface
                     _mpos2.Start(true);
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.SafeRelease();
-                MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
-                MainWindow.TheatreMode.m_theatre.Exit();
+                MainWindow.TheatreMode.Dispose();
 
             
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>
@@ -441,9 +436,7 @@ namespace Shinengine.Surface
                     _mpos2.Start(true);
                     return;
                 }
-                MainWindow.TheatreMode.m_logo.SafeRelease();
-                MainWindow.TheatreMode.m_theatre.SetBackgroundMusic();
-                MainWindow.TheatreMode.m_theatre.Exit();
+                MainWindow.TheatreMode.Dispose();
 
                 MainWindow.TheatreMode = MainWindow.SwitchToSignalTheatre(imp.Value.chapter, imp.Value.frames, null);
                 EasyAmal mpos2 = new EasyAmal(this.Forgan, "(Opacity)", 1.0, 0.0, SharedSetting.SwitchSpeed, (e, c) =>

@@ -18,13 +18,9 @@ namespace Shinengine.Surface
     /// Setting.xaml 的交互逻辑
     /// </summary>
     public partial class Setting : Page
-    {
-        readonly AudioPlayer _ioPt = null;
-        readonly AudioPlayer _ioPo = null;
-        public Setting(ImageSource bkGround,AudioPlayer ioPt,AudioPlayer ioPo)
-        {
-            _ioPt = ioPt;
-            _ioPo = ioPo;
+    { 
+        public Setting(ImageSource bkGround)//,AudioPlayer ioPt,AudioPlayer ioPo)
+        { 
             InitializeComponent();
             Bkgnd.Source = bkGround;
 
@@ -64,7 +60,7 @@ namespace Shinengine.Surface
         private void BGMVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             SharedSetting.BGMVolum = (float)(e.NewValue / 100.0);
-            if (_ioPt != null) _ioPt.outputDevice.Volume = SharedSetting.BGMVolum;
+            if (MainWindow.TheatreMode.m_theatre.m_player != null) MainWindow.TheatreMode.m_theatre.m_player.outputDevice.Volume = SharedSetting.BGMVolum;
         }
 
         private void VoiceVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -80,7 +76,7 @@ namespace Shinengine.Surface
         private void EmVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             SharedSetting.EmVolum= (float)(e.NewValue / 100.0);
-            if (_ioPo != null) _ioPo.outputDevice.Volume = SharedSetting.EmVolum;
+            if (MainWindow.TheatreMode.m_theatre.m_em_player != null) MainWindow.TheatreMode.m_theatre.m_em_player.outputDevice.Volume = SharedSetting.EmVolum;
         }
 
         private void Exitlpg_Click(object sender, RoutedEventArgs e)

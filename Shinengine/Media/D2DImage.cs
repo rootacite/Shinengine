@@ -32,6 +32,7 @@ using System.Threading.Tasks;
 
 using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
 using System.Drawing;
+using System.Diagnostics.Eventing.Reader;
 
 namespace Shinengine.Media
 {
@@ -41,7 +42,7 @@ namespace Shinengine.Media
         Ignore,
         Death
     }
-    public class Direct2DImage
+    sealed public class Direct2DImage : IDisposable
     {
 
         public object Loadedsouce = null;
@@ -68,9 +69,12 @@ namespace Shinengine.Media
         public delegate DrawProcResult FarmeTask(DeviceContext view, object Loadedsouce, int Width, int Height);
 
         public delegate void StartTask(DeviceContext view, WICBitmap last, int Width, int Height);
-        public delegate void EndTask(object Loadedsouce, WICBitmap _buff);
+        public delegate void EndedTask();
+        public delegate void EndingTask(object Loadedsouce, Direct2DImage self);
 
-        public event EndTask Disposed;
+        public event EndedTask Disposed;
+        public event EndingTask SouceDisposing;
+
         public event FarmeTask DrawProc;
         public event StartTask FirstDraw;
 
@@ -170,29 +174,24 @@ namespace Shinengine.Media
                         wait_time = 0;
                     }
                     Debug.WriteLine("Time:" + time.ToString());
-                    if (UpData == null)
-                    {
-                        throw new Exception();
-                    }
+ 
                     if (UpData == DrawProcResult.Normal)
                     {
                         Thread.Sleep((int)wait_time);
                         Times++;
                         continue;
                     }
-                    if (UpData == DrawProcResult.Ignore)
+                    if (UpData == DrawProcResult.Ignore|| UpData == null)
                     {
                         continue;
                     }
                     if (UpData == DrawProcResult.Death)
                     {
-                        this.SafeRelease();
+                        this.Dispose();
                         break;
                     }
 
                 }
-                Debug.WriteLine("Dispod");
-
             });
 
             contorl.Source = buffer;
@@ -200,11 +199,8 @@ namespace Shinengine.Media
             m_Dipter.Start();
             m_Dipter2.Start();
         }
-        public void SafeRelease()
+        private void SafeRelease()
         {
-            Console.WriteLine("dispose called");
-
-
             new Task(() =>
             {
                 m_Dipter?.Stop();
@@ -212,25 +208,15 @@ namespace Shinengine.Media
 
                 m_Dipter2?.Wait();
 
-                D2DBitmap m_local_buffer = new D2DBitmap(View, new Size2(Width, Height),
-               new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
 
-                m_local_buffer.CopyFromBitmap(_bufferBack);
-                var m_end_map = m_local_buffer.Map(MapOptions.Read);
-                var m_end_bitmap_wic = new WICBitmap(_ImagFc, Width, Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(m_end_map.DataPointer, m_end_map.Pitch));
+                SouceDisposing?.Invoke(Loadedsouce, this);
 
+                _bufferBack?.Dispose();
+                View?.Dispose();
 
-                Disposed?.Invoke(Loadedsouce, m_end_bitmap_wic);
-
-                m_local_buffer.Unmap();
-                m_local_buffer.Dispose();
-
-                
-                    View?.Dispose();
-                    _ImagFc?.Dispose();
+                _ImagFc?.Dispose();
  
                 m_Dipter2?.Dispose();
-                _bufferBack?.Dispose();
                 bufferSurface?.Dispose();
                 bufferCaller?.Dispose();
                 d2DDevice?.Dispose();
@@ -238,12 +224,43 @@ namespace Shinengine.Media
                 dxgiDevice?.Dispose();
                 d3DDevice?.Dispose();
 
-                GC.Collect();
             }).Start();
         }//ignore
+        public void Dispose()
+        {
+            if (IsDisposed) return;
+
+            SafeRelease();
+
+            IsDisposed = true;
+
+            Disposed?.Invoke();
+            GC.SuppressFinalize(this);
+
+        }
+        public bool IsDisposed { get; private set; } =false;
+        public WICBitmap LastDraw 
+        {
+            get 
+            {
+                D2DBitmap m_local_buffer = new D2DBitmap(View, new Size2(Width, Height),
+            new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
+
+                m_local_buffer.CopyFromBitmap(_bufferBack);
+                var m_end_map = m_local_buffer.Map(MapOptions.Read);
+                var m_end_bitmap_wic = new WICBitmap(_ImagFc, Width, Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(m_end_map.DataPointer, m_end_map.Pitch));
+
+                 
+
+                m_local_buffer.Unmap();
+                m_local_buffer.Dispose();
+
+                return m_end_bitmap_wic; 
+            }
+        }
         ~Direct2DImage()
         {
-
+           Dispose();
         }//ignore
         unsafe public void Commit()
         {

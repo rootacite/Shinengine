@@ -25,6 +25,7 @@ using SharpDX.Mathematics.Interop;
 using System.Windows.Media.Animation;
 using System.Linq;
 using System.Diagnostics;
+using Shinengine.Theatre;
 
 namespace Shinengine.Surface
 {

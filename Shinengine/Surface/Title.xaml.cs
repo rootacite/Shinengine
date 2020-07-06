@@ -26,6 +26,7 @@ using System.Threading;
 using System.Drawing;
 using System.Windows.Controls;
 using Shinengine.Data;
+using Shinengine.Theatre;
 
 namespace Shinengine.Surface
 {

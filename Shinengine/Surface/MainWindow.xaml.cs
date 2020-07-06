@@ -1,5 +1,4 @@
-﻿using SharpDX.Mathematics.Interop;
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -7,36 +6,20 @@ using System.Runtime.InteropServices;
 
 using System.IO;
 using SharpDX;
-using SharpDX.Direct2D1;
 using System.Windows.Media.Imaging;
-using ImageBrush = System.Windows.Media.ImageBrush;
 using System.Windows.Interop;
-
-using WICBitmap = SharpDX.WIC.Bitmap;
-using D2DBitmap = SharpDX.Direct2D1.Bitmap;
 using SharpDX.WIC;
 using System.Windows.Media;
-using System.Media;
 
 using Shinengine.Media;
-using Color = System.Windows.Media.Color;
-
-using NAudio.Wave;
 using System.Threading;
-using System.Drawing;
-using SharpDX.DXGI;
 using Shinengine.Data;
 using System.Windows.Controls;
-using System.Collections.Generic;
-using FFmpeg.AutoGen;
 using Image = System.Windows.Controls.Image;
 using Shinengine.Scripts;
-using System.DirectoryServices.ActiveDirectory;
-using System.Runtime.CompilerServices;
 using MaterialDesignThemes.Wpf;
 using Shinengine.Surface.Extra;
-using System.Diagnostics.CodeAnalysis;
-using System.Windows.Data;
+using Shinengine.Theatre;
 
 namespace Shinengine.Surface
 {
@@ -61,6 +44,8 @@ namespace Shinengine.Surface
     public partial class MainWindow : Window
     {
         static Page top_page = null;
+
+        #region sizing
         static public void ResizeToGrid(UIElementCollection grid, double width_rate, double height_rate)
         {
 
@@ -161,7 +146,8 @@ namespace Shinengine.Surface
             ResizeToGrid(page.Children, width_rate, height_rate);
         }
 
-        static Title _title = null;        static public Title Title {
+        static Title _title = null;  
+        static public Title Title {
             get
             {
                 return _title;
@@ -235,6 +221,9 @@ namespace Shinengine.Surface
                 top_page = value;
             }
         }
+        #endregion
+
+
         [DllImport("winmm")]
         static extern void timeBeginPeriod(int t);
         [DllImport("winmm")]
@@ -277,7 +266,7 @@ namespace Shinengine.Surface
             Title mlp = new Title();
             mlp.setting.Click += (e, v) =>
             {
-                Settere = new Setting(new BitmapImage(new Uri("pack://application:,,,/UI/10.png")), null, null);
+                Settere = new Setting(new BitmapImage(new Uri("pack://application:,,,/UI/10.png")));
                 if (true)
                 {
                     ResizeEvt(Settere.mpOi, new Size2(1280, 720), new Size2((int)m_window.sys_con_pite.Width, (int)m_window.sys_con_pite.Height));
@@ -430,9 +419,7 @@ namespace Shinengine.Surface
                 Title = SwitchToTitle();
                 MainWindow.sys_pite.Content = Title.Content;
 
-                TheatreMode.m_logo.SafeRelease();
-                TheatreMode.m_theatre.SetBackgroundMusic();
-                TheatreMode.m_theatre.Exit();
+                TheatreMode.Dispose();
 
                 if (TheatreMode != null)
                     TheatreMode = null;
@@ -543,7 +530,7 @@ namespace Shinengine.Surface
                     m_game.m_theatre.Usage.Hide(null, false);
                     m_game.Dispatcher.Invoke(new Action(() =>
                     {
-                        Setting mst = new Setting(mbps, m_game.m_theatre.m_player, m_game.m_theatre.m_em_player);
+                        Setting mst = new Setting(mbps);
                         if (true)
                         {
                             ResizeEvt(mst.mpOi, new Size2(1280, 720), new Size2((int)m_window.sys_con_pite.Width, (int)m_window.sys_con_pite.Height));
@@ -718,7 +705,7 @@ namespace Shinengine.Surface
         {
             if (TheatreMode == null)
                 return;
-            if (Settere != null || TheatreMode.isBakcloging)
+            if (Settere != null || TheatreMode.isBakcloging||TheatreMode.m_theatre.skipping_flag)
             {
                 return;
             }
@@ -743,7 +730,7 @@ namespace Shinengine.Surface
          
             if (TheatreMode == null)
                 return;
-            if (Settere != null || TheatreMode.isBakcloging)
+            if (Settere != null || TheatreMode.isBakcloging || TheatreMode.m_theatre.skipping_flag)
             {
                 return;
             }

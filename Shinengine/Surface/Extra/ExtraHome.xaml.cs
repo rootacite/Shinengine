@@ -1,5 +1,6 @@
 ﻿using SharpDX;
 using Shinengine.Data;
+using Shinengine.Theatre;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -65,9 +66,7 @@ namespace Shinengine.Surface.Extra
                     IsBackground = true
                 };
                 m_thread_intp.Start();
-                MainWindow.TheatreMode.m_logo?.SafeRelease();
-                MainWindow.TheatreMode.m_theatre?.SetBackgroundMusic();
-                MainWindow.TheatreMode.m_theatre?.Exit();
+                MainWindow.TheatreMode.Dispose();
 
                 if (MainWindow.TheatreMode != null)
                     MainWindow.TheatreMode = null;
