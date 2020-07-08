@@ -17,22 +17,40 @@ using SharpDX.Mathematics.Interop;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Shinengine.Data;
+using System.Security.Authentication.ExtendedProtection;
 
 namespace Shinengine.Theatre
 {
 
-    sealed public class DynamicCharacter : Character//动态角色暂时未具体实现
+    sealed public class DynamicCharacter : Character, IDisposable
     {
         public DynamicCharacter(Theatre father, string name, string template, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             : base(father, name, template, canshow, time, isAscy, vel_x, vel_y)
         {
 
         }
+
+        public bool Disposed { get; private set; } = false;
+        ~DynamicCharacter()
+        {
+            this.Dispose();
+        }
+        public new void Dispose()
+        {
+            if (Disposed) return;
+
+
+
+            base.Remove();
+            base.Dispose();
+            Disposed = true;
+            GC.SuppressFinalize(this);
+        }
     }
     /// <summary>
     /// Character 类是抽象类，原则上不允许同时出现两个name相同的角色，这会在SaveLoad时引起bug
     /// </summary>
-    sealed public class StaticCharacter : Character,IDisposable
+    sealed public class StaticCharacter : Character, IDisposable
     {
         [DllImport("Shinehelper.dll")]
         extern static public IntPtr GetDskWindow();
@@ -55,7 +73,7 @@ namespace Shinengine.Theatre
             : base(father, name, init_pic, canshow, time, isAscy, vel_x, vel_y)
         {
             var whereIs = father.CharacterLayer;
-            
+
             if (actions_souce == null) return;
             ChAreas = new List<ChangeableAreaDescription>();
             foreach (var i in actions_souce)
@@ -90,7 +108,8 @@ namespace Shinengine.Theatre
 
             WICBitmap rost_pitch = ChAreas[area].switches[index];
 
-            shower.Dispatcher.Invoke(() => {
+            shower.Dispatcher.Invoke(() =>
+            {
                 dx_switch = new Direct2DImage(new Size2((int)shower.Width, (int)shower.Height), 30)//////////////AAA
                 {
 
@@ -147,7 +166,7 @@ namespace Shinengine.Theatre
                     if (!isAysn) msbn.Set();
                     return DrawProcResult.Death;
                 };
-                dx_switch.SouceDisposing += (e,s) =>
+                dx_switch.Disposing += (e, s) =>
                 {
                     if (Last_Draw != null) if (!Last_Draw.IsDisposed) Last_Draw.Dispose();
                     Last_Draw = s.LastDraw;
@@ -205,7 +224,7 @@ namespace Shinengine.Theatre
                     return DrawProcResult.Normal;
                 };
 
-                dx_switch.SouceDisposing += (e,s ) =>
+                dx_switch.Disposing += (e, s) =>
                 {
                     if (Last_Draw != null)
                         if (!Last_Draw.IsDisposed)
@@ -230,8 +249,8 @@ namespace Shinengine.Theatre
         {
             Dispose();
         }
-        public bool Disposed { get; private set; } =false;
-        public void Dispose()
+        public bool Disposed { get; private set; } = false;
+        public new void Dispose()
         {
             if (Disposed) return;
             foreach (var i in ChAreas)
@@ -249,13 +268,13 @@ namespace Shinengine.Theatre
                     break;
                 }
             }
-            this.Remove();
-
+            base.Remove();
+            base.Dispose();
             Disposed = true;
             GC.SuppressFinalize(this);
         }//已经确认可以正确释放资源
     }
-    public abstract class Character
+    public abstract class Character : IDisposable
     {
         public Theatre m_father = null;
         AudioPlayer voice_player = null;
@@ -316,7 +335,7 @@ namespace Shinengine.Theatre
                     return DrawProcResult.Death;
                 };
 
-                direct2DImage.SouceDisposing += (e,s ) =>
+                direct2DImage.Disposing += (e, s) =>
                 {
                     Last_Draw = s.LastDraw;
                     msbn.Set();
@@ -346,12 +365,33 @@ namespace Shinengine.Theatre
             m_father.Airplant.Say(lines, this._name);
         }//安全的代码
 
-        protected void Remove()
+        public bool IsDisposed { get; private set; } = false;
+        protected virtual void Dispose(bool disposing)
         {
-            whereIsShowed.Dispatcher.Invoke(new Action(() => { whereIsShowed.Children.Remove(shower); }));
+            if (IsDisposed) return;
+            if (disposing)
+            {
+                shower = null;
+                whereIsShowed = null;
+            }
             if (Last_Draw != null) if (!Last_Draw.IsDisposed)
                     Last_Draw.Dispose();
             Init_action.Dispose();
+            IsDisposed = true;
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        ~Character()
+        {
+            Dispose(false);
+        }
+        protected void Remove()
+        {
+            whereIsShowed.Dispatcher.Invoke(new Action(() => { whereIsShowed.Children.Remove(shower); }));
+
         }//已经确认过安全的代码,再次修改需要小心
         public void Show(double? time = null, bool isAsyn = false)
         {

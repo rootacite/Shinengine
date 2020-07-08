@@ -25,7 +25,8 @@ using Shinengine.Data;
 using DeviceContext = SharpDX.Direct2D1.DeviceContext;
 using Blend = SharpDX.Direct2D1.Effects.Blend;
 using Point = System.Drawing.Point;
-
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
 
 namespace Shinengine.Theatre
 {
@@ -134,6 +135,7 @@ namespace Shinengine.Theatre
 
             return tempBitmap;
         }
+
         public static WICBitmap LoadBitmap(string init_pic)
         {
             string rele_path = PackStream.Locate(init_pic);
@@ -162,7 +164,7 @@ namespace Shinengine.Theatre
         }
 
         #endregion
-        public WICBitmap last_save = null;
+        public WICBitmap last_save { get; set; } = null;
         public Direct2DImage videoCtrl = null;
         public Image Background { get; private set; } = null;
         public Stage(Image bk)
@@ -249,12 +251,12 @@ namespace Shinengine.Theatre
                     varb += increment;
                     return DrawProcResult.Normal;
                 };
-                videoCtrl.SouceDisposing += (e,s ) =>
+                videoCtrl.Disposing += (e,s ) =>
                 {
                     if (ral_picA != null)
                         ral_picA.Dispose();
                     ral_picB.Dispose();
-                    if (!last_save.IsDisposed) last_save.Dispose();
+                    if (last_save != null) if (!last_save.IsDisposed) last_save.Dispose();
                     last_save = s.LastDraw;
                     mbp_ss.Dispose();
 
@@ -278,7 +280,7 @@ namespace Shinengine.Theatre
         /// <param name="url">图片路径</param>
         /// <param name="time">动画时间</param>
         /// <param name="isAsyn">是否异步（true为异步）</param>
-        public void SetAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true)
+        public void SetAsVideo(string url, double? time = null, bool isAsyn = false, bool loop = true, ImageEffects []effect = null)
         {
 
             if (time == null) time = SharedSetting.SwitchSpeed;
@@ -327,7 +329,7 @@ namespace Shinengine.Theatre
             ManualResetEvent msc_evt = null;
             if (!isAsyn) msc_evt = new ManualResetEvent(false);
 
-            videoCtrl.SouceDisposing += (Loadedsouce,s ) => {
+            videoCtrl.Disposing += (Loadedsouce,s ) => {
                 (Loadedsouce as VideoStreamDecoder).Dispose();
                 if (!last_save.IsDisposed) last_save.Dispose();
                 last_save = s.LastDraw;
@@ -364,9 +366,14 @@ namespace Shinengine.Theatre
                         }
                         return DrawProcResult.Death;
                     }
-                    var BitSrc = new D2DBitmap(view, new Size2(video.FrameSize.Width, video.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
-                    BitSrc.CopyFromMemory(dataPoint, pitch);
+                    WICBitmap m_rest_ppc = new WICBitmap(videoCtrl._ImagFc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
 
+                    if (effect != null)
+                        foreach (var i in effect)
+                            ApplyEffectToSignalTarget(videoCtrl.View, i, m_rest_ppc);
+
+                    var BitSrc = D2DBitmap.FromWicBitmap(view, m_rest_ppc);
+                    m_rest_ppc.Dispose();
 
                     view.BeginDraw();
                     if (vara > 0 && varb < 1)
@@ -417,8 +424,14 @@ namespace Shinengine.Theatre
                         }
                         return DrawProcResult.Death;
                     }
-                    var BitSrc = new D2DBitmap(view, new Size2(video.FrameSize.Width, video.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
-                    BitSrc.CopyFromMemory(dataPoint, pitch);
+                    WICBitmap m_rest_ppc = new WICBitmap(videoCtrl._ImagFc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+
+                    if (effect != null)
+                        foreach (var i in effect)
+                            ApplyEffectToSignalTarget(videoCtrl.View,i, m_rest_ppc);
+
+                    var BitSrc = D2DBitmap.FromWicBitmap(view, m_rest_ppc);
+                    m_rest_ppc.Dispose();
                     view.BeginDraw();
 
                     view.DrawBitmap(BitSrc,
@@ -605,7 +618,7 @@ namespace Shinengine.Theatre
                 return DrawProcResult.Normal;
             };
 
-            videoCtrl.SouceDisposing += (e,s) =>
+            videoCtrl.Disposing += (e,s) =>
             {
                 if (wait_sp != null)
                     wait_sp.Set();
@@ -722,7 +735,7 @@ namespace Shinengine.Theatre
             {
                 double varb = 0.0;
                 double increment = 1 / ((double)time * 30);
-                videoCtrl.SouceDisposing += (Loadedsouce,s ) => {
+                videoCtrl.Disposing += (Loadedsouce,s ) => {
                     (Loadedsouce as VideoStreamDecoder).Dispose();
                     if (ApplyintoSaver)
                     {
@@ -824,7 +837,7 @@ namespace Shinengine.Theatre
             }
             else if (time == 0)
             {
-                videoCtrl.SouceDisposing += (Loadedsouce,s ) => {
+                videoCtrl.Disposing += (Loadedsouce,s ) => {
                     (Loadedsouce as VideoStreamDecoder).Dispose();
                     if (ApplyintoSaver)
                     {
@@ -892,30 +905,10 @@ namespace Shinengine.Theatre
             }
         }//安全でしょう？多分。
 
-        static private List<WICBitmap> GetAllFrames(string url)
-        {
-            ImagingFactory m_fc_av = new ImagingFactory();
-            List<WICBitmap> result = new List<WICBitmap>();
-
-            var m_sourc = new VideoStreamDecoder(url);
-            while (true)
-            {
-                var res = m_sourc.TryDecodeNextFrame(out IntPtr dataPoint, out int pitch);
-                if (!res)
-                {
-                    break;
-                }
-                var BitSrc = new WICBitmap(m_fc_av, m_sourc.FrameSize.Width, m_sourc.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
-                ; result.Add(BitSrc);
-            }
-            m_sourc.Dispose();
-            return result;
-        }
-        public void SuperimposeWithVideo_CatchOnLoad(string url, double? time = null, bool isAsyn = false, bool ApplyintoSaver = false, BlendMode? mode = null)
+        public void SuperimposeWithVideo(VideoFramesManager video, double? time = null, bool isAsyn = false, bool ApplyintoSaver = false, BlendMode? mode = null)
         {
 
-            List<WICBitmap> frames = GetAllFrames(url);
-            if (frames.Count == 0)
+            if (video.Frames.Length == 0)
             {
                 throw new Exception();
             }
@@ -941,14 +934,12 @@ namespace Shinengine.Theatre
 
             Background.Dispatcher.Invoke(new Action(() =>
             {
-                videoCtrl = new Direct2DImage(new Size2(frames[0].Size.Width, frames[0].Size.Height), 30)
+                videoCtrl = new Direct2DImage(new Size2(video.Frames[0].Size.Width, video.Frames[0].Size.Height), 30)
                 {
-                    Loadedsouce = frames
+                    Loadedsouce = video
                 };
             }));
             D2DBitmap ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
-
-            int nFrame = 0;
 
             videoCtrl.FirstDraw += (t, m, b, s) =>
             {
@@ -965,27 +956,23 @@ namespace Shinengine.Theatre
                     {
                         Mode = mode.Value
                     };
-                    var av_basic = D2DBitmap.FromWicBitmap(t, frames[nFrame]);
+                    var av_basic = D2DBitmap.FromWicBitmap(t, video.GetFrame());
                     m_bn_effect.SetInput(0, ral_pic, new RawBool());
                     m_bn_effect.SetInput(1, av_basic, new RawBool());
 
                     t.DrawImage(m_bn_effect);
                     av_basic.Dispose();
                     m_bn_effect.Dispose();
-                    frames[nFrame].Dispose();
-                    nFrame++;
                 }
                 else
                 {
                     t.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    var av_basic = D2DBitmap.FromWicBitmap(t, frames[nFrame]);
+                    var av_basic = D2DBitmap.FromWicBitmap(t, video.GetFrame());
                     t.DrawBitmap(av_basic,
                   new RawRectangleF(0, 0, b, s),
                    1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                   new RawRectangleF(0, 0, frames[0].Size.Width, frames[0].Size.Height));
-                    frames[nFrame].Dispose();
+                   new RawRectangleF(0, 0, video.Frames[0].Size.Width, video.Frames[0].Size.Height));
                     av_basic.Dispose();
-                    nFrame++;
                 }
 
                 t.EndDraw();
@@ -1011,7 +998,7 @@ namespace Shinengine.Theatre
                         if (mode != null)
                         {
                             var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
-                            var sv_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            var sv_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
                             m_op_effect.SetInput(0, sv_basic, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
@@ -1029,12 +1016,11 @@ namespace Shinengine.Theatre
                             m_op_effect.Dispose();
                             m_bn_effect.Dispose();
                             sv_basic.Dispose();
-                            nFrame++;
                         }
                         else
                         {
                             var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
-                            var sv_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            var sv_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
                             m_op_effect.SetInput(0, sv_basic, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
@@ -1043,7 +1029,6 @@ namespace Shinengine.Theatre
 
                             sv_basic.Dispose();
                             m_op_effect.Dispose();
-                            nFrame++;
                         }
                     }
                     else
@@ -1055,31 +1040,29 @@ namespace Shinengine.Theatre
                             {
                                 Mode = mode.Value
                             };
-                            var av_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            var av_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
                             m_bn_effect.SetInput(0, ral_pic, new RawBool());
                             m_bn_effect.SetInput(1, av_basic, new RawBool());
 
                             view.DrawImage(m_bn_effect);
 
-                            av_basic.Dispose();
-                            nFrame++;
+                            av_basic.Dispose(); 
                             m_bn_effect.Dispose();
                         }
                         else
                         {
                             view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                            var av_basic = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                            var av_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
                             view.DrawBitmap(av_basic,
                           new RawRectangleF(0, 0, Width, Height),
                            1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                           new RawRectangleF(0, 0, frames[nFrame].Size.Width, frames[nFrame].Size.Height));
-                            av_basic.Dispose();
-                            nFrame++;
+                           new RawRectangleF(0, 0, video.Frames[0].Size.Width, video.Frames[0].Size.Height));
+                            av_basic.Dispose(); 
                         }
                     }
 
                     view.EndDraw();
-                    if (nFrame == frames.Count)
+                    if (video.Loop_time >= 1)
                         return DrawProcResult.Death;
                     varb += increment;
                     return DrawProcResult.Normal;
@@ -1099,39 +1082,32 @@ namespace Shinengine.Theatre
                         {
                             Mode = mode.Value
                         };
-                        var m_n_frame = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                        var m_n_frame = D2DBitmap.FromWicBitmap(view, video.GetFrame());
                         m_bn_effect.SetInput(0, ral_pic, new RawBool());
                         m_bn_effect.SetInput(1, m_n_frame, new RawBool());
                         m_n_frame.Dispose();
                         view.DrawImage(m_bn_effect);
 
                         m_bn_effect.Dispose();
-                        nFrame++;
                     }
                     else
                     {
                         view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                        var m_n_frame = D2DBitmap.FromWicBitmap(view, frames[nFrame]);
+                        var m_n_frame = D2DBitmap.FromWicBitmap(view, video.GetFrame());
                         view.DrawBitmap(m_n_frame,
                       new RawRectangleF(0, 0, Width, Height),
                        1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
-                       new RawRectangleF(0, 0, frames[nFrame].Size.Width, frames[nFrame].Size.Height));
-                        m_n_frame.Dispose();
-                        nFrame++;
+                       new RawRectangleF(0, 0, video.Frames[0].Size.Width, video.Frames[0].Size.Height));
+                        m_n_frame.Dispose(); 
                     }
                     view.EndDraw();
 
-                    if (nFrame == frames.Count)
+                    if (video.Loop_time >= 1) 
                         return DrawProcResult.Death;
                     return DrawProcResult.Normal;
                 };
             }
-            videoCtrl.SouceDisposing += (Loadedsouce,s ) => {
-
-                foreach (var i in Loadedsouce as List<WICBitmap>)
-                {
-                    i.Dispose();
-                }
+            videoCtrl.Disposing += (Loadedsouce,s ) => {
 
                 if (ApplyintoSaver)
                 {
@@ -1210,7 +1186,7 @@ namespace Shinengine.Theatre
         }
         Point GetRandomPoint(int r)
         {
-            double x2y(double r, double x)
+            static double x2y(double r, double x)
             {
                 return Math.Sqrt((r * r) - (x * x));
             };
@@ -1357,7 +1333,7 @@ namespace Shinengine.Theatre
                 varb += increment;
                 return DrawProcResult.Normal;
             };
-            videoCtrl.SouceDisposing += (e ,s) =>
+            videoCtrl.Disposing += (e ,s) =>
             {
                 if (wait_sp != null)
                     wait_sp.Set();
@@ -1455,7 +1431,7 @@ namespace Shinengine.Theatre
                     varb += increment;
                     return DrawProcResult.Normal;
                 };
-                videoCtrl.SouceDisposing += (e ,s) =>
+                videoCtrl.Disposing += (e ,s) =>
                 {
                     if (ral_picA != null)
                         ral_picA.Dispose();
@@ -1480,11 +1456,27 @@ namespace Shinengine.Theatre
             }
         }//安全
         private WICBitmap buffer = null;
-        public void SetBufferAsUrl(string url = null)
+        public void SetBuffer(string url)
         {
             if (buffer != null) if (!buffer.IsDisposed) buffer.Dispose();
-            if (url != null) buffer = LoadBitmap(url);
+            if (url != null)
+                buffer = LoadBitmap(url);
+            else
+            {
+                var imfc = new ImagingFactory();
+
+                buffer = new WICBitmap(imfc, last_save.Size.Width, last_save.Size.Height, last_save.PixelFormat, BitmapCreateCacheOption.CacheOnLoad);
+                var _lock = buffer.Lock(BitmapLockFlags.Write);
+                last_save.CopyPixels(_lock.Stride, _lock.Data.DataPointer, _lock.Data.Pitch * _lock.Size.Height);
+                _lock.Dispose();
+
+                imfc.Dispose();
+            }
         }//把舞台缓冲区设置为一个图片,必须当桢调用当桢释放.
+        public void ReleaseBuffer()
+        {
+            if (buffer != null) if (!buffer.IsDisposed) buffer.Dispose();
+        }
         public WICBitmap GetBuffer()
         {
             return buffer;
@@ -1507,7 +1499,7 @@ namespace Shinengine.Theatre
                     save_effect_intp.Value = 0;
                     this_pix.Dispose();
 
-                    m_dev_loader.SouceDisposing += (e ,s) =>
+                    m_dev_loader.Disposing += (e ,s) =>
                     {
                         (e as SharpDX.Direct2D1.Effects.Saturation)?.GetInput(0).Dispose();
                         (e as SharpDX.Direct2D1.Effects.Saturation)?.Dispose();
@@ -1525,7 +1517,7 @@ namespace Shinengine.Theatre
 
             ManualResetEvent eve = new ManualResetEvent(false);
 
-            m_dev_loader.SouceDisposing += (e,s) => {
+            m_dev_loader.Disposing += (e,s) => {
                 buffer.Dispose();
                 buffer = s.LastDraw;
                 eve.Set();
@@ -1535,6 +1527,60 @@ namespace Shinengine.Theatre
 
             eve.WaitOne();
             eve.Dispose();
+        }
+
+        static public void ApplyEffectToSignalTarget(DeviceContext View ,ImageEffects effect, WICBitmap target)
+        {
+            if (target == null) throw new Exception("target is empty");
+
+            D2DBitmap result_buffer = new D2DBitmap(View, new Size2((int)View.Size.Width, (int)View.Size.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.Target));
+            Effect OutPut_Effect = null;
+            switch (effect)
+            {
+                case ImageEffects.BW_Effect:
+
+                    var this_pix = D2DBitmap.FromWicBitmap(View, target);//从目标复制一个d2dbitmap
+
+                    OutPut_Effect = new SharpDX.Direct2D1.Effects.Saturation(View);
+
+                    OutPut_Effect.SetInput(0, this_pix, new RawBool());
+                    (OutPut_Effect as SharpDX.Direct2D1.Effects.Saturation).Value = 0;//此时save_effect_intp的输出即为结果
+
+                    this_pix.Dispose();
+
+                   
+
+                    break;
+
+                default:
+                    throw new Exception("undefined effect");
+            }
+            var n_save_target = View.Target;
+            View.Target = result_buffer;
+
+            View.BeginDraw();
+            View.DrawImage(OutPut_Effect);
+            View.EndDraw();
+
+            View.Target = n_save_target;
+
+            OutPut_Effect.Dispose();
+
+            D2DBitmap rela_result_buffer = new D2DBitmap(View, new Size2((int)View.Size.Width, (int)View.Size.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
+            rela_result_buffer.CopyFromBitmap(result_buffer);
+
+            result_buffer.Dispose();
+
+            var m_map = rela_result_buffer.Map(MapOptions.Read);
+            var m_lock = target.Lock(BitmapLockFlags.Write);
+            unsafe
+            {
+                Direct2DImage.RtlMoveMemory((void*)m_lock.Data.DataPointer, (void*)m_map.DataPointer, m_lock.Size.Height * m_lock.Data.Pitch);
+            }
+            m_lock.Dispose();
+            rela_result_buffer.Unmap();
+            rela_result_buffer.Dispose();
+
         }
     }
 }

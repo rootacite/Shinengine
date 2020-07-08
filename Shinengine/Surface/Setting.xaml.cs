@@ -60,7 +60,7 @@ namespace Shinengine.Surface
         private void BGMVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             SharedSetting.BGMVolum = (float)(e.NewValue / 100.0);
-            if (MainWindow.TheatreMode.m_theatre.m_player != null) MainWindow.TheatreMode.m_theatre.m_player.outputDevice.Volume = SharedSetting.BGMVolum;
+            if (MainWindow.TheatreMode != null && MainWindow.TheatreMode.m_theatre.m_player!=null) MainWindow.TheatreMode.m_theatre.m_player.outputDevice.Volume = SharedSetting.BGMVolum;
         }
 
         private void VoiceVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -76,7 +76,7 @@ namespace Shinengine.Surface
         private void EmVm_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             SharedSetting.EmVolum= (float)(e.NewValue / 100.0);
-            if (MainWindow.TheatreMode.m_theatre.m_em_player != null) MainWindow.TheatreMode.m_theatre.m_em_player.outputDevice.Volume = SharedSetting.EmVolum;
+            if (MainWindow.TheatreMode != null&& MainWindow.TheatreMode.m_theatre.m_em_player!=null) MainWindow.TheatreMode.m_theatre.m_em_player.outputDevice.Volume = SharedSetting.EmVolum;
         }
 
         private void Exitlpg_Click(object sender, RoutedEventArgs e)

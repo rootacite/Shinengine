@@ -135,7 +135,15 @@ namespace Shinengine.Surface
                     var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
                     _i_r.Margin = new_margin;
 
-                } 
+                } else if(_i is ProgressBar)
+                {
+                    var _i_r = _i as ProgressBar;
+                    _i_r.Width *= width_rate;
+                    _i_r.Height *= height_rate;
+
+                    var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
+                    _i_r.Margin = new_margin;
+                }
             }
         }
         static public void ResizeEvt(Grid page, Size2 oldSize, Size2 newSize)
@@ -147,7 +155,7 @@ namespace Shinengine.Surface
         }
 
         static Title _title = null;  
-        static public Title Title {
+        static new public Title Title {
             get
             {
                 return _title;
@@ -318,7 +326,7 @@ namespace Shinengine.Surface
                 {
                     TheatreMode = SwitchToSignalTheatre(0, 0, null);
 
-
+                    Title = null;
                     maa.stbd.Stop();
                 });
                 maa.Start(true);
@@ -335,7 +343,10 @@ namespace Shinengine.Surface
                         {
                             disableSave = true
                         };
-
+                        if (true)
+                        {
+                            ResizeEvt(msv.Forgan, new Size2(1280, 720), new Size2((int)m_window.sys_con_pite.Width, (int)m_window.sys_con_pite.Height));
+                        }
                         MainWindow.sys_pite.Content = msv.Content;
                         Sldata = msv;
                         Title = null;
@@ -785,6 +796,9 @@ namespace Shinengine.Surface
                 sys_con_pite.Height = new_size.Height;
 
                 sys_con_pite.Margin = new Thickness(0, m_rect.Bottom/2.0- sys_con_pite.Height  / 2.0, 0, 0);
+
+                ResizeEvt(_BkGrid, new Size2((int)saveLoadingProcess.ActualWidth, (int)saveLoadingProcess.ActualHeight), new Size2(new_size.Width, new_size.Height));
+                saveLoadingProcess.Margin = new Thickness(0,m_rect.Bottom / 2.0 - saveLoadingProcess.Height / 2.0, 0, 0);
             }
             else
             {
@@ -795,10 +809,13 @@ namespace Shinengine.Surface
                 sys_con_pite.Height = new_size.Height;
 
                 sys_con_pite.Margin = new Thickness( m_rect.Right  / 2.0 - sys_con_pite.Width/2.0, 0, 0, 0);
-            }
-            
 
-            if(target is Title)
+               ResizeEvt(_BkGrid, new Size2((int)saveLoadingProcess.ActualWidth, (int)saveLoadingProcess.ActualHeight), new Size2(new_size.Width, new_size.Height));
+               saveLoadingProcess.Margin = new Thickness(m_rect.Right / 2.0 - saveLoadingProcess.Width / 2.0, 0, 0, 0);
+            }
+
+           
+            if (target is Title)
             {
                 var _target = target as Title;
                 ResizeEvt((target as Title).BkGrid, new Size2((int)_target.BkGrid.ActualWidth, (int)_target.BkGrid.ActualHeight), new Size2(new_size.Width, new_size.Height));

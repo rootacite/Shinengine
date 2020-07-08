@@ -137,13 +137,21 @@ namespace Shinengine.Theatre
             {
                 Home = bkSre;
             }
-
+            if (skipping_flag)
+            {
+                MainWindow.m_window.Dispatcher.Invoke(new Action(() =>
+                {
+                    MainWindow.m_window.sl_process.Value = 100.0 * ((double)saved_frame / (double)locatPlace);
+                    MainWindow.m_window.sl_tepro.Text = ((int)(100.0 * ((double)saved_frame / (double)locatPlace))).ToString() + "%";
+                }));
+            }
             if (locatPlace == saved_frame)
             {
                 GamingTheatre.isSkiping = false;
                 skipping_flag = false;
                 MainWindow.m_window.Dispatcher.Invoke(new Action(()=> {
                     MainWindow.m_window.sys_con_pite.Visibility = Visibility.Visible;
+                    MainWindow.m_window.saveLoadingProcess.Visibility = Visibility.Hidden;
                 }));
             }
             if (GamingTheatre.isSkiping)
@@ -176,10 +184,13 @@ namespace Shinengine.Theatre
 
             GamingTheatre.isSkiping = true;
             skipping_flag = true;
-            MainWindow.m_window.sys_con_pite.Visibility = Visibility.Collapsed;
-           /////////////////new instead
+            MainWindow.m_window.sl_process.Value =0;
+            MainWindow.m_window.sl_tepro.Text = "0%";
+            MainWindow.m_window.sys_con_pite.Visibility = Visibility.Hidden;
+            MainWindow.m_window.saveLoadingProcess.Visibility = Visibility.Visible;
+            /////////////////new instead
 
-           locatPlace = place;
+            locatPlace = place;
         }
         public bool skipping_flag = false;
     }//已经确认过安全的类

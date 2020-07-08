@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Shinengine"
         mc:Ignorable="d"
-        Title="MainWindow" ResizeMode="CanResize" Height="760" Width="1300" Closed="Window_Closed" KeyDown="MmKeyDown" KeyUp="MmKeyUp" SizeChanged="Window_SizeChanged" Background="Black" >
+        Title="MainWindow" ResizeMode="CanResize" Height="760" Width="1290" Closed="Window_Closed" KeyDown="MmKeyDown" KeyUp="MmKeyUp" SizeChanged="Window_SizeChanged" Background="Black" >
     <Grid x:Name="_BkGrid" HorizontalAlignment="Left" VerticalAlignment="Top"  Loaded="BkGrid_Loaded">
         <ContentControl x:Name="sys_con_pite" HorizontalAlignment="Left" VerticalAlignment="Top" Height="720" Width="1280" Background="Black">
             <Image x:Name="_Shower" Height="720" Width="1280"  HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Fill" />
         </ContentControl>
+        <Grid x:Name="saveLoadingProcess" HorizontalAlignment="Left" VerticalAlignment="Top" Height="720" Width="1280" Visibility="Hidden">
+            <Grid.Background>
+                <ImageBrush ImageSource="/UI/loading.png"/>
+            </Grid.Background>
+            <ProgressBar x:Name="sl_process" Height="40" Margin="4,675,76,5" Opacity="0.6" Value="19"/>
+            <TextBlock x:Name="sl_tepro" HorizontalAlignment="Left" Width="65" Height="40" Margin="1212,676,0,0" Text="00%" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="32" FontWeight="Bold" FontFamily="Arial"/>
+        </Grid>
     </Grid>
 </Window>

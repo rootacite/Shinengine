@@ -28,11 +28,8 @@ using System.Windows.Media;
 using System.Windows;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
-using System.Drawing;
-using System.Diagnostics.Eventing.Reader;
 
 namespace Shinengine.Media
 {
@@ -42,6 +39,11 @@ namespace Shinengine.Media
         Ignore,
         Death
     }
+
+    public delegate void StartTask(DeviceContext view, WICBitmap last, int Width, int Height);
+    public delegate void EndedTask();
+    public delegate void EndingTask(object Loadedsouce, Direct2DImage self);
+    public delegate DrawProcResult DrawProcTask(DeviceContext view, object Loadedsouce, int Width, int Height);
     sealed public class Direct2DImage : IDisposable
     {
 
@@ -58,29 +60,23 @@ namespace Shinengine.Media
 
         public int TargetDpi;//目标帧率
 
-        private readonly WriteableBitmap buffer = null;//图片源
+        private WriteableBitmap buffer = null;//图片源
         public readonly ImagingFactory _ImagFc = null;
         public readonly D2DBitmap _bufferBack;//用于D2D绘图的WIC图片
         private readonly D2DFactory DxFac = null;
 
         public double Speed = 0;//画每帧后等待的时间
         private DispatcherTimer m_Dipter;//计算帧率的计时器
-        private Task m_Dipter2;//绘图线程
-        public delegate DrawProcResult FarmeTask(DeviceContext view, object Loadedsouce, int Width, int Height);
+        private Thread m_Dipter2;//绘图线程
 
-        public delegate void StartTask(DeviceContext view, WICBitmap last, int Width, int Height);
-        public delegate void EndedTask();
-        public delegate void EndingTask(object Loadedsouce, Direct2DImage self);
 
         public event EndedTask Disposed;
-        public event EndingTask SouceDisposing;
+        public event EndingTask Disposing;
 
-        public event FarmeTask DrawProc;
+        public event DrawProcTask DrawProc;
         public event StartTask FirstDraw;
 
         private bool isRunning = false;//指示是否正在运行
-        private readonly System.Drawing.Bitmap bufferCaller = null;
-        private readonly Graphics bufferSurface = null;
         private readonly SharpDX.Direct3D11.Device d3DDevice;// = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
         private readonly SharpDX.DXGI.Device dxgiDevice;// = d3DDevice.QueryInterface<Device>().QueryInterface<SharpDX.DXGI.Device>();
 
@@ -94,7 +90,7 @@ namespace Shinengine.Media
             TargetDpi = Fps;
             d3DDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
             var __dxgiDevice = d3DDevice.QueryInterface<Device>();
-           dxgiDevice = __dxgiDevice.QueryInterface<SharpDX.DXGI.Device>();
+            dxgiDevice = __dxgiDevice.QueryInterface<SharpDX.DXGI.Device>();
             __dxgiDevice.Dispose();
             Speed = 1.0d / (double)TargetDpi;
             Width = (int)size.Width;
@@ -103,19 +99,16 @@ namespace Shinengine.Media
 
             DxFac = new D2DFactory();
             d2DDevice = new SharpDX.Direct2D1.Device(DxFac, dxgiDevice);
-            buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Pbgra32, null);
-
-            bufferCaller = new System.Drawing.Bitmap(size.Width, size.Height, buffer.BackBufferStride, System.Drawing.Imaging.PixelFormat.Format32bppArgb, buffer.BackBuffer);
-            bufferSurface = Graphics.FromImage(bufferCaller);
 
 
             View = new DeviceContext(d2DDevice, DeviceContextOptions.EnableMultithreadedOptimizations);
-
             _ImagFc = new ImagingFactory();
-
             _bufferBack = new D2DBitmap(View, size,
                 new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.Target | BitmapOptions.CannotDraw));
             View.Target = _bufferBack;
+
+
+            buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Pbgra32, null);
 
         }
         public void DrawStartup(Image contorl)
@@ -124,16 +117,8 @@ namespace Shinengine.Media
             {
                 try
                 {
-
-                    //   Debug.WriteLine("Lock");
-
                     FirstDraw(View, null, Width, Height);
-
-
                     contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
-
-
-                    //  Debug.WriteLine("UnLock");
                 }
                 catch (Exception e)
                 {
@@ -151,7 +136,7 @@ namespace Shinengine.Media
 
                 Times = 0;
             };
-            m_Dipter2 = new Task(() =>
+            m_Dipter2 = new Thread(() =>
             {//绘图代码
 
                 while (isRunning)
@@ -163,7 +148,8 @@ namespace Shinengine.Media
                     sw.Start();
 
                     UpData = DrawProc?.Invoke(View, Loadedsouce, Width, Height);
-                    contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
+                    if (!(UpData == DrawProcResult.Ignore || UpData == null)) contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
+
                     sw.Stop();
 
                     decimal time = sw.ElapsedTicks / (decimal)Stopwatch.Frequency * 1000;
@@ -173,15 +159,14 @@ namespace Shinengine.Media
                     {
                         wait_time = 0;
                     }
-                    Debug.WriteLine("Time:" + time.ToString());
- 
-                    if (UpData == DrawProcResult.Normal)
+
+                    if (UpData == DrawProcResult.Normal || UpData == null)
                     {
                         Thread.Sleep((int)wait_time);
                         Times++;
                         continue;
                     }
-                    if (UpData == DrawProcResult.Ignore|| UpData == null)
+                    if (UpData == DrawProcResult.Ignore)
                     {
                         continue;
                     }
@@ -192,56 +177,57 @@ namespace Shinengine.Media
                     }
 
                 }
-            });
+
+                Disposing?.Invoke(Loadedsouce, this);
+
+                buffer = null;
+
+                _bufferBack?.Dispose();
+                View?.Dispose();
+
+                _ImagFc?.Dispose();
+
+
+                d2DDevice?.Dispose();
+                DxFac?.Dispose();
+                dxgiDevice?.Dispose();
+                d3DDevice?.Dispose();
+
+                Disposed?.Invoke();
+            })
+            { IsBackground = true };
 
             contorl.Source = buffer;
 
             m_Dipter.Start();
             m_Dipter2.Start();
         }
-        private void SafeRelease()
-        {
-            new Task(() =>
-            {
-                m_Dipter?.Stop();
-                isRunning = false;
 
-                m_Dipter2?.Wait();
-
-
-                SouceDisposing?.Invoke(Loadedsouce, this);
-
-                _bufferBack?.Dispose();
-                View?.Dispose();
-
-                _ImagFc?.Dispose();
- 
-                m_Dipter2?.Dispose();
-                bufferSurface?.Dispose();
-                bufferCaller?.Dispose();
-                d2DDevice?.Dispose();
-                DxFac?.Dispose();
-                dxgiDevice?.Dispose();
-                d3DDevice?.Dispose();
-
-            }).Start();
-        }//ignore
         public void Dispose()
         {
-            if (IsDisposed) return;
+            Dispose(true);
 
-            SafeRelease();
-
-            IsDisposed = true;
-
-            Disposed?.Invoke();
             GC.SuppressFinalize(this);
 
         }
-        public bool IsDisposed { get; private set; } =false;
-        public WICBitmap LastDraw 
+        private void Dispose(bool isdisposing)
         {
-            get 
+            if (IsDisposed) return;
+            IsDisposed = true;
+            m_Dipter?.Stop();
+           
+
+            if (isdisposing)
+            {
+               
+            }
+
+            isRunning = false;
+        }
+        public bool IsDisposed { get; private set; } = false;
+        public WICBitmap LastDraw
+        {
+            get
             {
                 D2DBitmap m_local_buffer = new D2DBitmap(View, new Size2(Width, Height),
             new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
@@ -250,44 +236,40 @@ namespace Shinengine.Media
                 var m_end_map = m_local_buffer.Map(MapOptions.Read);
                 var m_end_bitmap_wic = new WICBitmap(_ImagFc, Width, Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(m_end_map.DataPointer, m_end_map.Pitch));
 
-                 
-
                 m_local_buffer.Unmap();
                 m_local_buffer.Dispose();
 
-                return m_end_bitmap_wic; 
+                return m_end_bitmap_wic;
             }
         }
         ~Direct2DImage()
         {
-           Dispose();
+            Dispose(false);
         }//ignore
         unsafe public void Commit()
         {
-            D2DBitmap m_local_buffer = new D2DBitmap(View, new Size2(Width, Height),
-                new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));//建立一个可以从CPU读取的bitrmap
+            D2DBitmap m_copied_buffer = new D2DBitmap(View, new Size2(Width, Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
+            m_copied_buffer.CopyFromBitmap(_bufferBack);
 
-            m_local_buffer.CopyFromBitmap(_bufferBack);//复制缓冲区
+            var m_copied_map = m_copied_buffer.Map(MapOptions.Read);
 
             buffer.Lock();
 
-            var m_lock = m_local_buffer.Map(MapOptions.Read);
+            for (int i = 0; i < m_copied_buffer.PixelSize.Height; i++)
+            {
+                int* source_base = (int*)(m_copied_map.DataPointer + i * m_copied_map.Pitch);
+                int* target_base = (int*)(buffer.BackBuffer + i * buffer.BackBufferStride);
 
-            var m_bp = new System.Drawing.Bitmap(m_local_buffer.PixelSize.Width, m_local_buffer.PixelSize.Height, m_lock.Pitch, System.Drawing.Imaging.PixelFormat.Format32bppArgb, m_lock.DataPointer);
-
-            bufferSurface.Clear(System.Drawing.Color.Transparent);
-            bufferSurface.DrawImage(m_bp, new System.Drawing.Point(0, 0));
-
-            m_bp.Dispose();
-            //
-            m_local_buffer.Unmap();
+                RtlMoveMemory((void*)target_base, (void*)source_base, 4 * m_copied_buffer.PixelSize.Width);
+            }
 
             buffer.AddDirtyRect(new Int32Rect(0, 0, Width, Height));
             buffer.Unlock();
 
-            m_local_buffer.Dispose();
-
+            m_copied_buffer.Unmap();
+            m_copied_buffer.Dispose();
         }//把后台数据呈现到前台
+
     }
 
 

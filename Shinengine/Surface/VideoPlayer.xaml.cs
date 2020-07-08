@@ -108,7 +108,7 @@ namespace Shinengine.Surface
             {
                 Loadedsouce = vest
             };
-            dxVideo.SouceDisposing += (Loadedsouce ,s) => { (Loadedsouce as Video).Dispose();  };
+            dxVideo.Disposing += (Loadedsouce ,s) => { (Loadedsouce as Video).Dispose();  };
             dxVideo.DrawProc += DrawCallback;
 
 

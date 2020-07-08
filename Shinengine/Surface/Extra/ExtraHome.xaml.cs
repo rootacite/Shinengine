@@ -21,8 +21,7 @@ namespace Shinengine.Surface.Extra
     /// ExtraHome.xaml 的交互逻辑
     /// </summary>
     public partial class ExtraHome : Page
-    {
-        Page ref_mode = null;
+    { 
         public ExtraHome()
         {
             InitializeComponent();

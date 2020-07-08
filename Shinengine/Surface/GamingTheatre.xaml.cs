@@ -107,7 +107,7 @@ namespace Shinengine.Surface
                 if (ims == frames.Count)
                     ims = 0;
                 t.BeginDraw();
-                t.Clear(new RawColor4(0, 0, 0, 0));
+                t.Clear(null);
                 D2DBitmap parl_map = D2DBitmap.FromWicBitmap(t, frames[ims]);
                 t.DrawBitmap(parl_map, 1, InterpolationMode.Anisotropic);
                 t.EndDraw();

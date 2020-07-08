@@ -101,6 +101,7 @@
     <None Remove="UI/TITLE.png" />
     <None Remove="UI/Voice.png" />
     <None Remove="UI\dismiss.png" />
+    <None Remove="UI\loading.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -174,6 +175,7 @@
     <Resource Include="UI/TITLE.png" />
     <Resource Include="UI/Voice.png" />
     <Resource Include="UI\dismiss.png" />
+    <Resource Include="UI\loading.png" />
   </ItemGroup>
 
   <ItemGroup>
