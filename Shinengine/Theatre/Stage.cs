@@ -34,7 +34,7 @@ namespace Shinengine.Theatre
 
     public enum ImageEffects
     {
-        BW_Effect
+        BW_Effect = 0x1
     }
     sealed public class Stage : IDisposable
     {
@@ -218,31 +218,31 @@ namespace Shinengine.Theatre
                 };
 
 
-                D2DBitmap ral_picA = last_save == null ? null : D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+                D2DBitmap ral_picA = last_save == null ? null : D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
 
-                D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, mbp_ss);
+                D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, mbp_ss);
 
 
 
 
                 videoCtrl.FirstDraw += (t, v, b, s) =>
                 {
-                    t.BeginDraw();
+                     t.View.BeginDraw();
                     if (ral_picA != null)
-                        t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                         t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
 
-                    t.EndDraw();
+                     t.View.EndDraw();
                     return;
                 };
 
                 videoCtrl.DrawProc += (t, v, b, s) =>
                 {
-                    t.BeginDraw();
+                     t.View.BeginDraw();
                     if (ral_picA != null)
-                        t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawBitmap(ral_picB, new RawRectangleF(0, 0, b, s), (float)varb, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height), null);
+                         t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                     t.View.DrawBitmap(ral_picB, new RawRectangleF(0, 0, b, s), (float)varb, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, mbp_ss.Size.Width, mbp_ss.Size.Height), null);
 
-                    t.EndDraw();
+                     t.View.EndDraw();
                     if (vara <= 0 || varb >= 1)
                     {
                         return DrawProcResult.Death;
@@ -312,18 +312,18 @@ namespace Shinengine.Theatre
 
             }));
             if (last_save != null)
-                ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+                ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
 
             videoCtrl.FirstDraw += (t, m, b, s) =>
             {
-                t.BeginDraw();
+                t.View.BeginDraw();
                 if (ral_pic != null)
-                    t.DrawBitmap(ral_pic,
+                    t.View.DrawBitmap(ral_pic,
                        new RawRectangleF(0, 0, b, s),
                         1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                         new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
 
-                t.EndDraw();
+                t.View.EndDraw();
                 return;
             };
             ManualResetEvent msc_evt = null;
@@ -366,38 +366,38 @@ namespace Shinengine.Theatre
                         }
                         return DrawProcResult.Death;
                     }
-                    WICBitmap m_rest_ppc = new WICBitmap(videoCtrl._ImagFc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+                    WICBitmap m_rest_ppc = new WICBitmap(videoCtrl.m_d2d_info.ImagingFacy, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
 
                     if (effect != null)
                         foreach (var i in effect)
-                            ApplyEffectToSignalTarget(videoCtrl.View, i, m_rest_ppc);
+                            ApplyEffectToSignalTarget(videoCtrl.m_d2d_info.View, i, m_rest_ppc);
 
-                    var BitSrc = D2DBitmap.FromWicBitmap(view, m_rest_ppc);
+                    var BitSrc = D2DBitmap.FromWicBitmap(view.View, m_rest_ppc);
                     m_rest_ppc.Dispose();
 
-                    view.BeginDraw();
+                    view.View.BeginDraw();
                     if (vara > 0 && varb < 1)
                     {
                         if (ral_pic != null)
-                            view.DrawBitmap(ral_pic,
+                            view.View.DrawBitmap(ral_pic,
                           new RawRectangleF(0, 0, Width, Height),
                            (float)vara, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                            new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
 
-                        view.DrawBitmap(BitSrc,
+                        view.View.DrawBitmap(BitSrc,
                       new RawRectangleF(0, 0, Width, Height),
                        (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                        new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
                     }
                     else
                     {
-                        view.DrawBitmap(BitSrc,
+                        view.View.DrawBitmap(BitSrc,
                       new RawRectangleF(0, 0, Width, Height),
                        1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                        new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
                     }
 
-                    view.EndDraw();
+                    view.View.EndDraw();
 
                     BitSrc.Dispose();
 
@@ -424,22 +424,22 @@ namespace Shinengine.Theatre
                         }
                         return DrawProcResult.Death;
                     }
-                    WICBitmap m_rest_ppc = new WICBitmap(videoCtrl._ImagFc, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
+                    WICBitmap m_rest_ppc = new WICBitmap(videoCtrl.m_d2d_info.ImagingFacy, video.FrameSize.Width, video.FrameSize.Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(dataPoint, pitch));
 
                     if (effect != null)
                         foreach (var i in effect)
-                            ApplyEffectToSignalTarget(videoCtrl.View,i, m_rest_ppc);
+                            ApplyEffectToSignalTarget(videoCtrl.m_d2d_info.View, i, m_rest_ppc);
 
-                    var BitSrc = D2DBitmap.FromWicBitmap(view, m_rest_ppc);
+                    var BitSrc = D2DBitmap.FromWicBitmap(view.View, m_rest_ppc);
                     m_rest_ppc.Dispose();
-                    view.BeginDraw();
+                    view.View.BeginDraw();
 
-                    view.DrawBitmap(BitSrc,
+                    view.View.DrawBitmap(BitSrc,
                   new RawRectangleF(0, 0, Width, Height),
                    1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                    new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
 
-                    view.EndDraw();
+                    view.View.EndDraw();
 
                     BitSrc.Dispose();
                     return DrawProcResult.Normal;
@@ -521,20 +521,20 @@ namespace Shinengine.Theatre
                     Loadedsouce = null
                 };
             }));
-            D2DBitmap ral_picA = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
-            D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, mbp_ss);
+            D2DBitmap ral_picA = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
+            D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, mbp_ss);
 
             videoCtrl.FirstDraw += (t, v, b, s) =>
             {
-                t.BeginDraw();
+                 t.View.BeginDraw();
                 if (mode != null)
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    var m_bn_effect = new Blend(t)
+                    var m_bn_effect = new Blend(t.View)
                     {
                         Mode = mode.Value
                     };
@@ -543,24 +543,24 @@ namespace Shinengine.Theatre
                     var buffer_opt = m_op_effect.Output;
                     m_bn_effect.SetInput(1, buffer_opt, new RawBool());
                     buffer_opt.Dispose();
-                    t.DrawImage(m_bn_effect);
+                    t.View.DrawImage(m_bn_effect);
 
                     m_op_effect.Dispose();
                     m_bn_effect.Dispose();
                 }
                 else
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawImage(m_op_effect);
+                     t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.View.DrawImage(m_op_effect);
 
                     m_op_effect.Dispose();
                 }
-                t.EndDraw();
+                 t.View.EndDraw();
                 if (vara <= 0 || varb >= 1)
                 {
                     return;
@@ -574,15 +574,15 @@ namespace Shinengine.Theatre
 
             videoCtrl.DrawProc += (t, v, b, s) =>
             {
-                t.BeginDraw();
+                 t.View.BeginDraw();
                 if (mode != null)
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    var m_bn_effect = new Blend(t)
+                    var m_bn_effect = new Blend(t.View)
                     {
                         Mode = mode.Value
                     };
@@ -591,24 +591,24 @@ namespace Shinengine.Theatre
                     var buffer_opt = m_op_effect.Output;
                     m_bn_effect.SetInput(1, buffer_opt, new RawBool());
                     buffer_opt.Dispose();
-                    t.DrawImage(m_bn_effect);
+                    t.View.DrawImage(m_bn_effect);
 
                     m_op_effect.Dispose();
                     m_bn_effect.Dispose();
                 }
                 else
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawImage(m_op_effect);
+                     t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.View.DrawImage(m_op_effect);
 
                     m_op_effect.Dispose();
                 }
-                t.EndDraw();
+                 t.View.EndDraw();
                 if (vara <= 0 || varb >= 1)
                 {
                     return DrawProcResult.Death;
@@ -676,12 +676,12 @@ namespace Shinengine.Theatre
                     Loadedsouce = m_sourc
                 };
             }));
-            ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+            ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
 
             videoCtrl.FirstDraw += (t, m, b, s) =>
             {
-                t.BeginDraw();
-                t.DrawBitmap(ral_pic,
+                 t.View.BeginDraw();
+                 t.View.DrawBitmap(ral_pic,
                    new RawRectangleF(0, 0, b, s),
                     1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                     new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
@@ -693,13 +693,13 @@ namespace Shinengine.Theatre
                     throw new Exception();
                 }
 
-                var BitSrc = new D2DBitmap(t, new Size2(m_sourc.FrameSize.Width, m_sourc.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
+                var BitSrc = new D2DBitmap(t.View, new Size2(m_sourc.FrameSize.Width, m_sourc.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
                 BitSrc.CopyFromMemory(dataPoint, pitch);
 
                 if (mode != null)
                 {
 
-                    var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t)
+                    var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t.View)
                     {
                         Mode = mode.Value
                     };
@@ -707,21 +707,21 @@ namespace Shinengine.Theatre
                     m_bn_effect.SetInput(0, ral_pic, new RawBool());
                     m_bn_effect.SetInput(1, BitSrc, new RawBool());
 
-                    t.DrawImage(m_bn_effect);
+                    t.View.DrawImage(m_bn_effect);
 
                     m_bn_effect.Dispose();
                 }
                 else
                 {
-                    t.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawBitmap(BitSrc,
+                     t.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                     t.View.DrawBitmap(BitSrc,
                   new RawRectangleF(0, 0, b, s),
                    1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                    new RawRectangleF(0, 0, m_sourc.FrameSize.Width, m_sourc.FrameSize.Height));
                 }
 
                 BitSrc.Dispose();
-                t.EndDraw();
+                 t.View.EndDraw();
                 return;
             };
             ManualResetEvent msc_evt = null;
@@ -758,22 +758,22 @@ namespace Shinengine.Theatre
                     {
                         return DrawProcResult.Death;
                     }
-                    var BitSrc = new D2DBitmap(view, new Size2(video.FrameSize.Width, video.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
+                    var BitSrc = new D2DBitmap(view.View, new Size2(video.FrameSize.Width, video.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
                     BitSrc.CopyFromMemory(dataPoint, pitch);
 
 
-                    view.BeginDraw();
+                    view.View.BeginDraw();
                     if (varb < 1)
                     {
 
                         if (mode != null)
                         {
-                            var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
+                            var m_op_effect = new SharpDX.Direct2D1.Effect(view.View, SharpDX.Direct2D1.Effect.Opacity);
 
                             m_op_effect.SetInput(0, BitSrc, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
-                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view.View)
                             {
                                 Mode = mode.Value
                             };
@@ -782,20 +782,20 @@ namespace Shinengine.Theatre
                             var buffer_opt = m_op_effect.Output;
                             m_bn_effect.SetInput(1, buffer_opt, new RawBool());
                             buffer_opt.Dispose();
-                            view.DrawImage(m_bn_effect);
+                            view.View.DrawImage(m_bn_effect);
 
                             m_op_effect.Dispose();
                             m_bn_effect.Dispose();
                         }
                         else
                         {
-                            var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
+                            var m_op_effect = new SharpDX.Direct2D1.Effect(view.View, SharpDX.Direct2D1.Effect.Opacity);
 
                             m_op_effect.SetInput(0, BitSrc, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
-                            view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                            view.DrawImage(m_op_effect);
+                            view.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                            view.View.DrawImage(m_op_effect);
 
                             m_op_effect.Dispose();
                         }
@@ -805,7 +805,7 @@ namespace Shinengine.Theatre
                         if (mode != null)
                         {
 
-                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view.View)
                             {
                                 Mode = mode.Value
                             };
@@ -813,21 +813,21 @@ namespace Shinengine.Theatre
                             m_bn_effect.SetInput(0, ral_pic, new RawBool());
                             m_bn_effect.SetInput(1, BitSrc, new RawBool());
 
-                            view.DrawImage(m_bn_effect);
+                            view.View.DrawImage(m_bn_effect);
 
                             m_bn_effect.Dispose();
                         }
                         else
                         {
-                            view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                            view.DrawBitmap(BitSrc,
+                            view.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                            view.View.DrawBitmap(BitSrc,
                           new RawRectangleF(0, 0, Width, Height),
                            1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                            new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
                         }
                     }
 
-                    view.EndDraw();
+                    view.View.EndDraw();
 
                     BitSrc.Dispose();
 
@@ -860,14 +860,14 @@ namespace Shinengine.Theatre
                     {
                         return DrawProcResult.Death;
                     }
-                    var BitSrc = new D2DBitmap(view, new Size2(video.FrameSize.Width, video.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
+                    var BitSrc = new D2DBitmap(view.View, new Size2(video.FrameSize.Width, video.FrameSize.Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
                     BitSrc.CopyFromMemory(dataPoint, pitch);
-                    view.BeginDraw();
+                    view.View.BeginDraw();
 
                     if (mode != null)
                     {
 
-                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view.View)
                         {
                             Mode = mode.Value
                         };
@@ -875,19 +875,19 @@ namespace Shinengine.Theatre
                         m_bn_effect.SetInput(0, ral_pic, new RawBool());
                         m_bn_effect.SetInput(1, BitSrc, new RawBool());
 
-                        view.DrawImage(m_bn_effect);
+                        view.View.DrawImage(m_bn_effect);
 
                         m_bn_effect.Dispose();
                     }
                     else
                     {
-                        view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                        view.DrawBitmap(BitSrc,
+                        view.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                        view.View.DrawBitmap(BitSrc,
                       new RawRectangleF(0, 0, Width, Height),
                        1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                        new RawRectangleF(0, 0, video.FrameSize.Width, video.FrameSize.Height));
                     }
-                    view.EndDraw();
+                    view.View.EndDraw();
 
                     BitSrc.Dispose();
                     return DrawProcResult.Normal;
@@ -939,12 +939,12 @@ namespace Shinengine.Theatre
                     Loadedsouce = video
                 };
             }));
-            D2DBitmap ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+            D2DBitmap ral_pic = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
 
             videoCtrl.FirstDraw += (t, m, b, s) =>
             {
-                t.BeginDraw();
-                t.DrawBitmap(ral_pic,
+                 t.View.BeginDraw();
+                 t.View.DrawBitmap(ral_pic,
                    new RawRectangleF(0, 0, b, s),
                     1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                     new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height));
@@ -952,30 +952,30 @@ namespace Shinengine.Theatre
                 if (mode != null)
                 {
 
-                    var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t)
+                    var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(t.View)
                     {
                         Mode = mode.Value
                     };
-                    var av_basic = D2DBitmap.FromWicBitmap(t, video.GetFrame());
+                    var av_basic = D2DBitmap.FromWicBitmap(t.View, video.GetFrame());
                     m_bn_effect.SetInput(0, ral_pic, new RawBool());
                     m_bn_effect.SetInput(1, av_basic, new RawBool());
 
-                    t.DrawImage(m_bn_effect);
+                    t.View.DrawImage(m_bn_effect);
                     av_basic.Dispose();
                     m_bn_effect.Dispose();
                 }
                 else
                 {
-                    t.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    var av_basic = D2DBitmap.FromWicBitmap(t, video.GetFrame());
-                    t.DrawBitmap(av_basic,
+                     t.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, b, s), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    var av_basic = D2DBitmap.FromWicBitmap(t.View, video.GetFrame());
+                     t.View.DrawBitmap(av_basic,
                   new RawRectangleF(0, 0, b, s),
                    1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                    new RawRectangleF(0, 0, video.Frames[0].Size.Width, video.Frames[0].Size.Height));
                     av_basic.Dispose();
                 }
 
-                t.EndDraw();
+                 t.View.EndDraw();
                 return;
             };
             ManualResetEvent msc_evt = null;
@@ -991,18 +991,18 @@ namespace Shinengine.Theatre
                 double increment = 1 / ((double)time * 30);
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
-                    view.BeginDraw();
+                    view.View.BeginDraw();
                     if (varb < 1)
                     {
 
                         if (mode != null)
                         {
-                            var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
-                            var sv_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
+                            var m_op_effect = new SharpDX.Direct2D1.Effect(view.View, SharpDX.Direct2D1.Effect.Opacity);
+                            var sv_basic = D2DBitmap.FromWicBitmap(view.View, video.GetFrame());
                             m_op_effect.SetInput(0, sv_basic, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
-                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view.View)
                             {
                                 Mode = mode.Value
                             };
@@ -1011,7 +1011,7 @@ namespace Shinengine.Theatre
                             var buffer_opt = m_op_effect.Output;
                             m_bn_effect.SetInput(1, buffer_opt, new RawBool());
                             buffer_opt.Dispose();
-                            view.DrawImage(m_bn_effect);
+                            view.View.DrawImage(m_bn_effect);
 
                             m_op_effect.Dispose();
                             m_bn_effect.Dispose();
@@ -1019,13 +1019,13 @@ namespace Shinengine.Theatre
                         }
                         else
                         {
-                            var m_op_effect = new SharpDX.Direct2D1.Effect(view, SharpDX.Direct2D1.Effect.Opacity);
-                            var sv_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
+                            var m_op_effect = new SharpDX.Direct2D1.Effect(view.View, SharpDX.Direct2D1.Effect.Opacity);
+                            var sv_basic = D2DBitmap.FromWicBitmap(view.View, video.GetFrame());
                             m_op_effect.SetInput(0, sv_basic, new RawBool());
                             m_op_effect.SetValue(0, (float)varb);
 
-                            view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                            view.DrawImage(m_op_effect);
+                            view.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                            view.View.DrawImage(m_op_effect);
 
                             sv_basic.Dispose();
                             m_op_effect.Dispose();
@@ -1036,24 +1036,24 @@ namespace Shinengine.Theatre
                         if (mode != null)
                         {
 
-                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                            var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view.View)
                             {
                                 Mode = mode.Value
                             };
-                            var av_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
+                            var av_basic = D2DBitmap.FromWicBitmap(view.View, video.GetFrame());
                             m_bn_effect.SetInput(0, ral_pic, new RawBool());
                             m_bn_effect.SetInput(1, av_basic, new RawBool());
 
-                            view.DrawImage(m_bn_effect);
+                            view.View.DrawImage(m_bn_effect);
 
                             av_basic.Dispose(); 
                             m_bn_effect.Dispose();
                         }
                         else
                         {
-                            view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                            var av_basic = D2DBitmap.FromWicBitmap(view, video.GetFrame());
-                            view.DrawBitmap(av_basic,
+                            view.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                            var av_basic = D2DBitmap.FromWicBitmap(view.View, video.GetFrame());
+                            view.View.DrawBitmap(av_basic,
                           new RawRectangleF(0, 0, Width, Height),
                            1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                            new RawRectangleF(0, 0, video.Frames[0].Size.Width, video.Frames[0].Size.Height));
@@ -1061,7 +1061,7 @@ namespace Shinengine.Theatre
                         }
                     }
 
-                    view.EndDraw();
+                    view.View.EndDraw();
                     if (video.Loop_time >= 1)
                         return DrawProcResult.Death;
                     varb += increment;
@@ -1073,34 +1073,34 @@ namespace Shinengine.Theatre
 
                 videoCtrl.DrawProc += (view, Loadedsouce, Width, Height) =>
                 {
-                    view.BeginDraw();
+                    view.View.BeginDraw();
 
                     if (mode != null)
                     {
 
-                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view)
+                        var m_bn_effect = new SharpDX.Direct2D1.Effects.Blend(view.View)
                         {
                             Mode = mode.Value
                         };
-                        var m_n_frame = D2DBitmap.FromWicBitmap(view, video.GetFrame());
+                        var m_n_frame = D2DBitmap.FromWicBitmap(view.View, video.GetFrame());
                         m_bn_effect.SetInput(0, ral_pic, new RawBool());
                         m_bn_effect.SetInput(1, m_n_frame, new RawBool());
                         m_n_frame.Dispose();
-                        view.DrawImage(m_bn_effect);
+                        view.View.DrawImage(m_bn_effect);
 
                         m_bn_effect.Dispose();
                     }
                     else
                     {
-                        view.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                        var m_n_frame = D2DBitmap.FromWicBitmap(view, video.GetFrame());
-                        view.DrawBitmap(m_n_frame,
+                        view.View.DrawBitmap(ral_pic, new RawRectangleF(0, 0, Width, Height), 1, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                        var m_n_frame = D2DBitmap.FromWicBitmap(view.View, video.GetFrame());
+                        view.View.DrawBitmap(m_n_frame,
                       new RawRectangleF(0, 0, Width, Height),
                        1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                        new RawRectangleF(0, 0, video.Frames[0].Size.Width, video.Frames[0].Size.Height));
                         m_n_frame.Dispose(); 
                     }
-                    view.EndDraw();
+                    view.View.EndDraw();
 
                     if (video.Loop_time >= 1) 
                         return DrawProcResult.Death;
@@ -1237,20 +1237,20 @@ namespace Shinengine.Theatre
                     Loadedsouce = null
                 };
             }));
-            D2DBitmap ral_picA = D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
-            D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, visp);
+            D2DBitmap ral_picA = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
+            D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, visp);
 
             videoCtrl.FirstDraw += (t, v, b, s) =>
             {
-                t.BeginDraw();
+                 t.View.BeginDraw();
                 if (mode != null)
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    var m_bn_effect = new Blend(t)
+                    var m_bn_effect = new Blend(t.View)
                     {
                         Mode = mode.Value
                     };
@@ -1259,24 +1259,24 @@ namespace Shinengine.Theatre
                     var buffer_opt = m_op_effect.Output;
                     m_bn_effect.SetInput(1, buffer_opt, new RawBool());
                     buffer_opt.Dispose();
-                    t.DrawImage(m_bn_effect);
+                    t.View.DrawImage(m_bn_effect);
 
                     m_op_effect.Dispose();
                     m_bn_effect.Dispose();
                 }
                 else
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawImage(m_op_effect);
+                     t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.View.DrawImage(m_op_effect);
 
                     m_op_effect.Dispose();
                 }
-                t.EndDraw();
+                 t.View.EndDraw();
                 if (vara <= 0 || varb >= 1)
                 {
                     return;
@@ -1290,15 +1290,15 @@ namespace Shinengine.Theatre
 
             videoCtrl.DrawProc += (t, v, b, s) =>
             {
-                t.BeginDraw();
+                 t.View.BeginDraw();
                 if (mode != null)
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    var m_bn_effect = new Blend(t)
+                    var m_bn_effect = new Blend(t.View)
                     {
                         Mode = mode.Value
                     };
@@ -1307,24 +1307,24 @@ namespace Shinengine.Theatre
                     var buffer_opt = m_op_effect.Output;
                     m_bn_effect.SetInput(1, buffer_opt, new RawBool());
                     buffer_opt.Dispose();
-                    t.DrawImage(m_bn_effect);
+                    t.View.DrawImage(m_bn_effect);
 
                     m_op_effect.Dispose();
                     m_bn_effect.Dispose();
                 }
                 else
                 {
-                    var m_op_effect = new SharpDX.Direct2D1.Effect(t, SharpDX.Direct2D1.Effect.Opacity);
+                    var m_op_effect = new SharpDX.Direct2D1.Effect(t.View, SharpDX.Direct2D1.Effect.Opacity);
 
                     m_op_effect.SetInput(0, ral_picB, new RawBool());
                     m_op_effect.SetValue(0, (float)varb);
 
-                    t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawImage(m_op_effect);
+                     t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                    t.View.DrawImage(m_op_effect);
 
                     m_op_effect.Dispose();
                 }
-                t.EndDraw();
+                 t.View.EndDraw();
                 if (vara <= 0 || varb >= 1)
                 {
                     return DrawProcResult.Death;
@@ -1398,31 +1398,31 @@ namespace Shinengine.Theatre
                 };
 
 
-                D2DBitmap ral_picA = last_save == null ? null : D2DBitmap.FromWicBitmap(videoCtrl.View, last_save);
+                D2DBitmap ral_picA = last_save == null ? null : D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, last_save);
 
-                D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.View, visp);
+                D2DBitmap ral_picB = D2DBitmap.FromWicBitmap(videoCtrl.m_d2d_info.View, visp);
 
 
 
 
                 videoCtrl.FirstDraw += (t, v, b, s) =>
                 {
-                    t.BeginDraw();
+                     t.View.BeginDraw();
                     if (ral_picA != null)
-                        t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                         t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
 
-                    t.EndDraw();
+                     t.View.EndDraw();
                     return;
                 };
 
                 videoCtrl.DrawProc += (t, v, b, s) =>
                 {
-                    t.BeginDraw();
+                     t.View.BeginDraw();
                     if (ral_picA != null)
-                        t.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
-                    t.DrawBitmap(ral_picB, new RawRectangleF(0, 0, b, s), (float)varb, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, this_width, this_height), null);
+                         t.View.DrawBitmap(ral_picA, new RawRectangleF(0, 0, b, s), (float)vara, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, last_save.Size.Width, last_save.Size.Height), null);
+                     t.View.DrawBitmap(ral_picB, new RawRectangleF(0, 0, b, s), (float)varb, SharpDX.Direct2D1.InterpolationMode.Anisotropic, new RawRectangleF(0, 0, this_width, this_height), null);
 
-                    t.EndDraw();
+                     t.View.EndDraw();
                     if (vara <= 0 || varb >= 1)
                     {
                         return DrawProcResult.Death;
@@ -1491,8 +1491,8 @@ namespace Shinengine.Theatre
             {
                 case ImageEffects.BW_Effect:
 
-                    var this_pix = D2DBitmap.FromWicBitmap(m_dev_loader.View, buffer);
-                    m_dev_loader.Loadedsouce = new SharpDX.Direct2D1.Effects.Saturation(m_dev_loader.View);
+                    var this_pix = D2DBitmap.FromWicBitmap(m_dev_loader.m_d2d_info.View, buffer);
+                    m_dev_loader.Loadedsouce = new SharpDX.Direct2D1.Effects.Saturation(m_dev_loader.m_d2d_info.View);
 
                     SharpDX.Direct2D1.Effects.Saturation save_effect_intp = m_dev_loader.Loadedsouce as SharpDX.Direct2D1.Effects.Saturation;
                     save_effect_intp.SetInput(0, this_pix, new RawBool());
@@ -1510,9 +1510,9 @@ namespace Shinengine.Theatre
                     throw new Exception("undefined effect");
             }
 
-            m_dev_loader.View.BeginDraw();
-            m_dev_loader.View.DrawImage(m_dev_loader.Loadedsouce as Effect);
-            m_dev_loader.View.EndDraw();
+            m_dev_loader.m_d2d_info.View.BeginDraw();
+            m_dev_loader.m_d2d_info.View.DrawImage(m_dev_loader.Loadedsouce as Effect);
+            m_dev_loader.m_d2d_info.View.EndDraw();
             m_dev_loader.Commit();
 
             ManualResetEvent eve = new ManualResetEvent(false);
@@ -1528,7 +1528,6 @@ namespace Shinengine.Theatre
             eve.WaitOne();
             eve.Dispose();
         }
-
         static public void ApplyEffectToSignalTarget(DeviceContext View ,ImageEffects effect, WICBitmap target)
         {
             if (target == null) throw new Exception("target is empty");

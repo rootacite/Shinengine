@@ -40,19 +40,31 @@ namespace Shinengine.Media
         Death
     }
 
-    public delegate void StartTask(DeviceContext view, WICBitmap last, int Width, int Height);
+    public delegate void StartTask(Direct2DInformation view, WICBitmap last, int Width, int Height);
     public delegate void EndedTask();
     public delegate void EndingTask(object Loadedsouce, Direct2DImage self);
-    public delegate DrawProcResult DrawProcTask(DeviceContext view, object Loadedsouce, int Width, int Height);
+    public delegate DrawProcResult DrawProcTask(Direct2DInformation view, object Loadedsouce, int Width, int Height);
+
+    public struct Direct2DInformation
+    {
+        public  ImagingFactory ImagingFacy;
+        public  D2DFactory D2DFacy;
+        public  D2DBitmap _bufferBack;//用于D2D绘图的WIC图片
+        public  SharpDX.Direct3D11.Device d3DDevice;// = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
+        public  SharpDX.DXGI.Device dxgiDevice;// = d3DDevice.QueryInterface<Device>().QueryInterface<SharpDX.DXGI.Device>();
+
+        public  SharpDX.Direct2D1.Device d2DDevice;
+
+        public DeviceContext View { get;  set; }//绘图目标
+
+    }
     sealed public class Direct2DImage : IDisposable
     {
-
+        
         public object Loadedsouce = null;
         [DllImport("Kernel32.dll")]
         unsafe extern public static void RtlMoveMemory(void* dst, void* sur, long size);
 
-        [DllImport("Shinehelper.dll")]
-        extern static public IntPtr GetDskWindow();
         private int Times = 0;//每画一帧，值自增1，计算帧率时归零
         public int Dpis { get; private set; } = 0;//表示当前的帧率
         public int Width { get; }//绘图区域的宽
@@ -61,9 +73,8 @@ namespace Shinengine.Media
         public int TargetDpi;//目标帧率
 
         private WriteableBitmap buffer = null;//图片源
-        public readonly ImagingFactory _ImagFc = null;
-        public readonly D2DBitmap _bufferBack;//用于D2D绘图的WIC图片
-        private readonly D2DFactory DxFac = null;
+        
+       
 
         public double Speed = 0;//画每帧后等待的时间
         private DispatcherTimer m_Dipter;//计算帧率的计时器
@@ -77,38 +88,56 @@ namespace Shinengine.Media
         public event StartTask FirstDraw;
 
         private bool isRunning = false;//指示是否正在运行
-        private readonly SharpDX.Direct3D11.Device d3DDevice;// = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
-        private readonly SharpDX.DXGI.Device dxgiDevice;// = d3DDevice.QueryInterface<Device>().QueryInterface<SharpDX.DXGI.Device>();
+      
+        static public Direct2DInformation D2dInit(Size2 size)
+        {
+            Direct2DInformation result = new Direct2DInformation();
 
-        private readonly SharpDX.Direct2D1.Device d2DDevice = null;
+            result.d3DDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
+            var __dxgiDevice = result.d3DDevice.QueryInterface<Device>();
+            result.dxgiDevice = __dxgiDevice.QueryInterface<SharpDX.DXGI.Device>();
+            __dxgiDevice.Dispose();
 
-        public DeviceContext View { get; private set; } = null;//绘图目标
+            result. D2DFacy = new D2DFactory();
+            result. d2DDevice = new SharpDX.Direct2D1.Device(result.D2DFacy, result.dxgiDevice);
+
+            result.View = new DeviceContext(result.d2DDevice, DeviceContextOptions.EnableMultithreadedOptimizations);
+            result.ImagingFacy = new ImagingFactory();
+            result._bufferBack = new D2DBitmap(result.View, size,
+                new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.Target | BitmapOptions.CannotDraw));
+            result.View.Target = result._bufferBack;
+
+            return result;
+        }
+
+        static public void D2dRelease(Direct2DInformation info)
+        {
+            info._bufferBack?.Dispose();
+            info.View?.Dispose();
+
+            info.ImagingFacy?.Dispose();
 
 
+            info.d2DDevice?.Dispose();
+            info.D2DFacy?.Dispose();
+            info.dxgiDevice?.Dispose();
+            info.d3DDevice?.Dispose();
+        }
+        public Direct2DInformation m_d2d_info;
         public Direct2DImage(Size2 size, int Fps)
         {
             TargetDpi = Fps;
-            d3DDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, DeviceCreationFlags.BgraSupport);
-            var __dxgiDevice = d3DDevice.QueryInterface<Device>();
-            dxgiDevice = __dxgiDevice.QueryInterface<SharpDX.DXGI.Device>();
-            __dxgiDevice.Dispose();
-            Speed = 1.0d / (double)TargetDpi;
-            Width = (int)size.Width;
-            Height = (int)size.Height;
+          
+            Speed = 1.0d / TargetDpi;
+            Width = size.Width;
+            Height = size.Height;
             isRunning = true;
 
-            DxFac = new D2DFactory();
-            d2DDevice = new SharpDX.Direct2D1.Device(DxFac, dxgiDevice);
 
 
-            View = new DeviceContext(d2DDevice, DeviceContextOptions.EnableMultithreadedOptimizations);
-            _ImagFc = new ImagingFactory();
-            _bufferBack = new D2DBitmap(View, size,
-                new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.Target | BitmapOptions.CannotDraw));
-            View.Target = _bufferBack;
+            m_d2d_info = D2dInit(size);
 
-
-            buffer = new WriteableBitmap((int)size.Width, (int)size.Height, 72, 72, PixelFormats.Pbgra32, null);
+            buffer = new WriteableBitmap(size.Width, size.Height, 72, 72, PixelFormats.Pbgra32, null);
 
         }
         public void DrawStartup(Image contorl)
@@ -117,7 +146,7 @@ namespace Shinengine.Media
             {
                 try
                 {
-                    FirstDraw(View, null, Width, Height);
+                    FirstDraw(m_d2d_info, null, Width, Height);
                     contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
                 }
                 catch (Exception e)
@@ -147,7 +176,7 @@ namespace Shinengine.Media
                     Stopwatch sw = new Stopwatch();
                     sw.Start();
 
-                    UpData = DrawProc?.Invoke(View, Loadedsouce, Width, Height);
+                    UpData = DrawProc?.Invoke(m_d2d_info, Loadedsouce, Width, Height);
                     if (!(UpData == DrawProcResult.Ignore || UpData == null)) contorl.Dispatcher.Invoke(new Action(() => { Commit(); }));
 
                     sw.Stop();
@@ -182,17 +211,8 @@ namespace Shinengine.Media
 
                 buffer = null;
 
-                _bufferBack?.Dispose();
-                View?.Dispose();
-
-                _ImagFc?.Dispose();
-
-
-                d2DDevice?.Dispose();
-                DxFac?.Dispose();
-                dxgiDevice?.Dispose();
-                d3DDevice?.Dispose();
-
+                //////
+                D2dRelease(m_d2d_info);
                 Disposed?.Invoke();
             })
             { IsBackground = true };
@@ -229,12 +249,12 @@ namespace Shinengine.Media
         {
             get
             {
-                D2DBitmap m_local_buffer = new D2DBitmap(View, new Size2(Width, Height),
+                D2DBitmap m_local_buffer = new D2DBitmap(m_d2d_info.View, new Size2(Width, Height),
             new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
 
-                m_local_buffer.CopyFromBitmap(_bufferBack);
+                m_local_buffer.CopyFromBitmap(m_d2d_info._bufferBack);
                 var m_end_map = m_local_buffer.Map(MapOptions.Read);
-                var m_end_bitmap_wic = new WICBitmap(_ImagFc, Width, Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(m_end_map.DataPointer, m_end_map.Pitch));
+                var m_end_bitmap_wic = new WICBitmap(m_d2d_info.ImagingFacy, Width, Height, SharpDX.WIC.PixelFormat.Format32bppPBGRA, new DataRectangle(m_end_map.DataPointer, m_end_map.Pitch));
 
                 m_local_buffer.Unmap();
                 m_local_buffer.Dispose();
@@ -248,8 +268,8 @@ namespace Shinengine.Media
         }//ignore
         unsafe public void Commit()
         {
-            D2DBitmap m_copied_buffer = new D2DBitmap(View, new Size2(Width, Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
-            m_copied_buffer.CopyFromBitmap(_bufferBack);
+            D2DBitmap m_copied_buffer = new D2DBitmap(m_d2d_info. View, new Size2(Width, Height), new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), 72, 72, BitmapOptions.CannotDraw | BitmapOptions.CpuRead));
+            m_copied_buffer.CopyFromBitmap(m_d2d_info._bufferBack);
 
             var m_copied_map = m_copied_buffer.Map(MapOptions.Read);
 

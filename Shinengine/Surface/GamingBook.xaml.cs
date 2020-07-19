@@ -220,19 +220,19 @@ namespace Shinengine.Surface
                                 Loadedsouce = null
                             };
 
-                            D2DBitmap ral_picA = Stage.ConvertFromSystemBitmap(converta, videoCtrl.View);
-                            D2DBitmap ral_picB = Stage.ConvertFromSystemBitmap(convertb, videoCtrl.View);
+                            D2DBitmap ral_picA = Stage.ConvertFromSystemBitmap(converta, videoCtrl.m_d2d_info.View);
+                            D2DBitmap ral_picB = Stage.ConvertFromSystemBitmap(convertb, videoCtrl.m_d2d_info.View);
 
                             videoCtrl.FirstDraw += (t, v, b, s) =>
                             {
-                                t.BeginDraw();
+                                t.View.BeginDraw();
 
-                                t.DrawBitmap(ral_picA,
+                                t.View.DrawBitmap(ral_picA,
                          new RawRectangleF(0, 0, b, s),
                           1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                           new RawRectangleF(0, 0, converta.Width, converta.Height));
 
-                                t.EndDraw();
+                                t.View.EndDraw();
                                 return;
                             };
 
@@ -251,18 +251,18 @@ namespace Shinengine.Surface
                                 }
                                 var bmplist = v as List<D2DBitmap>;
 
-                                t.BeginDraw();
+                                t.View.BeginDraw();
 
-                                t.DrawBitmap(ral_picA,
+                                t.View.DrawBitmap(ral_picA,
                          new RawRectangleF(0, 0, b, s),
                           (float)vara, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                           new RawRectangleF(0, 0, converta.Width, converta.Height));
-                                t.DrawBitmap(ral_picB,
+                                t.View.DrawBitmap(ral_picB,
                         new RawRectangleF(0, 0, b, s),
                          (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                          new RawRectangleF(0, 0, convertb.Width, convertb.Height));
 
-                                t.EndDraw();
+                                t.View.EndDraw();
 
                                 //vara -= increment;
                                 varb += increment;

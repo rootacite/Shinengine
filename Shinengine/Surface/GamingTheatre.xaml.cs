@@ -106,11 +106,11 @@ namespace Shinengine.Surface
 
                 if (ims == frames.Count)
                     ims = 0;
-                t.BeginDraw();
-                t.Clear(null);
-                D2DBitmap parl_map = D2DBitmap.FromWicBitmap(t, frames[ims]);
-                t.DrawBitmap(parl_map, 1, InterpolationMode.Anisotropic);
-                t.EndDraw();
+                t.View.BeginDraw();
+                t.View.Clear(null);
+                D2DBitmap parl_map = D2DBitmap.FromWicBitmap(t.View, frames[ims]);
+                t.View.DrawBitmap(parl_map, 1, InterpolationMode.Anisotropic);
+                t.View.EndDraw();
 
                 ims++;
                 parl_map.Dispose();

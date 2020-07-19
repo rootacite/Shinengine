@@ -48,7 +48,7 @@ namespace Shinengine.Surface
         {
         }
 
-        private DrawProcResult DrawCallback(DeviceContext view, object Loadedsouce, int Width, int Height)
+        private DrawProcResult DrawCallback(Direct2DInformation view, object Loadedsouce, int Width, int Height)
         {
             if (Loadedsouce == null)
                 return DrawProcResult.Ignore;
@@ -76,12 +76,12 @@ namespace Shinengine.Surface
                 return DrawProcResult.Normal;
             }
             // Console.WriteLine(video.nFarm.ToString() + "：Using");
-            Bitmap farme = Bitmap.FromWicBitmap(view, video.bits[video.nFarm]?.frame);
+            Bitmap farme = Bitmap.FromWicBitmap(view.View, video.bits[video.nFarm]?.frame);
 
-            view.BeginDraw();
-            view.DrawBitmap(farme, 
+            view.View.BeginDraw();
+            view.View.DrawBitmap(farme, 
                 1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear );
-            view.EndDraw();
+            view.View.EndDraw();
 
             farme.Dispose();
             //   Console.WriteLine(video.nFarm.ToString() + "：Disposing");

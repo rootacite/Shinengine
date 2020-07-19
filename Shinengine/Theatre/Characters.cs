@@ -22,28 +22,44 @@ using System.Security.Authentication.ExtendedProtection;
 namespace Shinengine.Theatre
 {
 
-    sealed public class DynamicCharacter : Character, IDisposable
+    sealed public class DynamicCharacter : Character,  IDisposable
     {
+        private bool disposedValue;
+
         public DynamicCharacter(Theatre father, string name, string template, bool canshow = true, double? time = null, bool isAscy = true, double vel_x = 0, double vel_y = 0)
             : base(father, name, template, canshow, time, isAscy, vel_x, vel_y)
         {
 
         }
 
-        public bool Disposed { get; private set; } = false;
-        ~DynamicCharacter()
+        new private void Dispose(bool disposing)
         {
-            this.Dispose();
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 释放托管状态(托管对象)
+                }
+
+                // TODO: 释放未托管的资源(未托管的对象)并替代终结器
+                // TODO: 将大型字段设置为 null
+                base.Remove();
+                base.Dispose();
+                disposedValue = true;
+            }
         }
-        public new void Dispose()
+
+        // // TODO: 仅当“Dispose(bool disposing)”拥有用于释放未托管资源的代码时才替代终结器
+         ~DynamicCharacter()
+         {
+             // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+             Dispose(disposing: false);
+         }
+
+        new public void Dispose()
         {
-            if (Disposed) return;
-
-
-
-            base.Remove();
-            base.Dispose();
-            Disposed = true;
+            // 不要更改此代码。请将清理代码放入“Dispose(bool disposing)”方法中
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
     }
@@ -119,16 +135,16 @@ namespace Shinengine.Theatre
             shower.Dispatcher.Invoke(() => { soul_rate = whereIsShowed.Height / Init_action.Size.Height; });
             dx_switch.FirstDraw += (e, v, w, h) =>
             {
-                D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Last_Draw);/////////////////AAA
-                e.BeginDraw();
-                e.Clear(null);
+                D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e.View, Last_Draw);/////////////////AAA
+                e.View.BeginDraw();
+                e.View.Clear(null);
 
-                e.DrawBitmap(m_ipq,
+                e.View.DrawBitmap(m_ipq,
             new RawRectangleF(0, 0, w, h),
              1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
              new RawRectangleF(0, 0, Last_Draw.Size.Width, Last_Draw.Size.Height));
 
-                e.EndDraw();
+                e.View.EndDraw();
 
                 m_ipq.Dispose();//////////////////BB
                 return;
@@ -139,17 +155,17 @@ namespace Shinengine.Theatre
                 dx_switch.DrawProc += (e, v, w, h) =>
                 {
 
-                    D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e, Init_action);
-                    D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(e, rost_pitch);
+                    D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(e.View, Init_action);
+                    D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(e.View, rost_pitch);
 
-                    e.BeginDraw();
+                    e.View.BeginDraw();
 
-                    e.DrawBitmap(m_ipq,
+                    e.View.DrawBitmap(m_ipq,
                 new RawRectangleF(0, 0, w, h),
                  1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                  new RawRectangleF(0, 0, Init_action.Size.Width, Init_action.Size.Height));
 
-                    e.DrawBitmap(m_ipq2,
+                    e.View.DrawBitmap(m_ipq2,
             new RawRectangleF(
                 (float)(targetArea.Left * soul_rate),
                 (float)(targetArea.Top * soul_rate),
@@ -159,7 +175,7 @@ namespace Shinengine.Theatre
              1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
              new RawRectangleF(0, 0, rost_pitch.Size.Width, rost_pitch.Size.Height));
 
-                    e.EndDraw();
+                    e.View.EndDraw();
 
                     m_ipq.Dispose();
                     m_ipq2.Dispose();
@@ -177,28 +193,28 @@ namespace Shinengine.Theatre
                 double interrase = 1 / ((double)time * 30);
                 double varb = 0;
 
-                D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(dx_switch.View, Last_Draw);//////////////AAA
-                D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(dx_switch.View, rost_pitch);///////////////AAA
-                D2DBitmap m_ipq3 = D2DBitmap.FromWicBitmap(dx_switch.View, Init_action);
+                D2DBitmap m_ipq = D2DBitmap.FromWicBitmap(dx_switch.m_d2d_info.View, Last_Draw);//////////////AAA
+                D2DBitmap m_ipq2 = D2DBitmap.FromWicBitmap(dx_switch.m_d2d_info.View, rost_pitch);///////////////AAA
+                D2DBitmap m_ipq3 = D2DBitmap.FromWicBitmap(dx_switch.m_d2d_info.View, Init_action);
                 dx_switch.DrawProc += (e, v, w, h) =>
                 {
 
 
-                    e.BeginDraw();
-                    e.Clear(null);
+                    e.View.BeginDraw();
+                    e.View.Clear(null);
 
                     #region 两次绘图
-                    e.DrawBitmap(m_ipq,
+                    e.View.DrawBitmap(m_ipq,
                 new RawRectangleF(0, 0, w, h),
                  1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                  new RawRectangleF(0, 0, Last_Draw.Size.Width, Last_Draw.Size.Height));
 
-                    e.DrawBitmap(m_ipq3,
+                    e.View.DrawBitmap(m_ipq3,
                 new RawRectangleF(0, 0, w, h),
                  (float)varb, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
                  new RawRectangleF(0, 0, Init_action.Size.Width, Init_action.Size.Height));
 
-                    e.DrawBitmap(m_ipq2,
+                    e.View.DrawBitmap(m_ipq2,
             new RawRectangleF(
                 (float)(targetArea.Left * soul_rate),
                 (float)(targetArea.Top * soul_rate),
@@ -209,7 +225,7 @@ namespace Shinengine.Theatre
              new RawRectangleF(0, 0, rost_pitch.Size.Width, rost_pitch.Size.Height));
                     #endregion
 
-                    e.EndDraw();
+                    e.View.EndDraw();
                     if (varb > 1)
                     {
 
@@ -319,17 +335,17 @@ namespace Shinengine.Theatre
                 Direct2DImage direct2DImage = new Direct2DImage(new Size2((int)shower.Width, (int)shower.Height), 30);
                 direct2DImage.DrawProc += (View, Souce, Width, Height) =>
                 {
-                    D2DBitmap m_bp = D2DBitmap.FromWicBitmap(View, Init_action, new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
+                    D2DBitmap m_bp = D2DBitmap.FromWicBitmap(View.View, Init_action, new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied)));
 
-                    View.BeginDraw();
-                    View.Clear(null);
+                    View.View.BeginDraw();
+                    View.View.Clear(null);
 
-                    View.DrawBitmap(m_bp,
+                    View.View.DrawBitmap(m_bp,
              new RawRectangleF(0, 0, Width, Height),
               1, SharpDX.Direct2D1.BitmapInterpolationMode.Linear,
               new RawRectangleF(0, 0, Init_action.Size.Width, Init_action.Size.Height));
 
-                    View.EndDraw();
+                    View.View.EndDraw();
 
                     m_bp.Dispose();
                     return DrawProcResult.Death;
