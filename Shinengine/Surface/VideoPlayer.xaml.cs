@@ -18,6 +18,7 @@ using System.Windows.Shapes;
 
 using Shinengine.Media;
 using System.Diagnostics;
+using D2D;
 
 namespace Shinengine.Surface
 {

@@ -27,6 +27,7 @@ using Blend = SharpDX.Direct2D1.Effects.Blend;
 using Point = System.Drawing.Point;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using D2D;
 
 namespace Shinengine.Theatre
 {

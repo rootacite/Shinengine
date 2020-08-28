@@ -20,6 +20,9 @@ using Shinengine.Scripts;
 using MaterialDesignThemes.Wpf;
 using Shinengine.Surface.Extra;
 using Shinengine.Theatre;
+using System.Windows.Documents;
+using System.Collections.Generic;
+using D2D;
 
 namespace Shinengine.Surface
 {
@@ -55,7 +58,7 @@ namespace Shinengine.Surface
                 if (_i.GetType() == typeof(System.Windows.Controls.Grid))
                 {
                     var _i_r = _i as Grid;
-                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage" || _i_r.Name.Contains("save") || _i_r.Name== "ExtraGrid" || _i_r.Name== "_BkGrid")
+                    if (_i_r.Name == "foreg" || _i_r.Name == "Page" || _i_r.Name == "character_usage" || _i_r.Name.Contains("save") || _i_r.Name == "ExtraGrid" || _i_r.Name == "_BkGrid")
                     {
                         _i_r.Width *= width_rate;
                         _i_r.Height *= height_rate;
@@ -126,7 +129,7 @@ namespace Shinengine.Surface
                     _i_r.Margin = new_margin;
 
                     ResizeToGrid(_i_r.Children, width_rate, height_rate);
-                }else if(_i is PopupBox)
+                } else if (_i is PopupBox)
                 {
                     var _i_r = _i as PopupBox;
                     _i_r.Width *= width_rate;
@@ -135,7 +138,7 @@ namespace Shinengine.Surface
                     var new_margin = new Thickness(_i_r.Margin.Left * width_rate, _i_r.Margin.Top * height_rate, _i_r.Margin.Right * width_rate, _i_r.Margin.Bottom * height_rate);
                     _i_r.Margin = new_margin;
 
-                } else if(_i is ProgressBar)
+                } else if (_i is ProgressBar)
                 {
                     var _i_r = _i as ProgressBar;
                     _i_r.Width *= width_rate;
@@ -154,7 +157,7 @@ namespace Shinengine.Surface
             ResizeToGrid(page.Children, width_rate, height_rate);
         }
 
-        static Title _title = null;  
+        static Title _title = null;
         static new public Title Title {
             get
             {
@@ -167,8 +170,8 @@ namespace Shinengine.Surface
             }
         }
         static GamingBook _BookMode = null;
-        static public GamingBook BookMode{
-            get 
+        static public GamingBook BookMode {
+            get
             {
                 return _BookMode;
             }
@@ -176,16 +179,16 @@ namespace Shinengine.Surface
             {
                 top_page = value;
                 _BookMode = value;
-            } 
+            }
         }
 
         static GamingTheatre _TheatreMode = null;
-        static public GamingTheatre TheatreMode { 
-            get 
+        static public GamingTheatre TheatreMode {
+            get
             {
                 return _TheatreMode;
-            } 
-            set 
+            }
+            set
             {
                 _TheatreMode = value;
                 top_page = value;
@@ -193,12 +196,12 @@ namespace Shinengine.Surface
         }
 
         static Setting _Settere = null;
-        static public Setting Settere { 
-            get 
+        static public Setting Settere {
+            get
             {
                 return _Settere;
-            } 
-            set 
+            }
+            set
             {
                 top_page = value;
                 _Settere = value;
@@ -206,11 +209,11 @@ namespace Shinengine.Surface
         }
         static SaveLoad _Sldata = null;
         static public SaveLoad Sldata {
-            get 
-            { 
+            get
+            {
                 return _Sldata;
-            } 
-            set 
+            }
+            set
             {
                 _Sldata = value;
                 top_page = value;
@@ -218,12 +221,12 @@ namespace Shinengine.Surface
         }
         static ExtraHome _ExtraPage = null;
         static public ContentControl sys_pite = null;
-        static public ExtraHome ExtraPage { 
-            get 
+        static public ExtraHome ExtraPage {
+            get
             {
                 return _ExtraPage;
-            } 
-            set 
+            }
+            set
             {
                 _ExtraPage = value;
                 top_page = value;
@@ -285,7 +288,7 @@ namespace Shinengine.Surface
                     SwitchToTitle();
                     MainWindow.sys_pite.Content = Title.Content;
                 };
-                Settere.exitlpg.Click += (e,v) =>
+                Settere.exitlpg.Click += (e, v) =>
                 {
                     SwitchToTitle();
                     MainWindow.sys_pite.Content = Title.Content;
@@ -315,7 +318,7 @@ namespace Shinengine.Surface
             {
                 m_window.Close();
             };
-           
+
             mlp.StartButton.Click += (e, v) =>
             {
                 mlp.StartButton.IsEnabled = false;
@@ -371,7 +374,7 @@ namespace Shinengine.Surface
                 };
                 m_thread_intp.Start();
             };
-            mlp.extra.Click += (e,v) => 
+            mlp.extra.Click += (e, v) =>
             {
                 var m_thread_intp = new Thread(() =>
                 {
@@ -416,7 +419,7 @@ namespace Shinengine.Surface
             return mlp;
         }
 
-        static public GamingTheatre SwitchToSignalTheatre(int id,int start_place,Action end)
+        static public GamingTheatre SwitchToSignalTheatre(int id, int start_place, Action end)
         {
 
             GamingTheatre m_game = new GamingTheatre();
@@ -602,23 +605,23 @@ namespace Shinengine.Surface
                 if (result == MessageBoxResult.No)
                 {
                     m_window.Close();
-                }else if (result == MessageBoxResult.Yes)
+                } else if (result == MessageBoxResult.Yes)
                 {
                     SharedSetting.Last = new SaveData.SaveInfo() { chapter = id, frames = m_game.m_theatre.saved_frame };
                     m_window.Close();
                 }
             };
-            
+
             if (end == null)
             {
-                for (int i=0;i< ScriptList.Scripts.Length; i++)
+                for (int i = 0; i < ScriptList.Scripts.Length; i++)
                 {
                     if (ScriptList.Scripts[i].id == id)
                     {
                         m_game.Start(ScriptList.Scripts[i].script, id, ScriptList.Scripts[i].scriptEnd);
                     }
                 }
-              
+
             }
             else
             {
@@ -630,10 +633,10 @@ namespace Shinengine.Surface
                     }
                 }
             }
-           
+
             m_game.BG.Opacity = 0;
             m_game.Usage.Opacity = 0;
-            
+
             if (start_place != 0)
             {
                 m_game.m_theatre.SetNextLocatPosition(start_place);
@@ -642,13 +645,13 @@ namespace Shinengine.Surface
                 m_game.m_theatre.saved_frame = 0;
 
             MainWindow.sys_pite.Content = m_game.Content;
-            
+
             return m_game;
 
 
         }
 
-        
+
         private void BkGrid_Loaded(object sender, RoutedEventArgs e)
         {
             if (SharedSetting.FullS)
@@ -665,7 +668,7 @@ namespace Shinengine.Surface
             _Shower.Opacity = 0;
             _Shower.Source = new BitmapImage(new Uri("pack://application:,,,/RegularUI/sys_warning_bg.png"));
 
-            new Thread(()=> {
+            new Thread(() => {
                 /*
                 EasyAmal _ms = new EasyAmal(_Shower, "(Opacity)", 0.0, 1.0, 1);
                 _ms.Start(false);
@@ -687,16 +690,16 @@ namespace Shinengine.Surface
                         MainWindow.sys_pite.Content = Title.Content;
                     }
 
-              
+
                     return;
                 }));
 
             }).Start();
-           
+
             return;
 
 
-           
+
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -705,7 +708,7 @@ namespace Shinengine.Surface
             {
                 Directory.Delete(PackStream.TempPath[0..^1], true);
             }
-            catch(Exception)
+            catch (Exception)
             {
 
             }
@@ -716,7 +719,7 @@ namespace Shinengine.Surface
         {
             if (TheatreMode == null)
                 return;
-            if (Settere != null || TheatreMode.isBakcloging||TheatreMode.m_theatre.skipping_flag)
+            if (Settere != null || TheatreMode.isBakcloging || TheatreMode.m_theatre.skipping_flag)
             {
                 return;
             }
@@ -735,10 +738,16 @@ namespace Shinengine.Surface
         }
 
         private void MmKeyUp(object sender, KeyEventArgs e)
-       {
+        {
+            if (e.Key == Key.F3)
+            {
+                ShineToast m_toast = new ShineToast();
+                ShineToast.Toast("wocaonima", 2.0, new Point(100, 100));
+            }
+
             if (e.Key == Key.Space)
                 GC.Collect();
-         
+
             if (TheatreMode == null)
                 return;
             if (Settere != null || TheatreMode.isBakcloging || TheatreMode.m_theatre.skipping_flag)
@@ -758,6 +767,8 @@ namespace Shinengine.Surface
                     }
                 }
             }
+
+
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -768,9 +779,9 @@ namespace Shinengine.Surface
             }
             int count_isntnull = 0;
             Page target = null;
-            foreach (var i in new Page[]{ Title, BookMode ,TheatreMode, Settere, Sldata, ExtraPage })
+            foreach (var i in new Page[] { Title, BookMode, TheatreMode, Settere, Sldata, ExtraPage })
             {
-                if (i != null) { 
+                if (i != null) {
                     count_isntnull++;
                     target = i;
                 }
@@ -785,9 +796,9 @@ namespace Shinengine.Surface
             }
 
             Size2 new_size = new Size2();
-            RECT m_rect=new RECT();
+            RECT m_rect = new RECT();
             GetClientRect(new WindowInteropHelper(this).Handle, out m_rect);
-            if((double)m_rect.Right/ (double)m_rect.Bottom < (16 / 9.0d))
+            if ((double)m_rect.Right / (double)m_rect.Bottom < (16 / 9.0d))
             {
                 new_size.Width = (int)m_rect.Right;
                 new_size.Height = (int)(m_rect.Right * (9 / 16.0d));
@@ -795,10 +806,10 @@ namespace Shinengine.Surface
                 sys_con_pite.Width = new_size.Width;
                 sys_con_pite.Height = new_size.Height;
 
-                sys_con_pite.Margin = new Thickness(0, m_rect.Bottom/2.0- sys_con_pite.Height  / 2.0, 0, 0);
+                sys_con_pite.Margin = new Thickness(0, m_rect.Bottom / 2.0 - sys_con_pite.Height / 2.0, 0, 0);
 
                 ResizeEvt(_BkGrid, new Size2((int)saveLoadingProcess.ActualWidth, (int)saveLoadingProcess.ActualHeight), new Size2(new_size.Width, new_size.Height));
-                saveLoadingProcess.Margin = new Thickness(0,m_rect.Bottom / 2.0 - saveLoadingProcess.Height / 2.0, 0, 0);
+                saveLoadingProcess.Margin = new Thickness(0, m_rect.Bottom / 2.0 - saveLoadingProcess.Height / 2.0, 0, 0);
             }
             else
             {
@@ -808,19 +819,19 @@ namespace Shinengine.Surface
                 sys_con_pite.Width = new_size.Width;
                 sys_con_pite.Height = new_size.Height;
 
-                sys_con_pite.Margin = new Thickness( m_rect.Right  / 2.0 - sys_con_pite.Width/2.0, 0, 0, 0);
+                sys_con_pite.Margin = new Thickness(m_rect.Right / 2.0 - sys_con_pite.Width / 2.0, 0, 0, 0);
 
-               ResizeEvt(_BkGrid, new Size2((int)saveLoadingProcess.ActualWidth, (int)saveLoadingProcess.ActualHeight), new Size2(new_size.Width, new_size.Height));
-               saveLoadingProcess.Margin = new Thickness(m_rect.Right / 2.0 - saveLoadingProcess.Width / 2.0, 0, 0, 0);
+                ResizeEvt(_BkGrid, new Size2((int)saveLoadingProcess.ActualWidth, (int)saveLoadingProcess.ActualHeight), new Size2(new_size.Width, new_size.Height));
+                saveLoadingProcess.Margin = new Thickness(m_rect.Right / 2.0 - saveLoadingProcess.Width / 2.0, 0, 0, 0);
             }
 
-           
+
             if (target is Title)
             {
                 var _target = target as Title;
                 ResizeEvt((target as Title).BkGrid, new Size2((int)_target.BkGrid.ActualWidth, (int)_target.BkGrid.ActualHeight), new Size2(new_size.Width, new_size.Height));
             }
-            else if(target is GamingBook)
+            else if (target is GamingBook)
             {
                 var _target = target as GamingBook;
                 ResizeEvt((target as GamingBook).Page, new Size2((int)_target.Page.ActualWidth, (int)_target.Page.ActualHeight), new Size2(new_size.Width, new_size.Height));
@@ -848,7 +859,158 @@ namespace Shinengine.Surface
         }
 
         [DllImport("user32")]
-        public static extern bool GetClientRect(  IntPtr hwnd, out RECT lpRect );
+        public static extern bool GetClientRect(IntPtr hwnd, out RECT lpRect);
         public struct RECT { public uint Left; public uint Top; public uint Right; public uint Bottom; }
+        private enum CommandHead
+        {
+            stage
+        }
+        private struct CommandOption
+        {
+            public string option;
+            public string info;
+        }
+        private struct Commandinfo
+        {
+            public CommandHead id;
+            public List<CommandOption> options;
+            public Commandinfo(CommandHead id)
+            {
+                this.id = id;
+                options = new List<CommandOption>();
+            }
+            public bool FindOption(string os , ref string info)
+            {
+                foreach (var i in options)
+                {
+                    if (i.option == os)
+                    {
+                        info = i.info;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+        private void command_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+                return;
+            List<string> command_discriptions = new List<string>();
+            string loc_pts = "";
+
+            string cmd = command.Text;
+            command.Text = "";
+
+            bool in_ref = false;
+            foreach (var i in cmd)
+            {
+                if(i == '\"' && !in_ref)
+                {
+                    in_ref = true;
+                    continue;
+                }
+                if (i == '\"' && in_ref)
+                {
+                    command_discriptions.Add(new string(loc_pts));
+                    loc_pts = "";
+                    in_ref = false;
+                    continue;
+                }
+                if (i == ' ' && !in_ref && loc_pts != "")
+                {
+                    command_discriptions.Add(new string(loc_pts));
+                    loc_pts = "";
+                    continue;
+                }
+                loc_pts += i;
+            }
+            if (loc_pts != "")
+                command_discriptions.Add(new string(loc_pts));
+            //////////////////////////////////////////////////////////
+            CommandHead head = 0;
+            switch (command_discriptions[0])
+            {
+                case "stage":
+                    head = CommandHead.stage;
+                    break;
+                default:
+                    goto end;
+            }
+            var ths_command = new Commandinfo(head);
+            command_discriptions.RemoveAt(0);
+
+            for (int i = 0; i < command_discriptions.Count; i++)
+            {
+                if (command_discriptions[i][0] == '-')
+                {
+                    var local_info = new CommandOption() { option = command_discriptions[i] };
+                    if ((i + 1) < command_discriptions.Count && command_discriptions[i + 1][0] != '-')
+                    {
+                        local_info.info = command_discriptions[i + 1];
+                        i++;
+                    }
+                    ths_command.options.Add(local_info);
+                }
+            }
+
+            switch (ths_command.id)
+            {
+                case CommandHead.stage:
+                    if (TheatreMode == null)
+                    {
+                        ShineToast.Toast("this command can only be used in theatre mode (try to enter the game with theatre)", 5, new Point(this.Left + 50, this.Top + this.Height - 50));
+                        return;
+                    }
+                    string info = "";
+                    string lbt = "";
+                    if (ths_command.FindOption("-set", ref info))
+                    {
+                        if(ths_command.FindOption("-assets", ref info))
+                        {
+                            try
+                            {
+                                if (ths_command.FindOption("-i", ref lbt))
+                                    TheatreMode.m_theatre.Stage.SetAsImage(info, null, true);
+                                else if (ths_command.FindOption("-v", ref lbt))
+                                    TheatreMode.m_theatre.Stage.SetAsVideo(info, null, true);
+                            }
+                            catch(Exception es)
+                            {
+                                ShineToast.Toast("error :" + es.ToString(), 5, new Point(this.Left + 50, this.Top + this.Height - 50));
+                                return;
+                            }
+                            return;
+                        }
+                        else
+                        {
+                            ShineToast.Toast("missing option : -assets", 5, new Point(this.Left + 50, this.Top + this.Height - 50));
+                            return;
+                        }
+                    }
+                    return;
+                default:
+                    goto end;
+            }
+            end:
+            ShineToast.Toast("Undefined command (check what you inputted)", 2, new Point(this.Left + 50, this.Top + this.Height - 50));
+        }
+
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void console_part_MouseEnter(object sender, MouseEventArgs e)
+        {
+           
+            EasyAmal m_show = new EasyAmal(console_part, "(Opacity)", console_part.Opacity, 1, 0.5);
+            m_show.Start(true);
+        }
+
+        private void console_part_MouseLeave(object sender, MouseEventArgs e)
+        {
+            EasyAmal m_hide = new EasyAmal(console_part, "(Opacity)", console_part.Opacity, 0, 0.5);
+            m_hide.Start(true);
+        }
     }
 }

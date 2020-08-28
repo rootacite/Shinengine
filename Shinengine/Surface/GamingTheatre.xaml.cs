@@ -26,6 +26,7 @@ using D2DBitmap = SharpDX.Direct2D1.Bitmap1;
 using Image = System.Windows.Controls.Image;
 using WICBitmap = SharpDX.WIC.Bitmap;
 using Shinengine.Theatre;
+using D2D;
 
 namespace Shinengine.Surface
 {

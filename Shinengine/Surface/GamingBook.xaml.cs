@@ -26,6 +26,7 @@ using System.Windows.Media.Animation;
 using System.Linq;
 using System.Diagnostics;
 using Shinengine.Theatre;
+using D2D;
 
 namespace Shinengine.Surface
 {

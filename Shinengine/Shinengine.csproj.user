@@ -24,6 +24,9 @@
     <Compile Update="Surface\Setting.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Surface\ShineToast.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Surface\Title.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -48,6 +51,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Surface\Setting.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Surface\ShineToast.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Surface\Title.xaml">
